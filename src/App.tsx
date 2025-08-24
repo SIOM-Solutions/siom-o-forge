@@ -8,6 +8,7 @@ import AirLandingPage from './pages/air/AirLandingPage'
 import AirAssignmentsPage from './pages/air/AirAssignmentsPage'
 import AirAssignmentDetailPage from './pages/air/AirAssignmentDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedLayout from './components/ProtectedLayout'
 import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
@@ -23,30 +24,13 @@ function App() {
             {/* Login público */}
             <Route path="/auth/login" element={<LoginPage />} />
             
-            {/* Rutas protegidas */}
-            <Route path="/hub" element={
-              <ProtectedRoute>
-                <HubPage />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/air" element={
-              <ProtectedRoute requiredAccess="air">
-                <AirLandingPage />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/air/assignments" element={
-              <ProtectedRoute requiredAccess="air">
-                <AirAssignmentsPage />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/air/assignments/:slug" element={
-              <ProtectedRoute requiredAccess="air">
-                <AirAssignmentDetailPage />
-              </ProtectedRoute>
-            } />
+            {/* Rutas protegidas con layout */}
+            <Route element={<ProtectedLayout />}>
+              <Route path="/hub" element={<HubPage />} />
+              <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
+              <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
+              <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />
+            </Route>
 
             {/* 404 */}
             <Route path="*" element={<NotFoundPage />} />
