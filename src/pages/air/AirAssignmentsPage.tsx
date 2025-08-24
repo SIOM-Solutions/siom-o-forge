@@ -29,12 +29,26 @@ export default function AirAssignmentsPage() {
     return () => { cancelled = true }
   }, [user?.id])
 
+  // Excluir PSITAC del grid de AIR (se gestiona aparte)
+  const airItems = useMemo(() => items.filter(i => i.materia.slug !== 'PSITAC'), [items])
+
+  // Ordenar por número extraído del slug: M1_..., M2_..., etc.
+  const parsedAndSorted = useMemo(() => {
+    const withOrdinal = airItems.map((i) => {
+      const match = i.materia.slug.match(/^M(\d+)_/)
+      const ordinal = match ? parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER
+      return { ...i, _ordinal: ordinal }
+    })
+    withOrdinal.sort((a, b) => a._ordinal - b._ordinal)
+    return withOrdinal
+  }, [airItems])
+
   const progress = useMemo(() => {
-    const totalAssigned = items.filter(i => !!i.assignment).length
-    const completed = items.filter(i => i.assignment?.status === 'sent').length
+    const totalAssigned = parsedAndSorted.filter(i => !!i.assignment).length
+    const completed = parsedAndSorted.filter(i => i.assignment?.status === 'sent').length
     const percent = totalAssigned > 0 ? Math.round((completed / totalAssigned) * 100) : 0
     return { completed, totalAssigned, percent }
-  }, [items])
+  }, [parsedAndSorted])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -113,8 +127,9 @@ export default function AirAssignmentsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map(({ materia, assignment }) => {
+          {parsedAndSorted.map(({ materia, assignment, _ordinal }, idx) => {
             const status = assignment ? (assignment.status === 'sent' ? 'completed' : 'assigned') : 'blocked'
+            const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
             return (
             <div
               key={materia.id}
@@ -127,7 +142,7 @@ export default function AirAssignmentsPage() {
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">{materia.id}</span>
+                  <span className="text-white font-bold text-sm">{badge}</span>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(status)}`}>
                   {getStatusText(status)}
@@ -135,7 +150,7 @@ export default function AirAssignmentsPage() {
               </div>
 
               <h3 className="text-lg font-semibold text-white mb-2">{materia.name}</h3>
-              <p className="text-gray-400 text-sm mb-4">Materia {materia.id}</p>
+              <p className="text-gray-400 text-sm mb-4">Materia {badge}</p>
 
               {status === 'assigned' && (
                 <button className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
