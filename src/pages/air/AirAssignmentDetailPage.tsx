@@ -84,7 +84,8 @@ export default function AirAssignmentDetailPage() {
                   <span className="text-gray-300">Evaluación personalizada</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-gray-300">Análisis de patrones actuales</span>
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                  <span className="text-gray-300">Análisis de patrones actuales</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
