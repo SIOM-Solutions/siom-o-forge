@@ -1,34 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+
+import { AuthProvider } from './contexts/AuthContext'
+import LoginPage from './pages/auth/LoginPage'
+import HubPage from './pages/HubPage'
+import AirLandingPage from './pages/air/AirLandingPage'
+import AirAssignmentsPage from './pages/air/AirAssignmentsPage'
+import AirAssignmentDetailPage from './pages/air/AirAssignmentDetailPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen bg-gray-950 text-gray-100">
+          <Routes>
+            {/* Ruta raíz redirige a login */}
+            <Route path="/" element={<Navigate to="/auth/login" replace />} />
+            
+            {/* Login público */}
+            <Route path="/auth/login" element={<LoginPage />} />
+            
+            {/* Rutas protegidas */}
+            <Route path="/hub" element={
+              <ProtectedRoute>
+                <HubPage />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/air" element={
+              <ProtectedRoute>
+                <AirLandingPage />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/air/assignments" element={
+              <ProtectedRoute>
+                <AirAssignmentsPage />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/air/assignments/:slug" element={
+              <ProtectedRoute>
+                <AirAssignmentDetailPage />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   )
 }
 
