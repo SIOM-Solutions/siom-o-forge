@@ -10,7 +10,7 @@ export async function fetchAllMaterias(): Promise<AirMateria[]> {
   const { data, error } = await supabase
     .from('air_materia')
     .select('*')
-    .order('position', { ascending: true })
+    .order('id', { ascending: true })
 
   if (error) throw error
   return (data ?? []) as AirMateria[]

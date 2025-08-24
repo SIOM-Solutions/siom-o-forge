@@ -15,7 +15,7 @@ export default function ProtectedLayout() {
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-950 text-gray-100">
         <header className="sticky top-0 z-40 border-b border-gray-800 bg-gray-950/80 backdrop-blur">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button onClick={() => navigate('/hub')} className="text-white font-semibold text-lg">
                 O-Forge
@@ -33,7 +33,7 @@ export default function ProtectedLayout() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 py-6">
+        <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8 min-h-[calc(100vh-4rem)]">
           <Outlet />
         </main>
       </div>
