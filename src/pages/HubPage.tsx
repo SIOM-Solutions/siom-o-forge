@@ -1,9 +1,11 @@
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { useAccess } from '../contexts/AccessContext'
 
 export default function HubPage() {
   const { signOut } = useAuth()
   const navigate = useNavigate()
+  const { access, loading: accessLoading } = useAccess()
 
   const modules = [
     {
@@ -12,7 +14,7 @@ export default function HubPage() {
       description: 'Auditoría Inicial de Rendimiento',
       color: 'from-emerald-500 to-emerald-600',
       href: '/air',
-      active: true
+      active: accessLoading ? false : Boolean(access?.air)
     },
     {
       id: 'performance',
@@ -20,7 +22,7 @@ export default function HubPage() {
       description: 'Optimización de Rendimiento',
       color: 'from-cyan-500 to-cyan-600',
       href: '#',
-      active: false
+      active: accessLoading ? false : Boolean(access?.forge_performance)
     },
     {
       id: 'psitac',
@@ -28,7 +30,7 @@ export default function HubPage() {
       description: 'Protocolo de Seguridad',
       color: 'from-amber-500 to-amber-600',
       href: '#',
-      active: false
+      active: accessLoading ? false : Boolean(access?.psitac)
     },
     {
       id: 'ops',
@@ -36,7 +38,7 @@ export default function HubPage() {
       description: 'Operaciones y Mantenimiento',
       color: 'from-red-500 to-red-600',
       href: '#',
-      active: false
+      active: accessLoading ? false : Boolean(access?.forge_ops)
     }
   ]
 

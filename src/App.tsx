@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 
 import { AuthProvider } from './contexts/AuthContext'
+import { AccessProvider } from './contexts/AccessContext'
 import LoginPage from './pages/auth/LoginPage'
 import HubPage from './pages/HubPage'
 import AirLandingPage from './pages/air/AirLandingPage'
@@ -12,6 +13,7 @@ import NotFoundPage from './pages/NotFoundPage'
 function App() {
   return (
     <AuthProvider>
+      <AccessProvider>
       <Router>
         <div className="min-h-screen bg-gray-950 text-gray-100">
           <Routes>
@@ -29,19 +31,19 @@ function App() {
             } />
             
             <Route path="/air" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredAccess="air">
                 <AirLandingPage />
               </ProtectedRoute>
             } />
             
             <Route path="/air/assignments" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredAccess="air">
                 <AirAssignmentsPage />
               </ProtectedRoute>
             } />
             
             <Route path="/air/assignments/:slug" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredAccess="air">
                 <AirAssignmentDetailPage />
               </ProtectedRoute>
             } />
@@ -51,6 +53,7 @@ function App() {
           </Routes>
         </div>
       </Router>
+      </AccessProvider>
     </AuthProvider>
   )
 }
