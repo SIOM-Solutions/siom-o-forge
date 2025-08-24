@@ -48,8 +48,8 @@ export default function HubPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div>
+      <div>
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white">O-Forge</h1>

@@ -4,7 +4,7 @@ export default function AirLandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gray-950 p-6">
+    <div>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">Auditoría Inicial de Rendimiento</h1>

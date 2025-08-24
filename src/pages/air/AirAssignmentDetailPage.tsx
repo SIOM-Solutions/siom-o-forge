@@ -57,7 +57,7 @@ export default function AirAssignmentDetailPage() {
 
   if (assignment && assignment.status === 'sent') {
     return (
-      <div className="min-h-screen bg-gray-950 p-6">
+      <div>
         <div className="max-w-4xl mx-auto text-center">
           <div className="bg-emerald-900/20 border border-emerald-800 rounded-2xl p-8 mb-6">
             <div className="w-20 h-20 bg-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -85,7 +85,7 @@ export default function AirAssignmentDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 p-6 flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
           <p className="text-gray-400">Cargando auditoría...</p>
@@ -96,7 +96,7 @@ export default function AirAssignmentDetailPage() {
 
   if (error || !materia) {
     return (
-      <div className="min-h-screen bg-gray-950 p-6 flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <div className="bg-red-900/20 border border-red-800 rounded-xl p-6 max-w-lg text-center">
           <p className="text-red-300 mb-4">{error ?? 'No se pudo cargar la materia'}</p>
           <button onClick={() => navigate('/air/assignments')} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg">Volver</button>
@@ -106,7 +106,7 @@ export default function AirAssignmentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 p-6">
+    <div>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">

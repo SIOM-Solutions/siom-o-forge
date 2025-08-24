@@ -8,7 +8,7 @@ export interface UserMateriaAssignment {
 
 export async function fetchAllMaterias(): Promise<AirMateria[]> {
   const { data, error } = await supabase
-    .from('air_materias')
+    .from('air_materia')
     .select('*')
     .order('position', { ascending: true })
 
@@ -18,7 +18,7 @@ export async function fetchAllMaterias(): Promise<AirMateria[]> {
 
 export async function fetchUserAssignments(userId: string): Promise<AirAssignment[]> {
   const { data, error } = await supabase
-    .from('air_assignments')
+    .from('air_assignment')
     .select('*')
     .eq('user_id', userId)
 
@@ -43,7 +43,7 @@ export async function fetchMateriasWithUserAssignments(userId: string): Promise<
 
 export async function fetchMateriaBySlug(slug: string): Promise<AirMateria | null> {
   const { data, error } = await supabase
-    .from('air_materias')
+    .from('air_materia')
     .select('*')
     .eq('slug', slug)
     .maybeSingle()
@@ -54,7 +54,7 @@ export async function fetchMateriaBySlug(slug: string): Promise<AirMateria | nul
 
 export async function fetchAssignmentForUserAndMateria(userId: string, materiaId: number): Promise<AirAssignment | null> {
   const { data, error } = await supabase
-    .from('air_assignments')
+    .from('air_assignment')
     .select('*')
     .eq('user_id', userId)
     .eq('materia_id', materiaId)
@@ -66,7 +66,7 @@ export async function fetchAssignmentForUserAndMateria(userId: string, materiaId
 
 export async function markAssignmentAsSent(assignmentId: number): Promise<void> {
   const { error } = await supabase
-    .from('air_assignments')
+    .from('air_assignment')
     .update({ status: 'sent', sent_at: new Date().toISOString() })
     .eq('id', assignmentId)
 
