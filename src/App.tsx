@@ -7,6 +7,7 @@ import AirLandingPage from './pages/air/AirLandingPage'
 import AirAssignmentsPage from './pages/air/AirAssignmentsPage'
 import AirAssignmentDetailPage from './pages/air/AirAssignmentDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
   return (
@@ -44,6 +45,9 @@ function App() {
                 <AirAssignmentDetailPage />
               </ProtectedRoute>
             } />
+
+            {/* 404 */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
       </Router>
