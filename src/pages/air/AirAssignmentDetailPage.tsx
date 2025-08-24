@@ -9,7 +9,7 @@ export default function AirAssignmentDetailPage() {
 
   const materia = {
     id: 1,
-    slug: 'm1-sueno',
+    slug: slug || 'm1-sueno',
     name: 'M1: Recuperación Estratégica de Élite',
     description: 'Optimización del sueño y recuperación para máximo rendimiento',
     objective: 'Identificar patrones de sueño y recuperación para optimizar tu rendimiento diario',
@@ -84,8 +84,7 @@ export default function AirAssignmentDetailPage() {
                   <span className="text-gray-300">Evaluación personalizada</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                  <span className="text-gray-300">Análisis de patrones actuales</span>
+                  <div className="text-gray-300">Análisis de patrones actuales</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
