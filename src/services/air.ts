@@ -6,24 +6,57 @@ export interface UserMateriaAssignment {
   assignment?: AirAssignment
 }
 
+type DbMateriaRow = {
+  id: number
+  slug: string
+  nombre: string
+  typeform_form_id: string | null
+  activo: boolean
+}
+
+type DbAssignmentRow = {
+  id: number
+  user_id: string
+  materia_id: number
+  status: string
+  created_at?: string
+  sent_at?: string | null
+}
+
 export async function fetchAllMaterias(): Promise<AirMateria[]> {
   const { data, error } = await supabase
     .from('air_materia')
-    .select('*')
+    .select('id, slug, nombre, typeform_form_id, activo')
+    .eq('activo', true)
     .order('id', { ascending: true })
 
   if (error) throw error
-  return (data ?? []) as AirMateria[]
+  const rows = (data ?? []) as DbMateriaRow[]
+  return rows.map((m) => ({
+    id: m.id,
+    slug: m.slug,
+    name: m.nombre,
+    position: 0,
+    typeform_id: m.typeform_form_id ?? ''
+  }))
 }
 
 export async function fetchUserAssignments(userId: string): Promise<AirAssignment[]> {
   const { data, error } = await supabase
     .from('air_assignment')
-    .select('*')
+    .select('id, user_id, materia_id, status, sent_at, created_at')
     .eq('user_id', userId)
 
   if (error) throw error
-  return (data ?? []) as AirAssignment[]
+  const rows = (data ?? []) as DbAssignmentRow[]
+  return rows.map((a) => ({
+    id: a.id,
+    user_id: a.user_id,
+    materia_id: a.materia_id,
+    lang: 'es',
+    status: a.status?.toLowerCase() === 'sent' ? 'sent' : 'pending',
+    sent_at: a.sent_at ?? undefined,
+  }))
 }
 
 export async function fetchMateriasWithUserAssignments(userId: string): Promise<UserMateriaAssignment[]> {
@@ -44,24 +77,41 @@ export async function fetchMateriasWithUserAssignments(userId: string): Promise<
 export async function fetchMateriaBySlug(slug: string): Promise<AirMateria | null> {
   const { data, error } = await supabase
     .from('air_materia')
-    .select('*')
+    .select('id, slug, nombre, typeform_form_id, activo')
     .eq('slug', slug)
     .maybeSingle()
 
   if (error) throw error
-  return (data ?? null) as AirMateria | null
+  if (!data) return null
+  const m = data as DbMateriaRow
+  return {
+    id: m.id,
+    slug: m.slug,
+    name: m.nombre,
+    position: 0,
+    typeform_id: m.typeform_form_id ?? ''
+  }
 }
 
 export async function fetchAssignmentForUserAndMateria(userId: string, materiaId: number): Promise<AirAssignment | null> {
   const { data, error } = await supabase
     .from('air_assignment')
-    .select('*')
+    .select('id, user_id, materia_id, status, sent_at, created_at')
     .eq('user_id', userId)
     .eq('materia_id', materiaId)
     .maybeSingle()
 
   if (error) throw error
-  return (data ?? null) as AirAssignment | null
+  if (!data) return null
+  const a = data as DbAssignmentRow
+  return {
+    id: a.id,
+    user_id: a.user_id,
+    materia_id: a.materia_id,
+    lang: 'es',
+    status: a.status?.toLowerCase() === 'sent' ? 'sent' : 'pending',
+    sent_at: a.sent_at ?? undefined,
+  }
 }
 
 export async function markAssignmentAsSent(assignmentId: number): Promise<void> {
