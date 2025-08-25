@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { fetchAllMaterias, fetchUserAssignments, type AirAssignment, type AirMateria } from '../../services/air'
+import { fetchAllMaterias, fetchUserAssignments } from '../../services/air'
+import type { AirAssignment, AirMateria } from '../../lib/supabase'
 
 export default function AirAssignmentsPage() {
   const navigate = useNavigate()
