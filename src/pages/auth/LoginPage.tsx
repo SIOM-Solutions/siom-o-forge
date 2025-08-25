@@ -37,7 +37,7 @@ export default function LoginPage() {
       <TechBackground />
       <div className="relative z-10 max-w-7xl mx-auto min-h-screen grid md:grid-cols-2 gap-8 items-center place-items-center p-6">
         <div className="hidden md:block justify-self-start text-center">
-          <img src="/brand/siom-logo.svg" alt="Logo O‑Forge de SIOM Solutions" className="w-56 opacity-90 mb-6 logo-hero animate-float mx-auto" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/brand/logo.svg' }} />
+          <img src="/brand/Pruebas%20Dise%C3%B1o%20Siom%20Solutions.pdf%20(2).png" alt="Logo O‑Forge de SIOM Solutions" className="w-56 opacity-90 mb-6 logo-hero animate-float mx-auto" />
           <h1 className="text-4xl font-bold text-white mb-2">O‑Forge</h1>
           <p className="text-gray-400 max-w-md mx-auto">El ecosistema de inteligencia híbrida de élite de SIOM Solutions</p>
         </div>
