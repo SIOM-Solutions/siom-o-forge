@@ -60,18 +60,53 @@ export async function fetchUserAssignments(userId: string): Promise<AirAssignmen
 }
 
 export async function fetchMateriasWithUserAssignments(userId: string): Promise<UserMateriaAssignment[]> {
-  const [materias, assignments] = await Promise.all([
-    fetchAllMaterias(),
-    fetchUserAssignments(userId),
-  ])
+  // Intentar join directo si existe FK air_assignment.materia_id → air_materia.id
+  try {
+    const { data, error } = await supabase
+      .from('air_assignment')
+      .select('id, user_id, materia_id, status, sent_at, air_materia(id, slug, nombre, typeform_form_id, activo)')
+      .eq('user_id', userId)
 
-  const assignmentsByMateriaId = new Map<number, AirAssignment>()
-  for (const a of assignments) assignmentsByMateriaId.set(a.materia_id, a)
+    if (error) throw error
+    const rows = (data ?? []) as Array<DbAssignmentRow & { air_materia: DbMateriaRow | null }>
+    // Mapear solo asignadas (con materia activa y no PSITAC)
+    return rows
+      .filter((r) => r.air_materia && r.air_materia.activo && r.air_materia.slug !== 'PSITAC')
+      .map((r) => ({
+        materia: {
+          id: r.air_materia!.id,
+          slug: r.air_materia!.slug,
+          name: r.air_materia!.nombre,
+          position: 0,
+          typeform_id: r.air_materia!.typeform_form_id ?? ''
+        },
+        assignment: {
+          id: r.id,
+          user_id: userId,
+          materia_id: r.materia_id,
+          lang: 'es',
+          status: (r.status?.toLowerCase?.() === 'sent' ? 'sent' : 'pending') as 'pending' | 'sent',
+          sent_at: r.sent_at ?? undefined,
+        }
+      }))
+  } catch (_e) {
+    // Fallback a 2 pasos si el join no está disponible
+    const [materias, assignments] = await Promise.all([
+      fetchAllMaterias(),
+      fetchUserAssignments(userId),
+    ])
 
-  return materias.map((m) => ({
-    materia: m,
-    assignment: assignmentsByMateriaId.get(m.id),
-  }))
+    const assignmentsByMateriaId = new Map<number, AirAssignment>()
+    for (const a of assignments) assignmentsByMateriaId.set(a.materia_id, a)
+
+    return materias
+      .filter((m) => m.slug !== 'PSITAC')
+      .map((m) => ({
+        materia: m,
+        assignment: assignmentsByMateriaId.get(m.id),
+      }))
+      .filter((x) => !!x.assignment)
+  }
 }
 
 export async function fetchMateriaBySlug(slug: string): Promise<AirMateria | null> {
