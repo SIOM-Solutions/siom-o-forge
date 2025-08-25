@@ -35,14 +35,14 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen bg-gray-950">
       <TechBackground />
-      <div className="relative z-10 max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-center p-6">
-        <div className="hidden md:block">
+      <div className="relative z-10 max-w-7xl mx-auto min-h-screen grid md:grid-cols-2 gap-8 items-center place-items-center p-6">
+        <div className="hidden md:block justify-self-start">
           <img src="/brand/logo.svg" alt="Logo O‑Forge de SIOM Solutions" className="w-56 opacity-90 mb-6" />
           <h1 className="text-4xl font-bold text-white mb-2">O‑Forge</h1>
-          <p className="text-gray-400 max-w-md">Arquitectura de rendimiento de élite</p>
+          <p className="text-gray-400 max-w-md">El ecosistema de inteligencia híbrida de élite de SIOM Solutions</p>
         </div>
 
-        <div className="w-full max-w-md md:ml-auto">
+        <div className="w-full max-w-md md:ml-auto justify-self-end">
           <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold text-white mb-2">Acceso</h2>
