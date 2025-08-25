@@ -51,6 +51,16 @@
     50% { opacity: 0.18; }
     100% { opacity: 0.08; }
   }
+
+  /* animación del logo/hero */
+  .logo-hero { filter: drop-shadow(0 0 20px color-mix(in oklab, var(--mod-air) 25%, transparent)); }
+  @keyframes float-y {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .animate-float {
+    animation: float-y 6s ease-in-out infinite;
+  }
   .btn {
     @apply inline-flex items-center justify-center font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:opacity-60 disabled:cursor-not-allowed;
     min-height: 2.5rem;
