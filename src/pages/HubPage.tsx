@@ -55,20 +55,7 @@ export default function HubPage() {
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto mb-10">
-          <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center">
-            <h2 className="text-2xl font-semibold text-white mb-3">Bienvenido a <span className="text-cyan-400">O‑Forge</span></h2>
-            <p className="text-gray-300 text-lg leading-relaxed">
-              Has accedido al Ecosistema de Inteligencia Híbrida de Élite de SIOM Solutions: una plataforma digital que integra neurociencia, fisiología, IA híbrida aplicada y doctrina de operaciones especiales para elevar tu rendimiento al siguiente nivel.
-            </p>
-            <button
-              onClick={() => document.getElementById('modules-grid')?.scrollIntoView({ behavior: 'smooth' })}
-              className="mt-6 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg transition-colors duration-200"
-            >
-              ACCEDER AL CENTRO DE MANDO
-            </button>
-          </div>
-        </div>
+        {/* Tarjeta de bienvenida movida a /welcome */}
 
         <div id="modules-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {modules.map((module) => (

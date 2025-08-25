@@ -1,14 +1,20 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import TechBackground from './TechBackground'
 
 export default function WelcomeScreen() {
   const navigate = useNavigate()
+  const [isLeaving, setIsLeaving] = useState(false)
 
   useEffect(() => {
     document.title = 'Bienvenido a O‑Forge | SIOM Solutions'
   }, [])
+
+  const handleContinue = () => {
+    setIsLeaving(true)
+    window.setTimeout(() => navigate('/hub'), 500)
+  }
 
   return (
     <div className="relative min-h-screen bg-gray-950">
@@ -16,15 +22,14 @@ export default function WelcomeScreen() {
       <div className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center p-8 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
+          animate={isLeaving ? { opacity: 0, scale: 0.98 } : { opacity: 1, scale: 1 }}
+          transition={{ duration: isLeaving ? 0.5 : 0.8, ease: 'easeOut' }}
           className="max-w-3xl"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+            animate={isLeaving ? { opacity: 0, y: -6 } : { opacity: 1, y: 0 }}
+            transition={{ duration: isLeaving ? 0.45 : 0.8, delay: isLeaving ? 0 : 0.2, ease: 'easeOut' }}
           >
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
               Bienvenido a <span className="text-cyan-400">O‑Forge</span>
@@ -38,7 +43,7 @@ export default function WelcomeScreen() {
               Ingeniería de precisión para decidir mejor y ejecutar más rápido.
             </p>
             <button
-              onClick={() => navigate('/hub')}
+              onClick={handleContinue}
               className="max-w-xs mx-auto px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg transition-colors duration-200"
             >
               ACCEDER AL CENTRO DE MANDO
