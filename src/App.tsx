@@ -15,6 +15,7 @@ import PsitacPartIPage from './pages/psitac/PsitacPartIPage'
 import PsitacPartIIPage from './pages/psitac/PsitacPartIIPage'
 import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
 import OpsLandingPage from './pages/ops/OpsLandingPage'
+import WelcomeScreen from './components/WelcomeScreen'
 
 function App() {
   return (
@@ -29,6 +30,9 @@ function App() {
             {/* Login público */}
             <Route path="/auth/login" element={<LoginPage />} />
             
+            {/* Pantalla de bienvenida tras login (protegida, sin layout superior) */}
+            <Route path="/welcome" element={<ProtectedRoute><WelcomeScreen /></ProtectedRoute>} />
+
             {/* Rutas protegidas con layout */}
             <Route element={<ProtectedLayout />}>
               <Route path="/hub" element={<HubPage />} />

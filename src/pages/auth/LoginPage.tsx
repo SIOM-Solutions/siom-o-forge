@@ -23,7 +23,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        navigate('/hub')
+        navigate('/welcome')
       }
     } catch (err: any) {
       setError('Error inesperado. Inténtalo de nuevo.')
