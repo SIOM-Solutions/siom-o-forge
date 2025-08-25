@@ -69,8 +69,9 @@ export default function HubPage() {
         </div>
 
         <div className="text-center mb-10">
-          <h2 className="text-2xl font-semibold text-white mb-2">Bienvenido a la Forja</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Selecciona una división para continuar.</p>
+          <h2 className="text-2xl font-semibold text-white mb-2">Bienvenido a O‑Forge</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">Has accedido a la plataforma de inteligencia híbrida de SIOM Solutions. O‑Forge es una forja de rendimiento con cuatro divisiones clave. Podrás diagnosticar tu nivel, potenciar tus capacidades y operar en tiempo real con expertos de inteligencia híbrida.</p>
+          <p className="text-gray-300 mt-2">No es formación: es ingeniería de precisión aplicada a tu rendimiento.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
