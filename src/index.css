@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand: #22c55e;
+  --color-brand-600: #16a34a;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:opacity-60 disabled:cursor-not-allowed;
+    min-height: 2.5rem;
+    padding-inline: 1rem;
+  }
+  .btn-sm { @apply text-sm min-h-0 py-1 px-2; }
+  .btn-lg { @apply text-base min-h-[3rem] px-5; }
+  .btn-primary { @apply bg-brand hover:bg-[color:var(--color-brand-600)] text-white; }
+  .btn-secondary { @apply bg-gray-800 hover:bg-gray-700 text-gray-100; }
+  .btn-ghost { @apply bg-transparent hover:bg-gray-800/50 text-gray-200; }
+  .btn-danger { @apply bg-red-600 hover:bg-red-700 text-white; }
+
+  .card { @apply bg-gray-900 border border-gray-800 rounded-2xl shadow-sm; }
+  .card-hover { @apply transition-transform duration-300 hover:scale-[1.01] hover:border-gray-700; }
+
+  .badge { @apply inline-flex items-center text-xs px-2 py-1 rounded-full border; }
+  .badge-active { @apply bg-emerald-900/20 text-emerald-400 border-emerald-800; }
+  .badge-blocked { @apply bg-gray-800 text-gray-500 border-gray-700; }
+  .badge-info { @apply bg-blue-900/20 text-blue-300 border-blue-800; }
+
+  .banner { @apply rounded-xl p-4 border; }
+  .banner-success { @apply bg-emerald-900/15 border-emerald-800 text-emerald-300; }
+  .banner-error { @apply bg-red-900/15 border-red-800 text-red-300; }
+  .banner-info { @apply bg-blue-900/15 border-blue-800 text-blue-300; }
+  .banner-warn { @apply bg-amber-900/15 border-amber-800 text-amber-300; }
+}
