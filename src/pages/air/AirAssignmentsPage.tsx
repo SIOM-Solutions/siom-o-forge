@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { fetchMateriasWithUserAssignments, type UserMateriaAssignment } from '../../services/air'
+import { fetchAllMaterias, fetchUserAssignments, type AirAssignment, type AirMateria } from '../../services/air'
 
 export default function AirAssignmentsPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [items, setItems] = useState<UserMateriaAssignment[]>([])
+  const [materias, setMaterias] = useState<AirMateria[]>([])
+  const [assignments, setAssignments] = useState<AirAssignment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -17,8 +18,15 @@ export default function AirAssignmentsPage() {
       setLoading(true)
       setError(null)
       try {
-        const data = await fetchMateriasWithUserAssignments(user.id)
-        if (!cancelled) setItems(data)
+        const [allMats, userAssigns] = await Promise.all([
+          fetchAllMaterias(),
+          fetchUserAssignments(user.id),
+        ])
+        if (!cancelled) {
+          // Excluir PSITAC del grid de SystemAIR
+          setMaterias(allMats.filter(m => m.slug !== 'PSITAC'))
+          setAssignments(userAssigns)
+        }
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? 'Error cargando materias')
       } finally {
@@ -29,29 +37,33 @@ export default function AirAssignmentsPage() {
     return () => { cancelled = true }
   }, [user?.id])
 
-  // Excluir PSITAC del grid de AIR (se gestiona aparte)
-  const airItems = useMemo(() => items.filter(i => i.materia.slug !== 'PSITAC'), [items])
+  // Mapeos y orden
+  const assignsByMateriaId = useMemo(() => {
+    const map = new Map<number, AirAssignment>()
+    assignments.forEach(a => map.set(a.materia_id, a))
+    return map
+  }, [assignments])
 
-  // Ordenar por número extraído del slug: M1_..., M2_..., etc.
-  const parsedAndSorted = useMemo(() => {
-    const withOrdinal = airItems.map((i) => {
-      const match = i.materia.slug.match(/^M(\d+)_/)
+  const parsedAndSortedAll = useMemo(() => {
+    const list = materias.map((m) => {
+      const match = m.slug.match(/^M(\d+)_/)
       const ordinal = match ? parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER
-      return { ...i, _ordinal: ordinal }
+      const assignment = assignsByMateriaId.get(m.id)
+      return { materia: m, assignment, _ordinal: ordinal }
     })
-    withOrdinal.sort((a, b) => a._ordinal - b._ordinal)
-    return withOrdinal
-  }, [airItems])
+    list.sort((a, b) => a._ordinal - b._ordinal)
+    return list
+  }, [materias, assignsByMateriaId])
 
   const progress = useMemo(() => {
-    const totalAssigned = parsedAndSorted.filter(i => !!i.assignment).length
-    const completed = parsedAndSorted.filter(i => i.assignment?.status === 'sent').length
+    const totalAssigned = parsedAndSortedAll.filter(i => !!i.assignment).length
+    const completed = parsedAndSortedAll.filter(i => i.assignment?.status === 'sent').length
     const percent = totalAssigned > 0 ? Math.round((completed / totalAssigned) * 100) : 0
     return { completed, totalAssigned, percent }
-  }, [parsedAndSorted])
+  }, [parsedAndSortedAll])
 
-  // Mostrar solo las materias realmente asignadas (o completadas) al usuario
-  const visibleItems = useMemo(() => parsedAndSorted.filter(i => !!i.assignment), [parsedAndSorted])
+  const assignedItems = useMemo(() => parsedAndSortedAll.filter(i => !!i.assignment), [parsedAndSortedAll])
+  const lockedItems = useMemo(() => parsedAndSortedAll.filter(i => !i.assignment), [parsedAndSortedAll])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -130,7 +142,7 @@ export default function AirAssignmentsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visibleItems.map(({ materia, assignment, _ordinal }, idx) => {
+          {assignedItems.map(({ materia, assignment, _ordinal }, idx) => {
             const status = assignment ? (assignment.status === 'sent' ? 'completed' : 'assigned') : 'blocked'
             const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
             return (
@@ -169,6 +181,30 @@ export default function AirAssignmentsPage() {
             </div>
           )})}
         </div>
+
+        {lockedItems.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-xl font-semibold text-white mb-4">Explora otras materias</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {lockedItems.map(({ materia, _ordinal }, idx) => {
+                const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
+                return (
+                  <div key={materia.id} className="bg-gray-900 rounded-xl p-6 border border-gray-800 opacity-60 cursor-not-allowed">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">{badge}</span>
+                      </div>
+                      <span className="text-xs px-2 py-1 rounded-full border bg-gray-800 text-gray-500 border-gray-700">Bloqueada</span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">{materia.name}</h3>
+                    <p className="text-gray-500 text-sm mb-4">Materia {badge}</p>
+                    <div className="text-center text-gray-500 text-sm">🔒 No asignada</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 text-center">
           <button
