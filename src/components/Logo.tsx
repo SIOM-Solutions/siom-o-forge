@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 const candidatesRaw = [
   '/brand/logo.png',
   '/brand/logo.svg',
+  '/brand/siom-logo.svg',
   '/brand/logo-azul.png',
   '/brand/logo-blue.png',
   '/brand/O-Forge.png',
