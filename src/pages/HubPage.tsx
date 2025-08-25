@@ -51,23 +51,26 @@ export default function HubPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white">O-Forge</h1>
-            <p className="text-gray-400">Centro de Operaciones SIOM</p>
+            <p className="text-gray-400">Ecosistema de inteligencia híbrida de élite. SIOM Solutions</p>
           </div>
         </div>
 
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-semibold text-white mb-2">Bienvenido a O‑Forge</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Has accedido al Centro de Operaciones de SIOM Solutions: una plataforma de inteligencia híbrida que integra neurociencia, fisiología, IA aplicada y doctrina de operaciones especiales para elevar tu rendimiento decisional y operativo.</p>
-          <p className="text-gray-300 mt-2 max-w-2xl mx-auto">Desde aquí orquestas cuatro divisiones: <span className="text-white">SystemAIR</span> (diagnóstico de base), <span className="text-white">SIOM PSITAC</span> (perfilamiento táctico), <span className="text-white">Performance</span> (entrenamiento de élite) y <span className="text-white">OPS</span> (ejecución asistida por IA). El acceso y el contenido se adaptan a tu perfil en Supabase en tiempo real.</p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Neurociencia</span>
-            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Fisiología</span>
-            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">IA Táctica</span>
-            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Operaciones Especiales</span>
+        <div className="max-w-3xl mx-auto mb-10">
+          <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center">
+            <h2 className="text-2xl font-semibold text-white mb-3">Bienvenido a <span className="text-cyan-400">O‑Forge</span></h2>
+            <p className="text-gray-300 text-lg leading-relaxed">
+              Has accedido al Ecosistema de Inteligencia Híbrida de Élite de SIOM Solutions: una plataforma digital que integra neurociencia, fisiología, IA híbrida aplicada y doctrina de operaciones especiales para elevar tu rendimiento al siguiente nivel.
+            </p>
+            <button
+              onClick={() => document.getElementById('modules-grid')?.scrollIntoView({ behavior: 'smooth' })}
+              className="mt-6 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg transition-colors duration-200"
+            >
+              ACCEDER AL CENTRO DE MANDO
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div id="modules-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {modules.map((module) => (
             <div
               key={module.id}

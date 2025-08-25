@@ -17,8 +17,8 @@ export default function AirLandingPage() {
               <h2 className="text-2xl font-semibold text-white mb-4">
                 ¿Qué es AIR?
               </h2>
-              <p className="text-gray-300 mb-4">SystemAIR es la Auditoría Inicial de Rendimiento en O‑Forge. Es el punto de entrada al ecosistema SIOM: establece tu línea base en 10 áreas críticas y revela qué palancas mover primero para obtener mejoras visibles con el menor esfuerzo.</p>
-              <p className="text-gray-300 mb-6">El resultado es un mapa de brechas y fortalezas con retorno medible, que alimenta tu Learning Path y las siguientes divisiones (PSITAC, Performance y OPS) para acelerar impacto sin fricción operativa.</p>
+              <p className="text-gray-300 mb-4">SystemAIR es la Auditoría Inicial de Rendimiento en O‑Forge. Es el punto de entrada al ecosistema SIOM: establece tu línea base en 10 áreas críticas y revela qué palancas mover primero para obtener mejoras visibles con el menor esfuerzo y tiempo posible.</p>
+              <p className="text-gray-300 mb-6">El resultado es un mapa de brechas y fortalezas con retorno medible, que alimenta tu Learning Path y las siguientes divisiones (PSITAC, Performance y OPS) para acelerar impacto sin fricción operativa. Con los resultados prepararemos tu Learning Path, forjaremos a tus instructores SIOM y podremos alimentar a tus asesores estratégicos. Es un paso crucial que permite perfilar con precisión sin igual tu viaje en SIOM O‑Forge.</p>
               <button
                 onClick={() => navigate('/air/assignments')}
                 className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors duration-200"
