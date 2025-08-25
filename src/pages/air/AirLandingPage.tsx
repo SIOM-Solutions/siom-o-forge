@@ -5,11 +5,11 @@ export default function AirLandingPage() {
 
   return (
     <div>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">Auditoría Inicial de Rendimiento</h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            El primer paso para optimizar tu rendimiento y alcanzar tu máximo potencial
+          <h1 className="text-4xl font-bold text-white mb-4">Auditoría Inicial de Rendimiento (AIR)</h1>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            Diagnóstico en 10 materias clave para diseñar tu Learning Path personalizado
           </p>
         </div>
 
@@ -20,9 +20,8 @@ export default function AirLandingPage() {
                 ¿Qué es AIR?
               </h2>
               <p className="text-gray-300 mb-6">
-                AIR es nuestro sistema de diagnóstico integral que evalúa tu rendimiento actual 
-                en 10 áreas clave para identificar oportunidades de mejora y crear un plan 
-                personalizado de desarrollo.
+                Evalúa tu rendimiento actual en 10 áreas clave para identificar oportunidades
+                de mejora y crear un plan personalizado de desarrollo.
               </p>
               <button
                 onClick={() => navigate('/air/assignments')}
@@ -32,8 +31,8 @@ export default function AirLandingPage() {
               </button>
             </div>
             <div className="text-center">
-              <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-4xl font-bold text-white">AIR</span>
+              <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg shadow-emerald-800/30">
+                <span className="text-4xl font-bold text-white tracking-wide">AIR</span>
               </div>
               <p className="text-gray-400 text-sm">Sistema de Diagnóstico</p>
             </div>

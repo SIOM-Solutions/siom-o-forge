@@ -17,6 +17,14 @@ export default function HubPage() {
       active: accessLoading ? false : Boolean(access?.air)
     },
     {
+      id: 'psitac',
+      title: 'PSITAC',
+      description: 'Test SIOM PsiTac',
+      color: 'from-amber-500 to-amber-600',
+      href: '/air/assignments?psitac=true',
+      active: accessLoading ? false : Boolean(access?.psitac)
+    },
+    {
       id: 'performance',
       title: 'Performance',
       description: 'Optimización de Rendimiento',
