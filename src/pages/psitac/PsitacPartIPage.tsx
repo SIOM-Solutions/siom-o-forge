@@ -22,8 +22,10 @@ export default function PsitacPartIPage() {
     const params = new URLSearchParams()
     if (user?.email) params.set('email', user.email)
     if (user?.id) params.set('user_id', user.id)
+    if (alias) params.set('alias', alias)
+    params.set('lang', 'es')
     return `${base}#${params.toString()}`
-  }, [user?.email, user?.id])
+  }, [user?.email, user?.id, alias])
 
   return (
     <div>
