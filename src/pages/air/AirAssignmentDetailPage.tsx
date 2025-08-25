@@ -41,6 +41,64 @@ export default function AirAssignmentDetailPage() {
     return () => { cancelled = true }
   }, [slug, user?.id])
 
+  // Títulos y briefings por materia (copys UI, sin lógica)
+  const BRIEFINGS: Record<string, { dolor: string; solucion: string; impacto: string }> = {
+    M1_SUENO: {
+      dolor: 'La privación de sueño mina claridad mental y decisión; incrementa errores y ralentiza tu día.',
+      solucion: 'Reajuste de hábitos y ritmos circadianos con ciencia de fisiología de élite; protocolos prácticos para dormir más profundo y recuperar mejor.',
+      impacto: 'Decisiones más claras y rápidas, energía estable y menor desgaste cognitivo a diario.',
+    },
+    M2_ACOND: {
+      dolor: 'Sedentarismo = menos energía, peor tolerancia al estrés y más bajas.',
+      solucion: 'Plan de “atleta corporativo” eficiente en tiempo (fuerza, cardio, movilidad) con seguimiento.',
+      impacto: '+Productividad, mejor estado de ánimo y resiliencia física y mental.',
+    },
+    M3_NUTRI: {
+      dolor: 'Picos y valles de glucosa → “niebla mental”, fatiga y peor enfoque.',
+      solucion: 'Crononutrición y elecciones de alta densidad nutritiva para energía sostenida.',
+      impacto: 'Enfoque estable todo el día, menos bajones y mejor salud a medio plazo.',
+    },
+    M4_ATENCION: {
+      dolor: 'Distracciones constantes y multitarea rompen el trabajo profundo.',
+      solucion: 'Entrenamiento de foco (Deep Work), time‑blocking y control del entorno digital.',
+      impacto: 'Más output de calidad en menos tiempo; menos estrés por tareas arrastradas.',
+    },
+    M5_APREND: {
+      dolor: 'Falta de método para aprender rápido lo crítico; brechas que frenan.',
+      solucion: 'Meta‑aprendizaje, práctica espaciada y active recall integrados a tu agenda.',
+      impacto: 'Dominas habilidades antes y mejor; cultura de aprendizaje continuo real.',
+    },
+    M6_PROD: {
+      dolor: 'Mucho “trabajo sobre el trabajo”, poca estrategia; agendas reactivas.',
+      solucion: 'Priorización, delegación inteligente, rituales semanales y bloques de foco.',
+      impacto: 'Ciclos de decisión más cortos, menos incendios y más objetivos clave cumplidos.',
+    },
+    M7_ESTRES: {
+      dolor: 'Estrés crónico → peor decisión, más errores y fuga de talento.',
+      solucion: 'Autorregulación (respiración, coherencia cardíaca, mindfulness ejecutivo) y exposición estratégica.',
+      impacto: 'Resiliencia operativa; rendimiento sostenido incluso bajo presión alta.',
+    },
+    M8_NEURO: {
+      dolor: 'Altibajos de motivación/ánimo por hábitos y estímulos; falta de control interno.',
+      solucion: 'Optimización de dopamina/serotonina/cortisol con rutinas, luz, descanso, ejercicio y detox digital.',
+      impacto: 'Energía y foco más estables; autocontrol emocional y constancia de rendimiento.',
+    },
+    M9_LIDER: {
+      dolor: 'Gaps de liderazgo → desmotivación, silos y estrategias que no se ejecutan.',
+      solucion: 'Autoliderazgo, equipos de alto rendimiento, influencia organizacional y liderazgo en crisis.',
+      impacto: 'Equipos comprometidos, mejores decisiones y ejecución más rápida y alineada.',
+    },
+    M10_MASTER: {
+      dolor: 'Mejoras puntuales sin sistema; todo vuelve a la línea base.',
+      solucion: 'Integrar prácticas SIOM en cultura, procesos y KPIs para que perduren.',
+      impacto: 'Ventaja estructural: alto rendimiento institucionalizado y sostenible.',
+    },
+  }
+
+  useEffect(() => {
+    if (materia) document.title = `O-Forge — ${materia.name}`
+  }, [materia?.name])
+
   const handleSubmit = async () => {
     if (!assignment) return
     setIsSubmitting(true)
@@ -124,32 +182,18 @@ export default function AirAssignmentDetailPage() {
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 mb-8">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             <div>
-              <h2 className="text-2xl font-semibold text-white mb-4">Objetivo de la Auditoría</h2>
-              <p className="text-gray-300 mb-6">Sigue el cuestionario y responde con honestidad.</p>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                  <span className="text-gray-300">Evaluación personalizada</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                  <span className="text-gray-300">Análisis de patrones actuales</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                  <span className="text-gray-300">Identificación de oportunidades</span>
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">El Dolor</h3>
+              <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.dolor ?? 'Diagnóstico del problema clave en esta materia.'}</p>
             </div>
-            
-            <div className="text-center">
-              <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-4xl font-bold text-white">{materia.id}</span>
-              </div>
-              <p className="text-gray-400">Materia {materia.id}</p>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-2">La Solución SIOM</h3>
+              <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.solucion ?? 'Protocolos y metodología aplicada para resolverlo.'}</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-2">El Impacto</h3>
+              <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.impacto ?? 'Resultados esperables y ventajas operativas.'}</p>
             </div>
           </div>
         </div>
