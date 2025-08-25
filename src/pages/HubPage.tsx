@@ -57,8 +57,14 @@ export default function HubPage() {
 
         <div className="text-center mb-10">
           <h2 className="text-2xl font-semibold text-white mb-2">Bienvenido a O‑Forge</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Has accedido a la plataforma de inteligencia híbrida de SIOM Solutions. O‑Forge es una forja de rendimiento con cuatro divisiones clave. Podrás diagnosticar tu nivel, potenciar tus capacidades y operar en tiempo real con expertos de inteligencia híbrida.</p>
-          <p className="text-gray-300 mt-2">No es formación: es ingeniería de precisión aplicada a tu rendimiento.</p>
+          <p className="text-gray-400 max-w-2xl mx-auto">Has accedido al Centro de Operaciones de SIOM Solutions: una plataforma de inteligencia híbrida que integra neurociencia, fisiología, IA aplicada y doctrina de operaciones especiales para elevar tu rendimiento decisional y operativo.</p>
+          <p className="text-gray-300 mt-2 max-w-2xl mx-auto">Desde aquí orquestas cuatro divisiones: <span className="text-white">SystemAIR</span> (diagnóstico de base), <span className="text-white">SIOM PSITAC</span> (perfilamiento táctico), <span className="text-white">Performance</span> (entrenamiento de élite) y <span className="text-white">OPS</span> (ejecución asistida por IA). El acceso y el contenido se adaptan a tu perfil en Supabase en tiempo real.</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Neurociencia</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Fisiología</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">IA Táctica</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Operaciones Especiales</span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
