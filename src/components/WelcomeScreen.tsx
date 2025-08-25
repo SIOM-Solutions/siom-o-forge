@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import TechBackground from './TechBackground'
+import ExcelsiorWidget from './ExcelsiorWidget'
 
 export default function WelcomeScreen() {
   const navigate = useNavigate()
@@ -50,6 +51,9 @@ export default function WelcomeScreen() {
             </button>
           </motion.div>
         </motion.div>
+      </div>
+      <div className="fixed bottom-4 right-4 z-40">
+        <ExcelsiorWidget />
       </div>
     </div>
   )
