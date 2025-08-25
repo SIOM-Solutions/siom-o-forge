@@ -115,8 +115,8 @@ export default function AirAssignmentsPage() {
   }
 
   return (
-    <div>
-      <div className="max-w-6xl mx-auto">
+    <div className="relative">
+      <div className="max-w-6xl mx-auto relative z-10">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>

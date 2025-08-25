@@ -1,5 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import ProtectedRoute from './ProtectedRoute'
+import TechBackground from './TechBackground'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function ProtectedLayout() {
@@ -13,7 +14,8 @@ export default function ProtectedLayout() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-950 text-gray-100">
+      <div className="relative min-h-screen bg-gray-950 text-gray-100">
+        <TechBackground />
         <header className="sticky top-0 z-40 border-b border-gray-800 bg-gray-950/80 backdrop-blur">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
