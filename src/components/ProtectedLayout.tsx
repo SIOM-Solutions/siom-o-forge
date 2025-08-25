@@ -1,6 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { } from 'react'
-import ExcelsiorWidget from './ExcelsiorWidget'
 import ProtectedRoute from './ProtectedRoute'
 import TechBackground from './TechBackground'
 import { useAuth } from '../contexts/AuthContext'
@@ -41,10 +40,7 @@ export default function ProtectedLayout() {
           <Outlet />
         </main>
 
-        {/* Excelsior (ElevenLabs Convai) */}
-        <div className="fixed bottom-4 right-4 z-40">
-          <ExcelsiorWidget />
-        </div>
+        {/* Excelsior está alojado globalmente en App.tsx para persistencia entre rutas */}
       </div>
     </ProtectedRoute>
   )
