@@ -7,7 +7,7 @@ export default function AirLandingPage() {
     <div>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">Auditoría Inicial de Rendimiento (AIR)</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">SystemAIR™ — Auditoría Inicial de Rendimiento</h1>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto">
             Diagnóstico en 10 materias clave para diseñar tu Learning Path personalizado
           </p>
@@ -20,8 +20,8 @@ export default function AirLandingPage() {
                 ¿Qué es AIR?
               </h2>
               <p className="text-gray-300 mb-6">
-                Evalúa tu rendimiento actual en 10 áreas clave para identificar oportunidades
-                de mejora y crear un plan personalizado de desarrollo.
+                Diagnóstico 360° de tu rendimiento para identificar brechas y trazar una hoja
+                de ruta con retorno medible.
               </p>
               <button
                 onClick={() => navigate('/air/assignments')}

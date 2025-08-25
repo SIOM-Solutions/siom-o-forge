@@ -3,7 +3,7 @@ export default function PerformanceLandingPage() {
     <div>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-semibold text-white mb-3">Performance — Programas de Rendimiento Humano Táctico</h1>
+          <h1 className="text-4xl font-semibold text-white mb-3">SIOM Performance™ — Programas de Rendimiento Humano Táctico</h1>
           <p className="text-gray-400 max-w-2xl mx-auto">Entrenamientos y protocolos aplicados para maximizar energía, foco, resiliencia y liderazgo bajo presión.</p>
         </div>
         <div className="card p-6 mb-6">

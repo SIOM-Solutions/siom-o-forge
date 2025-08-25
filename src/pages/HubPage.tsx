@@ -10,32 +10,32 @@ export default function HubPage() {
   const modules = [
     {
       id: 'air',
-      title: 'AIR',
-      description: 'Auditoría Inicial de Rendimiento',
-      color: 'from-emerald-500 to-emerald-600',
+      title: 'SystemAIR™',
+      description: 'Auditoría Inicial de Rendimiento. Diagnóstico 360° para acciones con datos.',
+      color: 'from-cyan-500 to-cyan-600',
       href: '/air',
       active: accessLoading ? false : Boolean(access?.air)
     },
     {
       id: 'psitac',
-      title: 'PSITAC',
-      description: 'Inteligencia Táctica de la Personalidad',
+      title: 'SIOM PSITAC™',
+      description: 'Inteligencia Táctica de la Personalidad. Decodifica perfiles y mejora la influencia.',
       color: 'from-violet-500 to-violet-600',
       href: '/psitac',
       active: accessLoading ? false : Boolean(access?.psitac)
     },
     {
       id: 'performance',
-      title: 'Performance',
-      description: 'Programas de Rendimiento Humano Táctico',
+      title: 'SIOM Performance™',
+      description: 'Programas de Rendimiento Humano Táctico para líderes y equipos.',
       color: 'from-emerald-500 to-emerald-600',
       href: '/performance',
       active: accessLoading ? false : Boolean(access?.forge_performance)
     },
     {
       id: 'ops',
-      title: 'OPS',
-      description: 'Operaciones y Mantenimiento',
+      title: 'SIOM OPS™',
+      description: 'Centro de Operaciones Estratégicas: IA y procesos para ejecutar sin fricción.',
       color: 'from-amber-500 to-amber-600',
       href: '/ops',
       active: accessLoading ? false : Boolean(access?.forge_ops)
