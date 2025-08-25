@@ -1,10 +1,9 @@
-import { useAuth } from '../contexts/AuthContext'
+import { } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAccess } from '../contexts/AccessContext'
 
 export default function HubPage() {
-  const { signOut } = useAuth()
   const navigate = useNavigate()
   const { access, loading: accessLoading } = useAccess()
 
