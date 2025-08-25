@@ -33,14 +33,6 @@ export default function HubPage() {
       active: accessLoading ? false : Boolean(access?.forge_performance)
     },
     {
-      id: 'psitac',
-      title: 'PSITAC',
-      description: 'Protocolo de Seguridad',
-      color: 'from-amber-500 to-amber-600',
-      href: '#',
-      active: accessLoading ? false : Boolean(access?.psitac)
-    },
-    {
       id: 'ops',
       title: 'OPS',
       description: 'Operaciones y Mantenimiento',
