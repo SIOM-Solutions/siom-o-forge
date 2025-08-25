@@ -1,4 +1,3 @@
-import { } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAccess } from '../contexts/AccessContext'
@@ -45,11 +44,6 @@ export default function HubPage() {
       active: accessLoading ? false : Boolean(access?.forge_ops)
     }
   ]
-
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/auth/login')
-  }
 
   return (
     <div>
