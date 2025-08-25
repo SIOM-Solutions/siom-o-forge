@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { } from 'react'
 import ExcelsiorWidget from './ExcelsiorWidget'
 import ProtectedRoute from './ProtectedRoute'
 import TechBackground from './TechBackground'
@@ -8,7 +8,6 @@ import { useAuth } from '../contexts/AuthContext'
 export default function ProtectedLayout() {
   const { signOut } = useAuth()
   const navigate = useNavigate()
-  const [showExcelsior, setShowExcelsior] = useState(false)
 
   const handleSignOut = async () => {
     await signOut()
