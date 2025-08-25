@@ -50,6 +50,9 @@ export default function AirAssignmentsPage() {
     return { completed, totalAssigned, percent }
   }, [parsedAndSorted])
 
+  // Mostrar solo las materias realmente asignadas (o completadas) al usuario
+  const visibleItems = useMemo(() => parsedAndSorted.filter(i => !!i.assignment), [parsedAndSorted])
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'assigned':
@@ -127,7 +130,7 @@ export default function AirAssignmentsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {parsedAndSorted.map(({ materia, assignment, _ordinal }, idx) => {
+          {visibleItems.map(({ materia, assignment, _ordinal }, idx) => {
             const status = assignment ? (assignment.status === 'sent' ? 'completed' : 'assigned') : 'blocked'
             const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
             return (
