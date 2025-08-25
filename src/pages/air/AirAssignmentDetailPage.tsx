@@ -112,7 +112,7 @@ export default function AirAssignmentDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold text-white">{materia.name}</h1>
-              <p className="text-gray-400">Completa la auditoría para continuar.</p>
+              <p className="text-gray-400">Briefing de diagnóstico: por qué auditar esta materia y cómo impactará en tus resultados.</p>
             </div>
             <button
               onClick={() => navigate('/air/assignments')}
@@ -167,7 +167,7 @@ export default function AirAssignmentDetailPage() {
                 allow="camera; microphone; autoplay; encrypted-media;"
               />
             ) : (
-              <p className="text-gray-400">Formulario no disponible.</p>
+              <p className="text-gray-400">Cargando cuestionario… Si no aparece, ábrelo en una nueva ventana.</p>
             )}
           </div>
 

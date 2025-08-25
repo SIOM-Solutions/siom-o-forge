@@ -35,8 +35,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">O-Forge</h1>
-          <p className="text-gray-400">Centro de Operaciones SIOM</p>
+          <h1 className="text-4xl font-bold text-white mb-2">O‑Forge</h1>
+          <p className="text-gray-400">Arquitectura de rendimiento de élite</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
@@ -48,7 +48,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email
+                Correo electrónico
               </label>
               <input
                 id="email"
@@ -78,7 +78,7 @@ export default function LoginPage() {
 
             {error && (
               <div className="bg-red-900/20 border border-red-800 rounded-lg p-3">
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-red-400 text-sm">{error.includes('Invalid login') ? 'Credenciales no válidas. Revisa tu correo y contraseña.' : error}</p>
               </div>
             )}
 
@@ -96,6 +96,9 @@ export default function LoginPage() {
                 'Acceder'
               )}
             </button>
+            <div className="text-center">
+              <a href="#" className="text-sm text-gray-400 hover:text-gray-200">¿Has olvidado tu contraseña?</a>
+            </div>
           </form>
         </div>
       </div>

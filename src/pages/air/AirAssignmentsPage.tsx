@@ -107,8 +107,8 @@ export default function AirAssignmentsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">Materias AIR</h1>
-              <p className="text-gray-400">Tu catálogo de auditorías disponibles</p>
+              <h1 className="text-3xl font-bold text-white">Mis Materias SystemAIR™</h1>
+              <p className="text-gray-400">Completa estas mini‑auditorías para obtener tu mapa de rendimiento.</p>
             </div>
             <button
               onClick={() => navigate('/air')}
@@ -120,7 +120,7 @@ export default function AirAssignmentsPage() {
           
           <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-400">Progreso General</span>
+              <span className="text-sm text-gray-400">Progreso general</span>
               <span className="text-sm text-emerald-400">{progress.completed}/{progress.totalAssigned} Completadas</span>
             </div>
             <div className="w-full bg-gray-800 rounded-full h-2">
