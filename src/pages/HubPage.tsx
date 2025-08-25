@@ -1,11 +1,16 @@
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAccess } from '../contexts/AccessContext'
 
 export default function HubPage() {
   const { signOut } = useAuth()
   const navigate = useNavigate()
   const { access, loading: accessLoading } = useAccess()
+
+  useEffect(() => {
+    document.title = 'O-Forge — Hub'
+  }, [])
 
   const modules = [
     {
@@ -101,6 +106,12 @@ export default function HubPage() {
                       <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                     )}
                   </div>
+
+                  {!module.active && (
+                    <div className="mt-3">
+                      <a href="mailto:contacto@siomsolutions.com?subject=Solicitud%20de%20acceso%20O‑Forge" className="text-xs text-blue-400 hover:text-blue-300">Solicitar acceso</a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
