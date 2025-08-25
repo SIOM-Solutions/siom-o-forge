@@ -63,19 +63,24 @@ export default function HubPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-semibold text-white mb-2">Bienvenido a la Forja</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">Selecciona una división para continuar.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {modules.map((module) => (
             <div
               key={module.id}
               onClick={() => module.active && navigate(module.href)}
-              className={`relative group cursor-pointer ${
+              className={`relative group cursor-pointer h-full ${
                 module.active ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
               }`}
             >
               <div className={`
-                bg-gray-900 rounded-2xl p-6 border border-gray-800 
-                transition-all duration-300 group-hover:scale-105
-                ${module.active ? 'hover:border-gray-600' : ''}
+                bg-gray-900 rounded-2xl p-8 border border-gray-800 h-full
+                transition-all duration-300 group-hover:scale-[1.01]
+                ${module.active ? 'hover:border-gray-700' : ''}
               `}>
                 <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${module.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
                 
@@ -100,15 +105,6 @@ export default function HubPage() {
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <h2 className="text-2xl font-semibold text-white mb-4">
-            Bienvenido al Centro de Operaciones
-          </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Selecciona un módulo para comenzar. AIR está activo y listo para tu auditoría inicial de rendimiento.
-          </p>
         </div>
       </div>
     </div>
