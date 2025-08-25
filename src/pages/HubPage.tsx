@@ -53,15 +53,7 @@ export default function HubPage() {
             <h1 className="text-3xl font-bold text-white">O-Forge</h1>
             <p className="text-gray-400">Ecosistema de inteligencia híbrida de élite. SIOM Solutions</p>
           </div>
-          <div>
-            <button
-              type="button"
-              onClick={() => {}}
-              className="px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold transition-colors duration-200"
-            >
-              Consultar a Excelsior
-            </button>
-          </div>
+          <div />
         </div>
 
         <div className="text-center mb-10">
