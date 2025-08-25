@@ -53,9 +53,27 @@ export default function HubPage() {
             <h1 className="text-3xl font-bold text-white">O-Forge</h1>
             <p className="text-gray-400">Ecosistema de inteligencia híbrida de élite. SIOM Solutions</p>
           </div>
+          <div>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold transition-colors duration-200"
+            >
+              Consultar a Excelsior
+            </button>
+          </div>
         </div>
 
-        {/* Tarjeta de bienvenida movida a /welcome */}
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-semibold text-white mb-2">Tu Centro de Mando</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">Desde aquí orquestas cuatro divisiones: <span className="text-white">SystemAIR</span> (diagnóstico de base), <span className="text-white">SIOM PSITAC</span> (perfilamiento táctico), <span className="text-white">Performance</span> (entrenamiento de élite) y <span className="text-white">OPS</span> (ejecución asistida por IA). El acceso y el contenido se adaptan a tu perfil en Supabase en tiempo real.</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Neurociencia</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Fisiología</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">IA Táctica</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Operaciones Especiales</span>
+          </div>
+        </div>
 
         <div id="modules-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {modules.map((module) => (
