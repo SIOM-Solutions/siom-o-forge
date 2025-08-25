@@ -10,6 +10,11 @@ import AirAssignmentDetailPage from './pages/air/AirAssignmentDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedLayout from './components/ProtectedLayout'
 import NotFoundPage from './pages/NotFoundPage'
+import PsitacLandingPage from './pages/psitac/PsitacLandingPage'
+import PsitacPartIPage from './pages/psitac/PsitacPartIPage'
+import PsitacPartIIPage from './pages/psitac/PsitacPartIIPage'
+import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
+import OpsLandingPage from './pages/ops/OpsLandingPage'
 
 function App() {
   return (
@@ -30,6 +35,15 @@ function App() {
               <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
               <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
               <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />
+
+              {/* PSITAC */}
+              <Route path="/psitac" element={<ProtectedRoute requiredAccess="psitac"><PsitacLandingPage /></ProtectedRoute>} />
+              <Route path="/psitac/parte-i" element={<ProtectedRoute requiredAccess="psitac"><PsitacPartIPage /></ProtectedRoute>} />
+              <Route path="/psitac/parte-ii" element={<ProtectedRoute requiredAccess="psitac"><PsitacPartIIPage /></ProtectedRoute>} />
+
+              {/* Performance y OPS placeholders */}
+              <Route path="/performance" element={<ProtectedRoute requiredAccess="forge_performance"><PerformanceLandingPage /></ProtectedRoute>} />
+              <Route path="/ops" element={<ProtectedRoute requiredAccess="forge_ops"><OpsLandingPage /></ProtectedRoute>} />
             </Route>
 
             {/* 404 */}

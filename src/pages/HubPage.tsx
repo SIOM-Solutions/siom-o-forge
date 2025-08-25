@@ -19,25 +19,25 @@ export default function HubPage() {
     {
       id: 'psitac',
       title: 'PSITAC',
-      description: 'Test SIOM PsiTac',
-      color: 'from-amber-500 to-amber-600',
-      href: '/air/assignments?psitac=true',
+      description: 'Inteligencia Táctica de la Personalidad',
+      color: 'from-violet-500 to-violet-600',
+      href: '/psitac',
       active: accessLoading ? false : Boolean(access?.psitac)
     },
     {
       id: 'performance',
       title: 'Performance',
-      description: 'Optimización de Rendimiento',
-      color: 'from-cyan-500 to-cyan-600',
-      href: '#',
+      description: 'Programas de Rendimiento Humano Táctico',
+      color: 'from-emerald-500 to-emerald-600',
+      href: '/performance',
       active: accessLoading ? false : Boolean(access?.forge_performance)
     },
     {
       id: 'ops',
       title: 'OPS',
       description: 'Operaciones y Mantenimiento',
-      color: 'from-red-500 to-red-600',
-      href: '#',
+      color: 'from-amber-500 to-amber-600',
+      href: '/ops',
       active: accessLoading ? false : Boolean(access?.forge_ops)
     }
   ]
