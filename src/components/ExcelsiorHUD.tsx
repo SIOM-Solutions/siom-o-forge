@@ -5,6 +5,16 @@ export default function ExcelsiorHUD() {
 
   if (!isOpen) return null
 
+  const activateAudio = () => {
+    const el = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
+    el?.play().catch(() => {})
+  }
+
+  const retry = () => {
+    // Fuerza un cierre/apertura rápida: el orbe controla el estado; aquí solo intentamos reproducir audio
+    activateAudio()
+  }
+
   return (
     <div
       className="mb-3 mr-1 select-none"
@@ -20,12 +30,26 @@ export default function ExcelsiorHUD() {
             </span>
             <span className="text-sm text-white font-medium">Escuchando</span>
           </div>
-          <button
-            onClick={close}
-            className="text-xs px-2 py-1 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-200"
-          >
-            Cerrar
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={activateAudio}
+              className="text-xs px-2 py-1 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-200"
+            >
+              Activar audio
+            </button>
+            <button
+              onClick={retry}
+              className="text-xs px-2 py-1 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-200"
+            >
+              Reintentar
+            </button>
+            <button
+              onClick={close}
+              className="text-xs px-2 py-1 rounded-md bg-gray-800 hover:bg-gray-700 text-gray-200"
+            >
+              Cerrar
+            </button>
+          </div>
         </div>
         <div className="mt-2 text-xs text-gray-300">Asistente activo.</div>
       </div>

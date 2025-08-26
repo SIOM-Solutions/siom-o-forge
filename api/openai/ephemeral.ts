@@ -32,6 +32,7 @@ export default async function handler(req: Request): Promise<Response> {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
+        'OpenAI-Beta': 'realtime=v1',
       },
       body: JSON.stringify({
         model,
