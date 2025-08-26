@@ -10,8 +10,21 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Missing OPENAI_API_KEY', { status: 500 })
   }
 
+  const url = new URL(req.url)
   const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03'
   const voice = process.env.OPENAI_REALTIME_VOICE || 'ash'
+
+  // Instrucciones por defecto (Excelsior guía de plataforma) si no se proveen aún
+  const defaultInstructions = `Eres SIOM Excelsior, guía de la plataforma O‑Forge. Tu función es ayudar a navegar, explicar secciones y derivar a instructores o asesores para contenidos de materias. No reveles detalles técnicos internos ni arquitectura. Mantén el tono ejecutivo y preciso. Idioma: español (España).`
+  const instructions = process.env.OPENAI_EXCELSIOR_INSTRUCTIONS || defaultInstructions
+
+  // Vector Stores (materia y/o plataforma) opcionales
+  const envStores = (process.env.OPENAI_VECTOR_STORE_IDS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const userStore = url.searchParams.get('user_store') || ''
+  const vectorStoreIds = Array.from(new Set([...envStores, userStore].filter(Boolean)))
 
   try {
     const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
@@ -23,6 +36,10 @@ export default async function handler(req: Request): Promise<Response> {
       body: JSON.stringify({
         model,
         voice,
+        instructions,
+        ...(vectorStoreIds.length
+          ? { tools: [{ type: 'file_search' }], tool_resources: { file_search: { vector_store_ids: vectorStoreIds } } }
+          : {}),
       }),
     })
 
