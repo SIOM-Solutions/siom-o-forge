@@ -1,4 +1,7 @@
-export async function createRealtimeConnection(): Promise<MediaStream | null> {
+let activePc: RTCPeerConnection | null = null
+let activeLocalStream: MediaStream | null = null
+
+export async function startRealtime(): Promise<boolean> {
   try {
     const endpoint = import.meta.env.VITE_OPENAI_REALTIME_ENDPOINT || '/api/openai/ephemeral'
     const res = await fetch(endpoint)
@@ -10,11 +13,13 @@ export async function createRealtimeConnection(): Promise<MediaStream | null> {
 
     // WebRTC peer connection
     const pc = new RTCPeerConnection()
+    activePc = pc
     console.log('Realtime: creating RTCPeerConnection')
 
     // Local mic
     const local = await navigator.mediaDevices.getUserMedia({ audio: true })
     console.log('Realtime: got local media stream')
+    activeLocalStream = local
     local.getTracks().forEach((t) => pc.addTrack(t, local))
 
     pc.onconnectionstatechange = () => {
@@ -23,6 +28,11 @@ export async function createRealtimeConnection(): Promise<MediaStream | null> {
 
     // Remote audio
     const remoteAudio = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
+    if (remoteAudio) {
+      remoteAudio.setAttribute('playsinline', 'true')
+      remoteAudio.setAttribute('autoplay', 'true')
+      remoteAudio.muted = false
+    }
     pc.ontrack = (event) => {
       const [stream] = event.streams
       console.log('Realtime: received remote track')
@@ -49,10 +59,32 @@ export async function createRealtimeConnection(): Promise<MediaStream | null> {
     const answer = { type: 'answer', sdp: await sdpRes.text() } as RTCSessionDescriptionInit
     await pc.setRemoteDescription(answer)
 
-    return local
+    return true
   } catch (e) {
-    console.error('OpenAI Realtime error:', e)
-    return null
+    console.error('OpenAI Realtime start error:', e)
+    stopRealtime()
+    return false
+  }
+}
+
+export function stopRealtime() {
+  try {
+    if (activePc) {
+      activePc.getSenders().forEach((s) => {
+        try { s.track?.stop() } catch {}
+      })
+      activePc.close()
+      activePc = null
+    }
+    if (activeLocalStream) {
+      activeLocalStream.getTracks().forEach((t) => {
+        try { t.stop() } catch {}
+      })
+      activeLocalStream = null
+    }
+    console.log('Realtime: stopped')
+  } catch (e) {
+    console.warn('OpenAI Realtime stop error:', e)
   }
 }
 
