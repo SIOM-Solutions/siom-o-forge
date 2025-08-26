@@ -1,7 +1,23 @@
+import { useEffect } from 'react'
 import { useExcelsior } from '../contexts/ExcelsiorContext'
 
 export default function SiomOrbButton() {
   const { isOpen, toggle } = useExcelsior()
+
+  // Intento de activación de micrófono tras interacción
+  useEffect(() => {
+    if (!isOpen) return
+    const tryMic = async () => {
+      try {
+        // Solicitar permiso de micrófono
+        // Algunos navegadores requieren getUserMedia para inicializar el contexto de audio
+        await navigator.mediaDevices.getUserMedia({ audio: true })
+      } catch {
+        // Silencio: el usuario puede conceder manualmente más tarde
+      }
+    }
+    tryMic()
+  }, [isOpen])
 
   return (
     <button

@@ -27,7 +27,7 @@ export default function ExcelsiorHUD() {
             Cerrar
           </button>
         </div>
-        <div className="mt-2 text-xs text-gray-300">Diga “Llévame a mis materias” para abrir SystemAIR.</div>
+        <div className="mt-2 text-xs text-gray-300">Asistente activo.</div>
       </div>
     </div>
   )
