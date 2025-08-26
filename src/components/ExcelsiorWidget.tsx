@@ -17,15 +17,17 @@ export default function ExcelsiorWidget({ invisible = true }: { invisible?: bool
     // Crear el custom element de forma imperativa para evitar UI visible y tipos TSX
     const conv = document.createElement('elevenlabs-convai') as any
     conv.setAttribute('agent-id', agentId)
+    // Forzar invisibilidad total. Controlaremos la sesión por eventos.
     const style = conv.style as CSSStyleDeclaration
     style.position = 'fixed'
-    style.bottom = '88px'
-    style.right = '20px'
-    style.width = invisible ? '1px' : '340px'
-    style.height = invisible ? '1px' : '440px'
-    style.opacity = invisible ? '0' : '1'
-    style.pointerEvents = invisible ? 'none' : 'auto'
-    style.zIndex = '50'
+    style.bottom = '0'
+    style.right = '0'
+    style.width = '1px'
+    style.height = '1px'
+    style.opacity = '0'
+    style.pointerEvents = 'none'
+    style.overflow = 'hidden'
+    style.zIndex = '0'
     document.body.appendChild(conv)
 
     // Observador para ocultar cualquier UI inyectada por el widget
@@ -53,8 +55,24 @@ export default function ExcelsiorWidget({ invisible = true }: { invisible?: bool
     })
     observer.observe(document.body, { childList: true, subtree: true })
 
+    // Intentar exponer controles si el widget los define (start/stop)
+    const start = () => {
+      try { (conv as any)?.start?.() } catch {}
+      try { (conv as any)?.open?.() } catch {}
+    }
+    const stop = () => {
+      try { (conv as any)?.stop?.() } catch {}
+      try { (conv as any)?.close?.() } catch {}
+    }
+    const onOpen = () => start()
+    const onClose = () => stop()
+    window.addEventListener('siom-orb-open', onOpen)
+    window.addEventListener('siom-orb-close', onClose)
+
     return () => {
       observer.disconnect()
+      window.removeEventListener('siom-orb-open', onOpen)
+      window.removeEventListener('siom-orb-close', onClose)
       try { document.body.removeChild(conv) } catch {}
     }
   }, [invisible])
