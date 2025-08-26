@@ -70,16 +70,20 @@ export async function startRealtime(): Promise<boolean> {
 export function stopRealtime() {
   try {
     if (activePc) {
-      activePc.getSenders().forEach((s) => {
-        try { s.track?.stop() } catch {}
-      })
+      try {
+        activePc.getSenders().forEach((s) => {
+          try { s.track?.stop() } catch {}
+        })
+      } catch {}
       activePc.close()
       activePc = null
     }
     if (activeLocalStream) {
-      activeLocalStream.getTracks().forEach((t) => {
-        try { t.stop() } catch {}
-      })
+      try {
+        activeLocalStream.getTracks().forEach((t) => {
+          try { t.stop() } catch {}
+        })
+      } catch {}
       activeLocalStream = null
     }
     console.log('Realtime: stopped')

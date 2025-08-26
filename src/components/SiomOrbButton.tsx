@@ -9,8 +9,6 @@ export default function SiomOrbButton() {
     const run = async () => {
       try {
         if (isOpen) {
-          // Solicitar permiso antes de iniciar la oferta para forzar prompt del navegador
-          await navigator.mediaDevices.getUserMedia({ audio: true }).catch(() => {})
           await startRealtime()
         } else {
           stopRealtime()
