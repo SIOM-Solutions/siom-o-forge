@@ -19,6 +19,7 @@ import WelcomeScreen from './components/WelcomeScreen'
 import ExcelsiorHost from './components/ExcelsiorHost'
 import SiomOrbButton from './components/SiomOrbButton'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
+import ExcelsiorHUD from './components/ExcelsiorHUD'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <div className="min-h-screen bg-gray-950 text-gray-100">
           <ExcelsiorProvider>
             <div className="fixed bottom-4 right-4 z-40">
+              <ExcelsiorHUD />
               <ExcelsiorHost />
               <SiomOrbButton />
             </div>
