@@ -10,18 +10,25 @@ export async function createRealtimeConnection(): Promise<MediaStream | null> {
 
     // WebRTC peer connection
     const pc = new RTCPeerConnection()
+    console.log('Realtime: creating RTCPeerConnection')
 
     // Local mic
     const local = await navigator.mediaDevices.getUserMedia({ audio: true })
+    console.log('Realtime: got local media stream')
     local.getTracks().forEach((t) => pc.addTrack(t, local))
+
+    pc.onconnectionstatechange = () => {
+      console.log('Realtime connection state:', pc.connectionState)
+    }
 
     // Remote audio
     const remoteAudio = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
     pc.ontrack = (event) => {
       const [stream] = event.streams
+      console.log('Realtime: received remote track')
       if (remoteAudio) {
         remoteAudio.srcObject = stream
-        remoteAudio.play().catch(() => {})
+        remoteAudio.play().catch((err) => console.warn('Audio play blocked:', err))
       }
     }
 
@@ -35,8 +42,10 @@ export async function createRealtimeConnection(): Promise<MediaStream | null> {
       headers: {
         Authorization: `Bearer ${clientSecret}`,
         'Content-Type': 'application/sdp',
+        'OpenAI-Beta': 'realtime=v1',
       },
     })
+    if (!sdpRes.ok) throw new Error(`SDP exchange failed: ${sdpRes.status}`)
     const answer = { type: 'answer', sdp: await sdpRes.text() } as RTCSessionDescriptionInit
     await pc.setRemoteDescription(answer)
 
