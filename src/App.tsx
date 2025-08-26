@@ -17,6 +17,8 @@ import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
 import OpsLandingPage from './pages/ops/OpsLandingPage'
 import WelcomeScreen from './components/WelcomeScreen'
 import ExcelsiorHost from './components/ExcelsiorHost'
+import SiomOrbButton from './components/SiomOrbButton'
+import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 
 function App() {
   return (
@@ -24,9 +26,12 @@ function App() {
       <AccessProvider>
       <Router>
         <div className="min-h-screen bg-gray-950 text-gray-100">
-          <div className="fixed bottom-4 right-4 z-40">
-            <ExcelsiorHost />
-          </div>
+          <ExcelsiorProvider>
+            <div className="fixed bottom-4 right-4 z-40">
+              <ExcelsiorHost />
+              <SiomOrbButton />
+            </div>
+          </ExcelsiorProvider>
           <Routes>
             {/* Ruta raíz redirige a login */}
             <Route path="/" element={<Navigate to="/auth/login" replace />} />
