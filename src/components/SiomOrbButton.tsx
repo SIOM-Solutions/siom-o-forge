@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useExcelsior } from '../contexts/ExcelsiorContext'
+import { createRealtimeConnection } from '../lib/openaiRealtime'
 
 export default function SiomOrbButton() {
   const { isOpen, toggle } = useExcelsior()
@@ -9,9 +10,7 @@ export default function SiomOrbButton() {
     if (!isOpen) return
     const tryMic = async () => {
       try {
-        // Solicitar permiso de micrófono
-        // Algunos navegadores requieren getUserMedia para inicializar el contexto de audio
-        await navigator.mediaDevices.getUserMedia({ audio: true })
+        await createRealtimeConnection()
       } catch {
         // Silencio: el usuario puede conceder manualmente más tarde
       }
