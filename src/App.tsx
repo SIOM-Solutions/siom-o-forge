@@ -15,6 +15,11 @@ import PsitacPartIPage from './pages/psitac/PsitacPartIPage'
 import PsitacPartIIPage from './pages/psitac/PsitacPartIIPage'
 import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
 import OpsLandingPage from './pages/ops/OpsLandingPage'
+import WelcomeScreen from './components/WelcomeScreen'
+import ExcelsiorHost from './components/ExcelsiorHost'
+import SiomOrbButton from './components/SiomOrbButton'
+import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
+import ExcelsiorHUD from './components/ExcelsiorHUD'
 
 function App() {
   return (
@@ -22,6 +27,13 @@ function App() {
       <AccessProvider>
       <Router>
         <div className="min-h-screen bg-gray-950 text-gray-100">
+          <ExcelsiorProvider>
+            <div className="fixed bottom-4 right-4 z-40">
+              <ExcelsiorHUD />
+              <ExcelsiorHost />
+              <SiomOrbButton />
+            </div>
+          </ExcelsiorProvider>
           <Routes>
             {/* Ruta raíz redirige a login */}
             <Route path="/" element={<Navigate to="/auth/login" replace />} />
@@ -29,6 +41,9 @@ function App() {
             {/* Login público */}
             <Route path="/auth/login" element={<LoginPage />} />
             
+            {/* Pantalla de bienvenida tras login (protegida, sin layout superior) */}
+            <Route path="/welcome" element={<ProtectedRoute><WelcomeScreen /></ProtectedRoute>} />
+
             {/* Rutas protegidas con layout */}
             <Route element={<ProtectedLayout />}>
               <Route path="/hub" element={<HubPage />} />

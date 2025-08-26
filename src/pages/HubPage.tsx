@@ -1,11 +1,14 @@
-import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAccess } from '../contexts/AccessContext'
 
 export default function HubPage() {
-  const { signOut } = useAuth()
   const navigate = useNavigate()
   const { access, loading: accessLoading } = useAccess()
+
+  useEffect(() => {
+    document.title = 'O-Forge — Hub'
+  }, [])
 
   const modules = [
     {
@@ -42,33 +45,29 @@ export default function HubPage() {
     }
   ]
 
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/auth/login')
-  }
-
   return (
     <div>
       <div>
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white">O-Forge</h1>
-            <p className="text-gray-400">Centro de Operaciones SIOM</p>
+            <p className="text-gray-400">Ecosistema de inteligencia híbrida de élite. SIOM Solutions</p>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors duration-200"
-          >
-            Cerrar Sesión
-          </button>
+          <div />
         </div>
 
         <div className="text-center mb-10">
-          <h2 className="text-2xl font-semibold text-white mb-2">Bienvenido a la Forja</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Selecciona una división para continuar.</p>
+          <h2 className="text-2xl font-semibold text-white mb-2">Tu Centro de Mando</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">Desde aquí orquestas cuatro divisiones: <span className="text-white">SystemAIR</span> (diagnóstico de base), <span className="text-white">SIOM PSITAC</span> (perfilamiento táctico), <span className="text-white">Performance</span> (entrenamiento de élite) y <span className="text-white">OPS</span> (ejecución asistida por IA). El acceso y el contenido se adaptan a tu perfil en Supabase en tiempo real.</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Neurociencia</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Fisiología</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">IA Táctica</span>
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Operaciones Especiales</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div id="modules-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {modules.map((module) => (
             <div
               key={module.id}
@@ -101,6 +100,12 @@ export default function HubPage() {
                       <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                     )}
                   </div>
+
+                  {!module.active && (
+                    <div className="mt-3">
+                      <a href="mailto:contacto@siomsolutions.com?subject=Solicitud%20de%20acceso%20O‑Forge" className="text-xs text-blue-400 hover:text-blue-300">Solicitar acceso</a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

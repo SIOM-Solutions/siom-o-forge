@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import TechBackground from '../../components/TechBackground'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -22,7 +23,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        navigate('/hub')
+        navigate('/welcome')
       }
     } catch (err: any) {
       setError('Error inesperado. Inténtalo de nuevo.')
@@ -32,20 +33,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+    <div className="relative min-h-screen bg-gray-950">
+      <TechBackground />
+      <div className="relative z-10 max-w-7xl mx-auto min-h-screen grid md:grid-cols-2 gap-8 items-center place-items-center p-6">
+        <div className="hidden md:block justify-self-start text-center">
           <h1 className="text-4xl font-bold text-white mb-2">O‑Forge</h1>
-          <p className="text-gray-400">Arquitectura de rendimiento de élite</p>
+          <p className="text-gray-400 max-w-md mx-auto">El ecosistema de inteligencia híbrida de élite de SIOM Solutions</p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-semibold text-white mb-2">Acceso</h2>
-            <p className="text-gray-400">Identifícate para continuar</p>
-          </div>
+        <div className="w-full max-w-md md:ml-auto justify-self-end">
+          <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+            <div className="text-center mb-6">
+              <p className="text-gray-400">Identifícate para continuar</p>
+            </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                 Correo electrónico
@@ -93,13 +95,14 @@ export default function LoginPage() {
                   Verificando...
                 </>
               ) : (
-                'Acceder'
+                'Acceder a la Forja'
               )}
             </button>
             <div className="text-center">
               <a href="#" className="text-sm text-gray-400 hover:text-gray-200">¿Has olvidado tu contraseña?</a>
             </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
