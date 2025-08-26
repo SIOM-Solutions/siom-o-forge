@@ -17,18 +17,15 @@ export default function ExcelsiorWidget({ invisible = true }: { invisible?: bool
     // Crear el custom element de forma imperativa para evitar UI visible y tipos TSX
     const conv = document.createElement('elevenlabs-convai') as any
     conv.setAttribute('agent-id', agentId)
-    if (invisible) {
-      const style = conv.style as CSSStyleDeclaration
-      style.opacity = '0'
-      style.pointerEvents = 'none'
-      style.position = 'fixed'
-      style.bottom = '0px'
-      style.right = '0px'
-      style.width = '1px'
-      style.height = '1px'
-      style.overflow = 'hidden'
-      style.zIndex = '0'
-    }
+    const style = conv.style as CSSStyleDeclaration
+    style.position = 'fixed'
+    style.bottom = '88px'
+    style.right = '20px'
+    style.width = invisible ? '1px' : '340px'
+    style.height = invisible ? '1px' : '440px'
+    style.opacity = invisible ? '0' : '1'
+    style.pointerEvents = invisible ? 'none' : 'auto'
+    style.zIndex = '50'
     document.body.appendChild(conv)
 
     // Observador para ocultar cualquier UI inyectada por el widget
@@ -50,7 +47,7 @@ export default function ExcelsiorWidget({ invisible = true }: { invisible?: bool
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((n) => {
-          if (n instanceof HTMLElement) hideNode(n)
+          if (n instanceof HTMLElement && invisible) hideNode(n)
         })
       })
     })

@@ -1,8 +1,10 @@
 import { useLocation } from 'react-router-dom'
 import ExcelsiorWidget from './ExcelsiorWidget'
+import { useExcelsior } from '../contexts/ExcelsiorContext'
 
 export default function ExcelsiorHost() {
   const location = useLocation()
+  const { isOpen } = useExcelsior()
 
   // Rutas donde ocultar Excelsior (reservado para futuros asistentes específicos)
   const hideOn = [
@@ -14,8 +16,8 @@ export default function ExcelsiorHost() {
 
   if (hidden) return null
 
-  // Montamos siempre (invisible) para poder activarlo con el Orb en el mismo gesto
-  return <ExcelsiorWidget invisible={true} />
+  // Visible cuando el orbe está activo; invisible cuando está cerrado
+  return <ExcelsiorWidget invisible={!isOpen} />
 }
 
 
