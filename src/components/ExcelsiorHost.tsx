@@ -16,7 +16,8 @@ export default function ExcelsiorHost() {
 
   if (hidden || !isOpen) return null
 
-  return <ExcelsiorWidget />
+  // Montamos invisible: el audio/voz funciona pero no se ve el UI de ElevenLabs
+  return <ExcelsiorWidget invisible={true} />
 }
 
 

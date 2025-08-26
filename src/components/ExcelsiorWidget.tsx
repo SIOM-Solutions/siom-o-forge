@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export default function ExcelsiorWidget() {
+export default function ExcelsiorWidget({ invisible = true }: { invisible?: boolean }) {
   useEffect(() => {
     const scriptId = 'elevenlabs-convai-script'
     if (!document.getElementById(scriptId)) {
@@ -17,7 +17,18 @@ export default function ExcelsiorWidget() {
 
   return (
     // @ts-ignore - elemento web personalizado proporcionado por ElevenLabs
-    <elevenlabs-convai agent-id={agentId}></elevenlabs-convai>
+    <elevenlabs-convai
+      agent-id={agentId}
+      style={invisible ? {
+        opacity: 0,
+        pointerEvents: 'none',
+        position: 'fixed',
+        bottom: 0,
+        right: 0,
+        width: '1px',
+        height: '1px',
+      } : undefined}
+    ></elevenlabs-convai>
   )
 }
 
