@@ -10,7 +10,7 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Missing OPENAI_API_KEY', { status: 500 })
   }
 
-  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-12-17'
+  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03'
   const voice = process.env.OPENAI_REALTIME_VOICE || 'ash'
 
   try {

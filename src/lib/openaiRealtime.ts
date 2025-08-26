@@ -5,6 +5,7 @@ export async function createRealtimeConnection(): Promise<MediaStream | null> {
     if (!res.ok) throw new Error('Failed to fetch ephemeral token')
     const data = await res.json()
     const clientSecret = data?.client_secret?.value
+    const sessionModel: string = data?.model || 'gpt-4o-realtime-preview-2025-06-03'
     if (!clientSecret) throw new Error('Missing client secret in session')
 
     // WebRTC peer connection
@@ -28,8 +29,7 @@ export async function createRealtimeConnection(): Promise<MediaStream | null> {
     await pc.setLocalDescription(offer)
 
     const baseUrl = 'https://api.openai.com/v1/realtime'
-    const model = 'gpt-4o-realtime-preview-2024-12-17'
-    const sdpRes = await fetch(`${baseUrl}?model=${model}`, {
+    const sdpRes = await fetch(`${baseUrl}?model=${encodeURIComponent(sessionModel)}`, {
       method: 'POST',
       body: offer.sdp,
       headers: {
