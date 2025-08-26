@@ -18,7 +18,7 @@ export default function ExcelsiorHUD() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400"></span>
             </span>
-            <span className="text-sm text-white font-medium">Excelsior</span>
+            <span className="text-sm text-white font-medium">Escuchando</span>
           </div>
           <button
             onClick={close}
@@ -27,9 +27,7 @@ export default function ExcelsiorHUD() {
             Cerrar
           </button>
         </div>
-        <div className="mt-2 text-xs text-gray-300">
-          Escuchando… Diga “llevarme a mis materias” para abrir SystemAIR.
-        </div>
+        <div className="mt-2 text-xs text-gray-300">Diga “Llévame a mis materias” para abrir SystemAIR.</div>
       </div>
     </div>
   )
