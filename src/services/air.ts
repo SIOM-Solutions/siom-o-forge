@@ -89,7 +89,7 @@ export async function fetchMateriasWithUserAssignments(userId: string): Promise<
           sent_at: r.sent_at ?? undefined,
         }
       }))
-  } catch (_e) {
+  } catch {
     // Fallback a 2 pasos si el join no está disponible
     const [materias, assignments] = await Promise.all([
       fetchAllMaterias(),

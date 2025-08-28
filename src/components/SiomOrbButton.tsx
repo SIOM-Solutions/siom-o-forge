@@ -13,7 +13,7 @@ export default function SiomOrbButton() {
         } else {
           voiceEngine.stop()
         }
-      } catch (e) {
+      } catch {
         // noop
       }
     }
