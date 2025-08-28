@@ -22,7 +22,7 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-realtime'
-  const voice = process.env.OPENAI_REALTIME_VOICE || 'ash'
+  // Nota: la voz ya no se envía en client_secrets; se configura luego vía session.update en el cliente
 
   // Instrucciones por defecto (Excelsior guía de plataforma) si no se proveen aún
   const defaultInstructions = `Eres SIOM Excelsior, guía de la plataforma O‑Forge. Tu función es ayudar a navegar, explicar secciones y derivar a instructores o asesores para contenidos de materias. No reveles detalles técnicos internos ni arquitectura. Mantén el tono ejecutivo y preciso. Idioma: español (España).`
@@ -40,10 +40,6 @@ export default async function handler(req: Request): Promise<Response> {
         session: {
           type: 'realtime',
           model,
-          voice,
-          modalities: ['audio', 'text'],
-          output_audio_format: 'pcm16',
-          instructions,
         },
       }),
     })
