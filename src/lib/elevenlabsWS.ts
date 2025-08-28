@@ -9,7 +9,6 @@ async function getWsUrl(): Promise<string | null> {
   const res = await fetch(`${base}/api/eleven/sessions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify({ agent_id: agentId }),
   })
   if (!res.ok) return null
