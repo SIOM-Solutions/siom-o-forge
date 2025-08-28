@@ -29,6 +29,12 @@ export async function startElevenWS(): Promise<boolean> {
 
     // Permisos de micrófono
     mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    // Intentar extraer user_id desde Supabase (si existe)
+    let userId: string | undefined
+    try {
+      const { data } = await (await import('../lib/supabase')).supabase.auth.getUser()
+      userId = data?.user?.id
+    } catch {}
 
     // Conexión WS
     ws = new WebSocket(url)
@@ -59,6 +65,8 @@ export async function startElevenWS(): Promise<boolean> {
             input_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
             input_audio_transcription: { enabled: true, language: 'es' },
             turn_detection: { type: 'server', silence_duration_ms: 700 },
+            // Identificador de cliente/usuario si existe
+            user_id: userId,
           },
         }))
       } catch {}
