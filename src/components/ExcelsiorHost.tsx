@@ -28,13 +28,7 @@ export default function ExcelsiorHost() {
       conv = document.createElement('elevenlabs-convai') as unknown as HTMLElement
       conv.id = elId
       conv.setAttribute('agent-id', agentId)
-      const style = conv.style as CSSStyleDeclaration
-      style.position = 'fixed'
-      style.bottom = '20px'
-      style.right = '20px'
-      style.width = '380px'
-      style.height = '520px'
-      style.zIndex = '60'
+      // No forzamos estilos: dejamos que el widget use su configuración (placement/variant)
       document.body.appendChild(conv)
     }
 
