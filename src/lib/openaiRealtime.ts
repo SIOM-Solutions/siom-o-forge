@@ -40,7 +40,7 @@ export async function startRealtime(): Promise<boolean> {
             content: [{ type: 'input_text', text: 'Hola, preséntate brevemente.' }],
           },
         }))
-        dc.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio'] } }))
+        dc.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio','text'] } }))
       } catch (e) {
         console.warn('Realtime: response.create send failed', e)
       }
