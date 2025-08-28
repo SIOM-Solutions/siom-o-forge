@@ -6,7 +6,6 @@ export default function TriangleRealtimeButton() {
 
   const handleClick = async () => {
     if (!connected) {
-      try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {}
       try {
         const a = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
         if (a) {
