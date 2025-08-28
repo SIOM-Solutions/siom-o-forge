@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useExcelsior } from '../contexts/ExcelsiorContext'
-import { startRealtime, stopRealtime } from '../lib/openaiRealtime'
+import { startElevenWS, stopElevenWS } from '../lib/elevenlabsWS'
 
 export default function SiomOrbButton() {
   const { isOpen, toggle } = useExcelsior()
@@ -9,9 +9,9 @@ export default function SiomOrbButton() {
     const run = async () => {
       try {
         if (isOpen) {
-          await startRealtime()
+          await startElevenWS()
         } else {
-          stopRealtime()
+          stopElevenWS()
         }
       } catch (e) {
         // noop

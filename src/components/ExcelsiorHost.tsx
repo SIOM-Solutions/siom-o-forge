@@ -16,8 +16,8 @@ export default function ExcelsiorHost() {
 
   if (hidden) return null
 
-  // Visible cuando el orbe está activo; invisible cuando está cerrado
-  return <ExcelsiorWidget invisible={!isOpen} />
+  // SDK/WS: ocultamos totalmente el widget (no UI externa)
+  return <ExcelsiorWidget invisible={true} />
 }
 
 
