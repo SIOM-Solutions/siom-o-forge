@@ -1,41 +1,28 @@
-import { useEffect } from 'react'
 import { useExcelsior } from '../contexts/ExcelsiorContext'
 import { voiceEngine } from '../lib/voiceEngine'
 
 export default function SiomOrbButton() {
   const { isOpen, toggle } = useExcelsior()
 
-  useEffect(() => {
-    const run = async () => {
-      try {
-        if (isOpen) {
-          await voiceEngine.start()
-        } else {
-          voiceEngine.stop()
-        }
-      } catch (e) {
-        // noop
-      }
-    }
-    run()
-  }, [isOpen])
-
   const handleClick = async () => {
     if (!isOpen) {
       try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {}
-      // Desbloquear salida de audio del elemento remoto bajo gesto de usuario
       try {
         const a = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
         if (a) {
-          a.hidden = false // no visual, pero asegura estado estable en algunos navegadores
+          a.hidden = false
           a.muted = false
           a.volume = 1
           await a.play().catch(() => {})
           a.hidden = true
         }
       } catch {}
+      try { await voiceEngine.start() } catch {}
+      toggle()
+    } else {
+      try { voiceEngine.stop() } catch {}
+      toggle()
     }
-    toggle()
   }
 
   return (
