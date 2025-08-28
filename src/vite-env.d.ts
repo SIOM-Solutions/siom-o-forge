@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_EXCELSIOR_AGENT_ID?: string
   readonly VITE_OPENAI_REALTIME_ENDPOINT?: string
   readonly VITE_CONSOLE_BASE_URL?: string
+  readonly VITE_VOICE_PROVIDER?: 'elevenlabs' | 'openai' | 'gemini'
 }
 
 interface ImportMeta {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useExcelsior } from '../contexts/ExcelsiorContext'
-import { startElevenWS, stopElevenWS } from '../lib/elevenlabsWS'
+import { voiceEngine } from '../lib/voiceEngine'
 
 export default function SiomOrbButton() {
   const { isOpen, toggle } = useExcelsior()
@@ -10,12 +10,10 @@ export default function SiomOrbButton() {
       try {
         if (isOpen) {
           // Aseguramos permiso de audio dentro del gesto del usuario si Safari/Chrome lo exige
-          try {
-            await navigator.mediaDevices.getUserMedia({ audio: true })
-          } catch {}
-          await startElevenWS()
+          try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {}
+          await voiceEngine.start()
         } else {
-          stopElevenWS()
+          voiceEngine.stop()
         }
       } catch (e) {
         // noop
