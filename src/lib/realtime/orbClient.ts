@@ -8,6 +8,7 @@ const DEFAULT_INSTRUCTIONS = (
 
 export async function startOrbRealtime(): Promise<boolean> {
   try {
+    console.log('[orb] start')
     // 1) Token efímero
     const endpoint = (import.meta.env as any).VITE_OPENAI_REALTIME_ENDPOINT || '/api/openai/ephemeral'
     const res = await fetch(endpoint)
@@ -16,16 +17,20 @@ export async function startOrbRealtime(): Promise<boolean> {
     const clientSecret: string | undefined = data?.client_secret?.value || data?.client_secret
     const sessionModel: string = data?.model || 'gpt-realtime'
     if (!clientSecret) throw new Error('Missing client secret')
+    console.log('[orb] ephemeral ok, model=', sessionModel)
 
     // 2) Micrófono local
     const local = await navigator.mediaDevices.getUserMedia({ audio: true })
+    console.log('[orb] mic ok')
 
     // 3) RTCPeerConnection
     const pc = new RTCPeerConnection()
     activePc = pc
     activeLocalStream = local
     try { pc.addTransceiver('audio', { direction: 'recvonly' }) } catch {}
+    console.log('[orb] transceiver added')
     local.getTracks().forEach((t) => pc.addTrack(t, local))
+    console.log('[orb] pc tracks added')
 
     // 4) Audio remoto
     const remoteAudio = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
@@ -40,12 +45,13 @@ export async function startOrbRealtime(): Promise<boolean> {
         remoteAudio.srcObject = stream
         remoteAudio.play().catch(() => {})
       }
-      // console.log('orb:ontrack')
+      console.log('[orb] ontrack (remote audio)')
     }
 
     // 5) DataChannel y arranque de conversación
     const dc = pc.createDataChannel('oai-events')
     dc.onopen = () => {
+      console.log('[orb] dc open')
       try {
         // session.update antes de pedir respuesta
         dc.send(
@@ -87,13 +93,19 @@ export async function startOrbRealtime(): Promise<boolean> {
         'OpenAI-Beta': 'realtime=v1',
       },
     })
-    if (!sdpRes.ok) throw new Error(`SDP exchange failed: ${sdpRes.status}`)
+    console.log('[orb] SDP status', sdpRes.status)
+    if (!sdpRes.ok) {
+      const txt = await sdpRes.text().catch(() => '')
+      console.warn('[orb] SDP error body:', txt.slice(0, 200))
+      throw new Error(`SDP exchange failed: ${sdpRes.status}`)
+    }
     const answer = await sdpRes.text()
     await pc.setRemoteDescription({ type: 'answer', sdp: answer })
+    console.log('[orb] remote description set')
 
     return true
   } catch (e) {
-    // console.error('orb start error', e)
+    console.error('[orb] start error', e)
     stopOrbRealtime()
     return false
   }
