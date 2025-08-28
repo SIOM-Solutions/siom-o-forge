@@ -26,6 +26,24 @@ export async function startRealtime(): Promise<boolean> {
       console.log('Realtime connection state:', pc.connectionState)
     }
 
+    // Data channel para eventos (response.create, etc.)
+    const dc = pc.createDataChannel('oai-events')
+    dc.onopen = () => {
+      console.log('Realtime: data channel open')
+      try {
+        dc.send(JSON.stringify({ type: 'response.create' }))
+      } catch (e) {
+        console.warn('Realtime: response.create send failed', e)
+      }
+    }
+    dc.onmessage = (ev) => {
+      // Opcional: logs de eventos
+      try {
+        const msg = JSON.parse(String(ev.data))
+        if (msg?.type) console.log('Realtime event:', msg.type)
+      } catch {}
+    }
+
     // Remote audio
     const remoteAudio = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
     if (remoteAudio) {
