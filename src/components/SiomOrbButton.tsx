@@ -9,8 +9,6 @@ export default function SiomOrbButton() {
     const run = async () => {
       try {
         if (isOpen) {
-          // Aseguramos permiso de audio dentro del gesto del usuario si Safari/Chrome lo exige
-          try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {}
           await voiceEngine.start()
         } else {
           voiceEngine.stop()
@@ -22,10 +20,17 @@ export default function SiomOrbButton() {
     run()
   }, [isOpen])
 
+  const handleClick = async () => {
+    if (!isOpen) {
+      try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {}
+    }
+    toggle()
+  }
+
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={handleClick}
       aria-pressed={isOpen}
       aria-label={isOpen ? 'Cerrar asistente' : 'Abrir asistente'}
       title={isOpen ? 'Cerrar asistente' : 'Pulsa y habla con Excelsior'}
