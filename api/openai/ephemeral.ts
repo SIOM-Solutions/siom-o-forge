@@ -1,16 +1,27 @@
 export const config = { runtime: 'edge' }
 
 export default async function handler(req: Request): Promise<Response> {
+  const origin = req.headers.get('origin') || '*'
+  const cors = {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: cors })
+  }
+
   if (req.method !== 'GET') {
-    return new Response('Method Not Allowed', { status: 405 })
+    return new Response('Method Not Allowed', { status: 405, headers: cors })
   }
 
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
-    return new Response('Missing OPENAI_API_KEY', { status: 500 })
+    return new Response('Missing OPENAI_API_KEY', { status: 500, headers: cors })
   }
 
-  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2025-06-03'
+  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-12-17'
   const voice = process.env.OPENAI_REALTIME_VOICE || 'ash'
 
   // Instrucciones por defecto (Excelsior guía de plataforma) si no se proveen aún
@@ -36,17 +47,17 @@ export default async function handler(req: Request): Promise<Response> {
 
     if (!r.ok) {
       const text = await r.text()
-      return new Response(text, { status: r.status })
+      return new Response(text, { status: r.status, headers: { ...cors, 'content-type': 'application/json' } })
     }
     const data = await r.json()
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { ...cors, 'content-type': 'application/json' },
     })
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e?.message || 'Unknown error' }), {
       status: 500,
-      headers: { 'content-type': 'application/json' },
+      headers: { ...cors, 'content-type': 'application/json' },
     })
   }
 }
