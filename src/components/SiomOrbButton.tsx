@@ -23,6 +23,17 @@ export default function SiomOrbButton() {
   const handleClick = async () => {
     if (!isOpen) {
       try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {}
+      // Desbloquear salida de audio del elemento remoto bajo gesto de usuario
+      try {
+        const a = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
+        if (a) {
+          a.hidden = false // no visual, pero asegura estado estable en algunos navegadores
+          a.muted = false
+          a.volume = 1
+          await a.play().catch(() => {})
+          a.hidden = true
+        }
+      } catch {}
     }
     toggle()
   }

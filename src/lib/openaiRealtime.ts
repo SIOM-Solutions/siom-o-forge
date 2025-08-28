@@ -2,6 +2,20 @@ let activePc: RTCPeerConnection | null = null
 let activeLocalStream: MediaStream | null = null
 let serverDc: RTCDataChannel | null = null
 
+// Configuración por defecto para sesión Realtime
+const DEFAULT_VOICE = ((import.meta.env as any).VITE_OPENAI_REALTIME_VOICE as string) || 'ash'
+const DEFAULT_INSTRUCTIONS = (
+  (import.meta.env as any).VITE_EXCELSIOR_INSTRUCTIONS as string
+) || 'Eres Excelsior, la guía experta de O-Forge de SIOM Solutions. Responde en español (España), con precisión y enfoque táctico orientado a impacto. No compartas detalles técnicos internos. Si algo se sale del alcance, reconduce y ofrece el siguiente paso útil dentro de la plataforma.'
+const DEFAULT_TURN_DETECTION = {
+  type: 'server_vad',
+  threshold: 0.5,
+  prefix_padding_ms: 300,
+  silence_duration_ms: 200,
+  create_response: true,
+  interrupt_response: true,
+} as const
+
 export async function startRealtime(): Promise<boolean> {
   try {
     const endpoint = import.meta.env.VITE_OPENAI_REALTIME_ENDPOINT || '/api/openai/ephemeral'
@@ -9,7 +23,7 @@ export async function startRealtime(): Promise<boolean> {
     if (!res.ok) throw new Error('Failed to fetch ephemeral token')
     const data = await res.json()
     const clientSecret = data?.client_secret?.value
-    const sessionModel: string = data?.model || 'gpt-4o-realtime-preview-2025-06-03'
+    const sessionModel: string = data?.model || 'gpt-4o-realtime-preview-2024-12-17'
     if (!clientSecret) throw new Error('Missing client secret in session')
 
     // WebRTC peer connection
@@ -32,6 +46,20 @@ export async function startRealtime(): Promise<boolean> {
     dc.onopen = () => {
       console.log('Realtime: data channel open')
       try {
+        // Ajustar sesión antes de solicitar respuesta (voz, instrucciones, VAD)
+        dc.send(
+          JSON.stringify({
+            type: 'session.update',
+            session: {
+              modalities: ['audio', 'text'],
+              voice: DEFAULT_VOICE,
+              output_audio_format: 'pcm16',
+              instructions: DEFAULT_INSTRUCTIONS,
+              turn_detection: DEFAULT_TURN_DETECTION,
+            },
+          }),
+        )
+
         // Semilla inicial para forzar salida de voz
         dc.send(JSON.stringify({
           type: 'conversation.item.create',
@@ -41,7 +69,12 @@ export async function startRealtime(): Promise<boolean> {
             content: [{ type: 'input_text', text: 'Hola, preséntate brevemente.' }],
           },
         }))
-        dc.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio','text'] } }))
+        dc.send(
+          JSON.stringify({
+            type: 'response.create',
+            response: { modalities: ['audio', 'text'] },
+          }),
+        )
       } catch (e) {
         console.warn('Realtime: response.create send failed', e)
       }
@@ -59,9 +92,22 @@ export async function startRealtime(): Promise<boolean> {
       }
       serverDc.onopen = () => {
         try {
-          // Asegurar voz + audio
-          serverDc?.send(JSON.stringify({ type: 'session.update', session: { modalities: ['audio','text'] } }))
-          serverDc?.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio','text'] } }))
+          // Asegurar voz + audio + instrucciones también desde el canal del servidor
+          serverDc?.send(
+            JSON.stringify({
+              type: 'session.update',
+              session: {
+                modalities: ['audio', 'text'],
+                voice: DEFAULT_VOICE,
+                output_audio_format: 'pcm16',
+                instructions: DEFAULT_INSTRUCTIONS,
+                turn_detection: DEFAULT_TURN_DETECTION,
+              },
+            }),
+          )
+          serverDc?.send(
+            JSON.stringify({ type: 'response.create', response: { modalities: ['audio', 'text'] } }),
+          )
         } catch (e) {
           console.warn('Realtime: srv response.create failed', e)
         }
@@ -84,6 +130,8 @@ export async function startRealtime(): Promise<boolean> {
       }
     }
 
+    // Garantizar recepción de audio remoto en todos los navegadores
+    try { pc.addTransceiver('audio', { direction: 'recvonly' }) } catch {}
     const offer = await pc.createOffer({ offerToReceiveAudio: true })
     await pc.setLocalDescription(offer)
 
