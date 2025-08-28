@@ -31,12 +31,14 @@ export async function startElevenWS(): Promise<boolean> {
 
     // Conexión WS
     ws = new WebSocket(url)
+    ws.binaryType = 'arraybuffer'
     ws.onopen = () => {
       // Captura PCM y envío como frames JSON
       remotePcmChunks = []
       captureBuffer = []
       audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 48000 })
       if (!audioCtx) return
+      try { audioCtx.resume().catch(() => {}) } catch {}
       sourceNode = audioCtx.createMediaStreamSource(mediaStream!)
       processorNode = audioCtx.createScriptProcessor(4096, 1, 1)
       processorNode.onaudioprocess = (ev) => {
@@ -52,7 +54,9 @@ export async function startElevenWS(): Promise<boolean> {
         if (!ws || ws.readyState !== WebSocket.OPEN) return
         const samples = mergeFloat32(captureBuffer)
         captureBuffer = []
-        if (samples.length === 0) return
+        // Evitar respuestas excesivas: esperar al menos ~200ms de audio (a 48kHz ≈ 9600 muestras)
+        const minSamples = 9600
+        if (samples.length < minSamples) return
         const pcm16 = downsampleTo16kAndEncodePCM16(samples, audioCtx!.sampleRate)
         const b64 = base64FromArrayBuffer(pcm16.buffer)
         try {

@@ -9,6 +9,10 @@ export default function SiomOrbButton() {
     const run = async () => {
       try {
         if (isOpen) {
+          // Aseguramos permiso de audio dentro del gesto del usuario si Safari/Chrome lo exige
+          try {
+            await navigator.mediaDevices.getUserMedia({ audio: true })
+          } catch {}
           await startElevenWS()
         } else {
           stopElevenWS()

@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom'
-import ExcelsiorWidget from './ExcelsiorWidget'
+// Widget desactivado: la conexión es 100% WS propio
 import { } from '../contexts/ExcelsiorContext'
 
 export default function ExcelsiorHost() {
@@ -15,8 +15,8 @@ export default function ExcelsiorHost() {
 
   if (hidden) return null
 
-  // SDK/WS: ocultamos totalmente el widget (no UI externa)
-  return <ExcelsiorWidget invisible={true} />
+  // No renderizamos nada; Excelsior funciona por WS directo
+  return null
 }
 
 
