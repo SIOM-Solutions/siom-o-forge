@@ -21,7 +21,7 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Missing OPENAI_API_KEY', { status: 500, headers: cors })
   }
 
-  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-4o-realtime-preview-2024-12-17'
+  const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-realtime'
   const voice = process.env.OPENAI_REALTIME_VOICE || 'ash'
 
   // Instrucciones por defecto (Excelsior guía de plataforma) si no se proveen aún
@@ -29,7 +29,7 @@ export default async function handler(req: Request): Promise<Response> {
   const instructions = process.env.OPENAI_EXCELSIOR_INSTRUCTIONS || defaultInstructions
 
   try {
-    const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
+    const r = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -37,11 +37,14 @@ export default async function handler(req: Request): Promise<Response> {
         'OpenAI-Beta': 'realtime=v1',
       },
       body: JSON.stringify({
-        model,
-        voice,
-        modalities: ['audio', 'text'],
-        output_audio_format: 'pcm16',
-        instructions,
+        session: {
+          type: 'realtime',
+          model,
+          voice,
+          modalities: ['audio', 'text'],
+          output_audio_format: 'pcm16',
+          instructions,
+        },
       }),
     })
 

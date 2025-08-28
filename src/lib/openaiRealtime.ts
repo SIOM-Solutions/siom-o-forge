@@ -136,7 +136,7 @@ export async function startRealtime(): Promise<boolean> {
     await pc.setLocalDescription(offer)
 
     const baseUrl = 'https://api.openai.com/v1/realtime'
-    const sdpRes = await fetch(`${baseUrl}?model=${encodeURIComponent(sessionModel)}`, {
+    const sdpRes = await fetch(`${baseUrl}?model=${encodeURIComponent(sessionModel || 'gpt-realtime')}`, {
       method: 'POST',
       body: offer.sdp,
       headers: {
