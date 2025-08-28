@@ -17,10 +17,10 @@ import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
 import OpsLandingPage from './pages/ops/OpsLandingPage'
 import WelcomeScreen from './components/WelcomeScreen'
 import ExcelsiorHost from './components/ExcelsiorHost'
-import SiomOrbButton from './components/SiomOrbButton'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 import ExcelsiorHUD from './components/ExcelsiorHUD'
 import RealtimeLabPage from './pages/lab/RealtimeLabPage'
+import TriangleRealtimeButton from './components/TriangleRealtimeButton'
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
               <ExcelsiorHost />
             </div>
             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-              <SiomOrbButton />
+              <TriangleRealtimeButton />
             </div>
           </ExcelsiorProvider>
           <Routes>
