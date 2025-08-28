@@ -1,40 +1,22 @@
-type StartFn = () => Promise<boolean>
-type StopFn = () => void
+import { startOrbRealtime, stopOrbRealtime } from './realtime/orbClient'
 
 export interface VoiceEngine {
-  start: StartFn
-  stop: StopFn
-  provider: 'elevenlabs' | 'openai' | 'gemini'
+  start: () => Promise<boolean>
+  stop: () => void
+  provider: 'openai'
 }
 
-// Implementaciones existentes
-import { startElevenWS, stopElevenWS } from './elevenlabsWS'
-import { startRealtime as startOpenAI, stopRealtime as stopOpenAI } from './openaiRealtime'
-
 function pickProvider(): VoiceEngine['provider'] {
-  const env = (import.meta.env as any).VITE_VOICE_PROVIDER as VoiceEngine['provider'] | undefined
-  if (env === 'openai' || env === 'gemini') return env
-  // Por defecto activamos OpenAI para pruebas del orbe
   return 'openai'
 }
 
 export const voiceEngine: VoiceEngine = {
   provider: pickProvider(),
   start: async () => {
-    const provider = pickProvider()
-    if (provider === 'openai') {
-      return startOpenAI()
-    }
-    // gemini (placeholder futuro) → fallback a elevenlabs por ahora
-    return startElevenWS()
+    return startOrbRealtime()
   },
   stop: () => {
-    const provider = pickProvider()
-    if (provider === 'openai') {
-      return stopOpenAI()
-    }
-    // gemini (placeholder futuro)
-    return stopElevenWS()
+    return stopOrbRealtime()
   },
 }
 
