@@ -1,10 +1,9 @@
 import { useLocation } from 'react-router-dom'
 import ExcelsiorWidget from './ExcelsiorWidget'
-import { useExcelsior } from '../contexts/ExcelsiorContext'
+import { } from '../contexts/ExcelsiorContext'
 
 export default function ExcelsiorHost() {
   const location = useLocation()
-  const { isOpen } = useExcelsior()
 
   // Rutas donde ocultar Excelsior (reservado para futuros asistentes específicos)
   const hideOn = [
