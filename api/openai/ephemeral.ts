@@ -29,6 +29,7 @@ export default async function handler(req: Request): Promise<Response> {
         model,
         voice,
         modalities: ['audio', 'text'],
+        output_audio_format: 'pcm16',
         instructions,
       }),
     })

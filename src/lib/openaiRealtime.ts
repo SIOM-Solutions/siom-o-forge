@@ -1,5 +1,6 @@
 let activePc: RTCPeerConnection | null = null
 let activeLocalStream: MediaStream | null = null
+let serverDc: RTCDataChannel | null = null
 
 export async function startRealtime(): Promise<boolean> {
   try {
@@ -26,7 +27,7 @@ export async function startRealtime(): Promise<boolean> {
       console.log('Realtime connection state:', pc.connectionState)
     }
 
-    // Data channel para eventos; disparar response.create al abrir
+    // Data channel (cliente)
     const dc = pc.createDataChannel('oai-events')
     dc.onopen = () => {
       console.log('Realtime: data channel open')
@@ -47,6 +48,24 @@ export async function startRealtime(): Promise<boolean> {
     }
     dc.onmessage = (ev) => {
       try { const j = JSON.parse(String(ev.data)); if (j?.type) console.log('Realtime event:', j.type) } catch {}
+    }
+
+    // Data channel que pueda abrir el servidor
+    pc.ondatachannel = (e) => {
+      serverDc = e.channel
+      console.log('Realtime: server data channel:', serverDc.label)
+      serverDc.onmessage = (ev) => {
+        try { const j = JSON.parse(String(ev.data)); if (j?.type) console.log('Realtime srv event:', j.type) } catch {}
+      }
+      serverDc.onopen = () => {
+        try {
+          // Asegurar voz + audio
+          serverDc?.send(JSON.stringify({ type: 'session.update', session: { modalities: ['audio','text'] } }))
+          serverDc?.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio','text'] } }))
+        } catch (e) {
+          console.warn('Realtime: srv response.create failed', e)
+        }
+      }
     }
 
     // Remote audio
@@ -81,6 +100,12 @@ export async function startRealtime(): Promise<boolean> {
     if (!sdpRes.ok) throw new Error(`SDP exchange failed: ${sdpRes.status}`)
     const answer = { type: 'answer', sdp: await sdpRes.text() } as RTCSessionDescriptionInit
     await pc.setRemoteDescription(answer)
+
+    // Reintento de inicio de habla tras establecer la descripción remota
+    setTimeout(() => {
+      const ch = serverDc && serverDc.readyState === 'open' ? serverDc : (dc.readyState === 'open' ? dc : null)
+      try { ch?.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio','text'] } })) } catch {}
+    }, 500)
 
     return true
   } catch (e) {
