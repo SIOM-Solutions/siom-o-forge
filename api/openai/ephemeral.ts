@@ -22,14 +22,18 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-realtime'
-  // Nota: la voz ya no se envía en client_secrets; se configura luego vía session.update en el cliente
+  // Voz y demás parámetros se aplican luego vía session.update en el cliente
 
   // Instrucciones por defecto (Excelsior guía de plataforma) si no se proveen aún
   const defaultInstructions = `Eres SIOM Excelsior, guía de la plataforma O‑Forge. Tu función es ayudar a navegar, explicar secciones y derivar a instructores o asesores para contenidos de materias. No reveles detalles técnicos internos ni arquitectura. Mantén el tono ejecutivo y preciso. Idioma: español (España).`
   const instructions = process.env.OPENAI_EXCELSIOR_INSTRUCTIONS || defaultInstructions
 
   try {
-    const r = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
+    // Crear sesión Realtime con prompt asset (si está definido)
+    const promptId = process.env.OPENAI_REALTIME_PROMPT_ID
+    const promptVersion = process.env.OPENAI_REALTIME_PROMPT_VERSION
+
+    const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -37,10 +41,8 @@ export default async function handler(req: Request): Promise<Response> {
         'OpenAI-Beta': 'realtime=v1',
       },
       body: JSON.stringify({
-        session: {
-          type: 'realtime',
-          model,
-        },
+        model,
+        ...(promptId ? { prompt: { id: promptId, ...(promptVersion ? { version: promptVersion } : {}) } } : {}),
       }),
     })
 

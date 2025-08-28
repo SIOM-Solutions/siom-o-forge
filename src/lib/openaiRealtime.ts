@@ -22,8 +22,8 @@ export async function startRealtime(): Promise<boolean> {
     const res = await fetch(endpoint)
     if (!res.ok) throw new Error('Failed to fetch ephemeral token')
     const data = await res.json()
-    const clientSecret = data?.client_secret?.value
-    const sessionModel: string = data?.model || 'gpt-4o-realtime-preview-2024-12-17'
+    const clientSecret = (data?.client_secret?.value || data?.client_secret) as string | undefined
+    const sessionModel: string = data?.model || 'gpt-realtime'
     if (!clientSecret) throw new Error('Missing client secret in session')
 
     // WebRTC peer connection
