@@ -1,21 +1,52 @@
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-// Widget desactivado: la conexión es 100% WS propio
-import { } from '../contexts/ExcelsiorContext'
 
 export default function ExcelsiorHost() {
   const location = useLocation()
 
-  // Rutas donde ocultar Excelsior (reservado para futuros asistentes específicos)
-  const hideOn = [
-    /^\/performance\/forja/,
-    /^\/ops\/sesion/,
-  ]
-
+  const hideOn = [/^\/performance\/forja/, /^\/ops\/sesion/]
   const hidden = hideOn.some((re) => re.test(location.pathname))
 
-  if (hidden) return null
+  useEffect(() => {
+    if (hidden) return
 
-  // No renderizamos nada; Excelsior funciona por WS directo
+    const scriptId = 'elevenlabs-convai-script'
+    if (!document.getElementById(scriptId)) {
+      const s = document.createElement('script')
+      s.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed'
+      s.async = true
+      s.id = scriptId
+      document.body.appendChild(s)
+    }
+
+    const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
+    if (!agentId) return
+
+    const elId = 'siom-eleven-widget'
+    let conv = document.getElementById(elId) as HTMLElement | null
+    if (!conv) {
+      conv = document.createElement('elevenlabs-convai') as unknown as HTMLElement
+      conv.id = elId
+      // @ts-expect-error: atributo personalizado del web component
+      conv.setAttribute('agent-id', agentId)
+      const style = conv.style as CSSStyleDeclaration
+      style.position = 'fixed'
+      style.bottom = '20px'
+      style.right = '20px'
+      style.width = '380px'
+      style.height = '520px'
+      style.zIndex = '60'
+      document.body.appendChild(conv)
+    }
+
+    return () => {
+      try {
+        const n = document.getElementById(elId)
+        if (n) document.body.removeChild(n)
+      } catch {}
+    }
+  }, [hidden, location.pathname])
+
   return null
 }
 
