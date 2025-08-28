@@ -1,4 +1,4 @@
-export const config = { runtime: 'edge' }
+export const config = { runtime: 'nodejs18.x' }
 
 function corsHeaders(origin: string | null) {
   return {
