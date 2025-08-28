@@ -23,6 +23,11 @@ export default function SiomOrbButton() {
   const handleClick = async () => {
     if (!isOpen) {
       try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch {}
+      // Desbloquear autoplay en iOS/Safari: intentar play() del audio remoto en gesto de usuario
+      try {
+        const a = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
+        if (a) { a.muted = false; await a.play().catch(() => {}) }
+      } catch {}
     }
     toggle()
   }
