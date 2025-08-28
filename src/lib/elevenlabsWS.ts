@@ -2,19 +2,25 @@ let ws: WebSocket | null = null
 let mediaStream: MediaStream | null = null
 let mediaRecorder: MediaRecorder | null = null
 
-function getWsUrl(): string | null {
-  const direct = (import.meta.env as any).VITE_ELEVENLABS_WS_URL as string | undefined
-  if (direct) return direct
+async function getWsUrl(): Promise<string | null> {
+  const base = (import.meta.env as any).VITE_CONSOLE_BASE_URL as string | undefined
   const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
-  if (!agentId) return null
-  // Nota: URL de ejemplo (ajusta al endpoint oficial de ElevenLabs CAI WS)
-  return `wss://api.elevenlabs.io/v1/convai/ws?agent_id=${encodeURIComponent(agentId)}`
+  if (!base || !agentId) return null
+  const res = await fetch(`${base}/api/eleven/sessions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ agent_id: agentId }),
+  })
+  if (!res.ok) return null
+  const data = await res.json()
+  return data?.ws_url || null
 }
 
 export async function startElevenWS(): Promise<boolean> {
   try {
     if (ws) return true
-    const url = getWsUrl()
+    const url = await getWsUrl()
     if (!url) throw new Error('WS URL no configurada (VITE_ELEVENLABS_WS_URL o VITE_EXCELSIOR_AGENT_ID)')
 
     // Permisos de micrófono
