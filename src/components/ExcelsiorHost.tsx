@@ -27,7 +27,6 @@ export default function ExcelsiorHost() {
     if (!conv) {
       conv = document.createElement('elevenlabs-convai') as unknown as HTMLElement
       conv.id = elId
-      // @ts-expect-error: atributo personalizado del web component
       conv.setAttribute('agent-id', agentId)
       const style = conv.style as CSSStyleDeclaration
       style.position = 'fixed'
