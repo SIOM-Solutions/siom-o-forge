@@ -20,6 +20,7 @@ import ExcelsiorHost from './components/ExcelsiorHost'
 import SiomOrbButton from './components/SiomOrbButton'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 import ExcelsiorHUD from './components/ExcelsiorHUD'
+import RealtimeLabPage from './pages/lab/RealtimeLabPage'
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             {/* Rutas protegidas con layout */}
             <Route element={<ProtectedLayout />}>
               <Route path="/hub" element={<HubPage />} />
+              <Route path="/lab/realtime" element={<RealtimeLabPage />} />
               <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
               <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
               <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />
