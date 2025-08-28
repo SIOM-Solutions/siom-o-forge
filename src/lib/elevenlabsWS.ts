@@ -69,6 +69,18 @@ export async function startElevenWS(): Promise<boolean> {
     // Reproducir audio remoto
     ws.onmessage = (ev) => {
       const audioEl = document.getElementById('eleven-remote-audio') as HTMLAudioElement | null
+      if (ev.data instanceof ArrayBuffer) {
+        // Servidor envía audio binario (pcm_16000)
+        try {
+          const wav = pcm16ToWav(ev.data as ArrayBuffer, 16000)
+          if (audioEl) {
+            const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }))
+            audioEl.src = url
+            audioEl.play().catch(() => {})
+          }
+        } catch {}
+        return
+      }
       const msg = typeof ev.data === 'string' ? ev.data : ''
       if (msg) {
         try {
