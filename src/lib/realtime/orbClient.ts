@@ -126,4 +126,19 @@ export function stopOrbRealtime() {
   } catch {}
 }
 
+// Limpieza y desbloqueo de micrófono previa a una nueva conexión
+export async function preflightMicReset(): Promise<void> {
+  try {
+    console.log('[orb] preflight: stopping previous pc/streams')
+    stopOrbRealtime()
+  } catch {}
+  try {
+    console.log('[orb] preflight: probe getUserMedia and release')
+    const ms = await navigator.mediaDevices.getUserMedia({ audio: true })
+    try { ms.getTracks().forEach((t) => { try { t.stop() } catch {} }) } catch {}
+  } catch (e) {
+    console.warn('[orb] preflight mic error', e)
+  }
+}
+
 

@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { startOrbRealtime, stopOrbRealtime } from '../lib/realtime/orbClient'
+import { startOrbRealtime, stopOrbRealtime, preflightMicReset } from '../lib/realtime/orbClient'
 
 export default function TriangleRealtimeButton() {
   const [connected, setConnected] = useState(false)
 
   const handleClick = async () => {
     if (!connected) {
+      // Preflight: liberar el mic antes de iniciar (equivalente al snippet manual)
+      try { await preflightMicReset() } catch {}
       try {
         const a = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
         if (a) {
