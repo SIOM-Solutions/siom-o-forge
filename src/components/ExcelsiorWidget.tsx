@@ -17,17 +17,15 @@ export default function ExcelsiorWidget({ invisible = true }: { invisible?: bool
     // Crear el custom element de forma imperativa para evitar UI visible y tipos TSX
     const conv = document.createElement('elevenlabs-convai') as any
     conv.setAttribute('agent-id', agentId)
-    // Forzar invisibilidad total. Controlaremos la sesión por eventos.
     const style = conv.style as CSSStyleDeclaration
     style.position = 'fixed'
-    style.bottom = '0'
-    style.right = '0'
-    style.width = '1px'
-    style.height = '1px'
-    style.opacity = '0'
-    style.pointerEvents = 'none'
-    style.overflow = 'hidden'
-    style.zIndex = '0'
+    style.bottom = '88px'
+    style.right = '20px'
+    style.width = invisible ? '1px' : '360px'
+    style.height = invisible ? '1px' : '480px'
+    style.opacity = invisible ? '0' : '1'
+    style.pointerEvents = invisible ? 'none' : 'auto'
+    style.zIndex = '50'
     document.body.appendChild(conv)
 
     // Observador para ocultar cualquier UI inyectada por el widget

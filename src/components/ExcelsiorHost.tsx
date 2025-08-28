@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import ExcelsiorWidget from './ExcelsiorWidget'
 import { useExcelsior } from '../contexts/ExcelsiorContext'
@@ -17,13 +16,8 @@ export default function ExcelsiorHost() {
 
   if (hidden) return null
 
-  // Notificar al widget los cambios de estado del orbe (para iniciar/parar escucha)
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent(isOpen ? 'siom-orb-open' : 'siom-orb-close'))
-  }, [isOpen])
-
-  // Siempre montado e invisible: controlamos por eventos (plan B)
-  return <ExcelsiorWidget invisible={true} />
+  // Visible cuando el orbe está activo; invisible cuando está cerrado
+  return <ExcelsiorWidget invisible={!isOpen} />
 }
 
 
