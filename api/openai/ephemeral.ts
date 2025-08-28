@@ -25,7 +25,12 @@ export default async function handler(req: Request): Promise<Response> {
         'Content-Type': 'application/json',
         'OpenAI-Beta': 'realtime=v1',
       },
-      body: JSON.stringify({ model, voice, instructions }),
+      body: JSON.stringify({
+        model,
+        voice,
+        modalities: ['audio', 'text'],
+        instructions,
+      }),
     })
 
     if (!r.ok) {
