@@ -82,6 +82,8 @@ export default function RealtimeLabPage() {
                 modalities: ['audio', 'text'],
                 voice: 'ash',
                 turn_detection: { type: 'server_vad' },
+                instructions:
+                  'Eres Excelsior, la guía experta de O-Forge de SIOM Solutions. Habla en español (España), tono ejecutivo y directo, orientado a impacto. No compartas detalles técnicos internos. Si la pregunta sale del alcance, reconduce y ofrece el siguiente paso útil dentro de la plataforma.',
               },
             }),
           )
