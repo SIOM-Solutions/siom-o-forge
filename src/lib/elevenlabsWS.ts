@@ -3,10 +3,10 @@ let mediaStream: MediaStream | null = null
 let mediaRecorder: MediaRecorder | null = null
 
 async function getWsUrl(): Promise<string | null> {
-  const base = (import.meta.env as any).VITE_CONSOLE_BASE_URL as string | undefined
   const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
-  if (!base || !agentId) return null
-  const res = await fetch(`${base}/api/eleven/sessions`, {
+  if (!agentId) return null
+  // Usamos el endpoint local de O‑Forge para evitar CORS
+  const res = await fetch(`/api/eleven/sessions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ agent_id: agentId }),
