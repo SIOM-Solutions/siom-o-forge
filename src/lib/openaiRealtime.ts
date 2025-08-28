@@ -31,6 +31,15 @@ export async function startRealtime(): Promise<boolean> {
     dc.onopen = () => {
       console.log('Realtime: data channel open')
       try {
+        // Semilla inicial para forzar salida de voz
+        dc.send(JSON.stringify({
+          type: 'conversation.item.create',
+          item: {
+            type: 'message',
+            role: 'user',
+            content: [{ type: 'input_text', text: 'Hola, preséntate brevemente.' }],
+          },
+        }))
         dc.send(JSON.stringify({ type: 'response.create' }))
       } catch (e) {
         console.warn('Realtime: response.create send failed', e)
