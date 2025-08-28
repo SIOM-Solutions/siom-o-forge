@@ -5,6 +5,7 @@ let sourceNode: MediaStreamAudioSourceNode | null = null
 let processorNode: ScriptProcessorNode | null = null
 let captureBuffer: Float32Array[] = []
 let remotePcmChunks: Uint8Array[] = []
+let awaitingResponse = false
 
 async function getWsUrl(): Promise<string | null> {
   const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
@@ -47,7 +48,21 @@ export async function startElevenWS(): Promise<boolean> {
         captureBuffer.push(new Float32Array(input))
       }
       sourceNode.connect(processorNode)
-      processorNode.connect(audioCtx.destination)
+      // No conectamos a destination para evitar eco; basta con procesar frames
+      try { processorNode.connect(audioCtx.destination) } catch {}
+
+      // Declarar formato y VAD al servidor (algunos proveedores lo requieren)
+      try {
+        ws!.send(JSON.stringify({
+          type: 'session.update',
+          session: {
+            input_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
+            input_audio_transcription: { enabled: true, language: 'es' },
+            turn_detection: { type: 'server', silence_duration_ms: 700 },
+          },
+        }))
+      } catch {}
+      awaitingResponse = false
 
       // Envío periódico de frames PCM16 (16 kHz)
       const sendInterval = setInterval(() => {
@@ -62,7 +77,10 @@ export async function startElevenWS(): Promise<boolean> {
         try {
           ws.send(JSON.stringify({ type: 'input_audio_buffer.append', audio: b64 }))
           ws.send(JSON.stringify({ type: 'input_audio_buffer.commit' }))
-          ws.send(JSON.stringify({ type: 'response.create' }))
+          if (!awaitingResponse) {
+            ws.send(JSON.stringify({ type: 'response.create' }))
+            awaitingResponse = true
+          }
         } catch {}
       }, 300)
 
@@ -83,12 +101,18 @@ export async function startElevenWS(): Promise<boolean> {
             audioEl.play().catch(() => {})
           }
         } catch {}
+        // Al recibir audio remoto, permitimos la siguiente petición
+        awaitingResponse = false
         return
       }
       const msg = typeof ev.data === 'string' ? ev.data : ''
       if (msg) {
         try {
           const j = JSON.parse(msg)
+          // Si el servidor confirma fin de respuesta, desbloquear siguiente
+          if (j?.type === 'response.completed' || j?.type === 'output_audio_buffer.commit') {
+            awaitingResponse = false
+          }
           // Convenciones típicas: output_audio_buffer.append/commit
           if (j?.type === 'output_audio_buffer.append' && j?.audio) {
             const bytes = base64ToUint8(j.audio)
