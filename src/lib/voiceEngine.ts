@@ -14,7 +14,8 @@ import { startRealtime as startOpenAI, stopRealtime as stopOpenAI } from './open
 function pickProvider(): VoiceEngine['provider'] {
   const env = (import.meta.env as any).VITE_VOICE_PROVIDER as VoiceEngine['provider'] | undefined
   if (env === 'openai' || env === 'gemini') return env
-  return 'elevenlabs'
+  // Por defecto activamos OpenAI para pruebas del orbe
+  return 'openai'
 }
 
 export const voiceEngine: VoiceEngine = {
