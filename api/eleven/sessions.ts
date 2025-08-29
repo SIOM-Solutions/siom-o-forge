@@ -1,32 +1,41 @@
-export const config = { runtime: 'nodejs' }
+export const config = { runtime: 'edge' }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: Request): Promise<Response> {
+  const origin = req.headers.get('origin') || '*'
+  const cors = {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
   if (req.method === 'OPTIONS') {
-    res.status(204).end()
-    return
+    return new Response(null, { status: 204, headers: cors })
   }
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method Not Allowed' })
-    return
+    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
+      status: 405,
+      headers: { ...cors, 'content-type': 'application/json' },
+    })
   }
+
   try {
     const apiKey = process.env.ELEVENLABS_API_KEY
     if (!apiKey) {
-      res.status(500).json({ error: 'Missing ELEVENLABS_API_KEY' })
-      return
+      return new Response(JSON.stringify({ error: 'Missing ELEVENLABS_API_KEY' }), {
+        status: 500,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
     }
 
-    let body = req.body
-    if (!body || typeof body === 'string') {
-      try { body = body ? JSON.parse(body) : {} } catch { body = {} }
-    }
+    const body = await req.json().catch(() => ({} as any))
     const agentId = (body && body.agent_id) || process.env.VITE_EXCELSIOR_AGENT_ID
     if (!agentId) {
-      res.status(400).json({ error: 'Missing agent_id' })
-      return
+      return new Response(JSON.stringify({ error: 'Missing agent_id' }), {
+        status: 400,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
     }
 
-    // Solicitar la URL de WS para el agente (Convai)
     const r = await fetch('https://api.elevenlabs.io/v1/convai/connections', {
       method: 'POST',
       headers: {
@@ -40,17 +49,22 @@ export default async function handler(req: any, res: any) {
     try { j = JSON.parse(text) } catch { j = null }
 
     if (!r.ok) {
-      res
-        .status(r.status)
-        .setHeader('content-type', 'application/json')
-        .send(j ? JSON.stringify(j) : JSON.stringify({ error: 'Upstream error', details: text }))
-      return
+      return new Response(j ? JSON.stringify(j) : JSON.stringify({ error: 'Upstream error', details: text }), {
+        status: r.status,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
     }
 
     const wsUrl = j?.websocket_url || j?.ws_url || j?.url || j?.signed_url
-    res.status(200).json({ ws_url: wsUrl })
+    return new Response(JSON.stringify({ ws_url: wsUrl }), {
+      status: 200,
+      headers: { ...cors, 'content-type': 'application/json' },
+    })
   } catch (e: any) {
-    res.status(500).json({ error: String(e?.message || e) })
+    return new Response(JSON.stringify({ error: String(e?.message || e) }), {
+      status: 500,
+      headers: { ...cors, 'content-type': 'application/json' },
+    })
   }
 }
 
