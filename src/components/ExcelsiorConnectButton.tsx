@@ -1,26 +1,90 @@
-import { useState } from 'react'
-import { preflightMicReset, startOrbRealtime, stopOrbRealtime } from '../lib/realtime/orbClient'
+import { useRef, useState } from 'react'
 
 export default function ExcelsiorConnectButton() {
   const [connected, setConnected] = useState(false)
+  const pcRef = useRef<RTCPeerConnection | null>(null)
+  const localRef = useRef<MediaStream | null>(null)
 
   const handleClick = async () => {
     if (!connected) {
-      try { await preflightMicReset() } catch {}
       try {
+        // 1) Token efímero
+        const ep = await fetch('/api/openai/ephemeral')
+        if (!ep.ok) throw new Error(`ephemeral ${ep.status}`)
+        const ej = await ep.json()
+        const token: string | undefined = ej?.client_secret?.value || ej?.client_secret
+        const model: string = ej?.model || 'gpt-realtime'
+        if (!token) throw new Error('missing client secret')
+
+        // 2) RTCPeerConnection y audio remoto
+        const pc = new RTCPeerConnection()
+        pcRef.current = pc
         const a = document.getElementById('openai-remote-audio') as HTMLAudioElement | null
-        if (a) {
-          a.hidden = false
-          a.muted = false
-          a.volume = 1
-          await a.play().catch(() => {})
-          a.hidden = true
+        pc.ontrack = (e) => {
+          if (a) {
+            a.srcObject = e.streams[0]
+            a.muted = false
+            a.play().catch(() => {})
+          }
         }
-      } catch {}
-      const ok = await startOrbRealtime()
-      setConnected(ok)
+        try { pc.addTransceiver('audio', { direction: 'recvonly' }) } catch {}
+
+        // 3) Micrófono local
+        const ms = await navigator.mediaDevices.getUserMedia({ audio: true })
+        localRef.current = ms
+        ms.getTracks().forEach((t) => pc.addTrack(t, ms))
+
+        // 4) DataChannel y arranque
+        const dc = pc.createDataChannel('oai-events')
+        dc.onopen = () => {
+          try {
+            dc.send(
+              JSON.stringify({
+                type: 'session.update',
+                session: { modalities: ['audio', 'text'], voice: 'ash', turn_detection: { type: 'server_vad' } },
+              }),
+            )
+            dc.send(
+              JSON.stringify({
+                type: 'conversation.item.create',
+                item: { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Hola, preséntate brevemente.' }] },
+              }),
+            )
+            dc.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio', 'text'] } }))
+          } catch {}
+        }
+
+        // 5) SDP → POST /v1/realtime
+        const off = await pc.createOffer({ offerToReceiveAudio: true })
+        await pc.setLocalDescription(off)
+        const r = await fetch(`https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`, {
+          method: 'POST',
+          body: off.sdp,
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/sdp', 'OpenAI-Beta': 'realtime=v1' },
+        })
+        if (!r.ok) throw new Error(`sdp ${r.status}`)
+        const ans = await r.text()
+        await pc.setRemoteDescription({ type: 'answer', sdp: ans })
+
+        setConnected(true)
+      } catch (e) {
+        // no-op; deja el botón desconectado
+        setConnected(false)
+      }
     } else {
-      stopOrbRealtime()
+      try {
+        const pc = pcRef.current
+        if (pc) {
+          try { pc.getSenders().forEach((s) => { try { s.track?.stop() } catch {} }) } catch {}
+          try { pc.close() } catch {}
+        }
+        pcRef.current = null
+        const ms = localRef.current
+        if (ms) {
+          try { ms.getTracks().forEach((t) => { try { t.stop() } catch {} }) } catch {}
+        }
+        localRef.current = null
+      } catch {}
       setConnected(false)
     }
   }
