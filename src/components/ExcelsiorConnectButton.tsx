@@ -47,6 +47,13 @@ export default function ExcelsiorConnectButton() {
                 session: { modalities: ['audio', 'text'], voice: 'ash', turn_detection: { type: 'server_vad' } },
               }),
             )
+            // Técnica recomendada: disparar una única respuesta basada en el prompt de sesión
+            dc.send(
+              JSON.stringify({
+                type: 'response.create',
+                response: { modalities: ['audio', 'text'] },
+              }),
+            )
           } catch {}
         }
 
