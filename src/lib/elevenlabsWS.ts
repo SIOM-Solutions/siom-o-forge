@@ -98,7 +98,19 @@ export async function startElevenWS(): Promise<boolean> {
 
     // Reproducir audio remoto
     ws.onmessage = (ev) => {
-      const audioEl = document.getElementById('eleven-remote-audio') as HTMLAudioElement | null
+      // Asegurar elemento de audio presente
+      let audioEl = document.getElementById('eleven-remote-audio') as HTMLAudioElement | null
+      if (!audioEl) {
+        try {
+          audioEl = document.createElement('audio')
+          audioEl.id = 'eleven-remote-audio'
+          audioEl.autoplay = true
+          audioEl.controls = true
+          audioEl.setAttribute('playsinline', 'true')
+          Object.assign(audioEl.style, { position: 'fixed', bottom: '12px', left: '12px' })
+          document.body.appendChild(audioEl)
+        } catch {}
+      }
       if (ev.data instanceof ArrayBuffer) {
         // Servidor envía audio binario (pcm_16000)
         try {
@@ -121,11 +133,18 @@ export async function startElevenWS(): Promise<boolean> {
           if (j?.type === 'response.completed' || j?.type === 'output_audio_buffer.commit') {
             awaitingResponse = false
           }
+          // Manejo de audio JSON de ElevenLabs: type: 'audio' con audio_event.audio_base_64
+          if (j?.type === 'audio' && j?.audio_event?.audio_base_64) {
+            try {
+              const bytes = base64ToUint8(j.audio_event.audio_base_64)
+              remotePcmChunks.push(bytes)
+            } catch {}
+          }
           // Convenciones típicas: output_audio_buffer.append/commit
           if (j?.type === 'output_audio_buffer.append' && j?.audio) {
             const bytes = base64ToUint8(j.audio)
             remotePcmChunks.push(bytes)
-          } else if (j?.type === 'output_audio_buffer.commit') {
+          } else if (j?.type === 'output_audio_buffer.commit' || j?.type === 'agent_response_event') {
             const merged = concatUint8(remotePcmChunks)
             remotePcmChunks = []
             // Asumimos PCM16 mono 16k → creamos WAV para reproducir fácilmente
