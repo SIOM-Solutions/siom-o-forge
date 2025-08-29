@@ -32,8 +32,6 @@ export default async function handler(req: Request): Promise<Response> {
     // Crear sesión Realtime con prompt asset (si está definido)
     const promptId = process.env.OPENAI_REALTIME_PROMPT_ID
     const promptVersion = process.env.OPENAI_REALTIME_PROMPT_VERSION
-    const vectorStoreIdsEnv = process.env.OPENAI_VECTOR_STORE_IDS
-    const vectorStoreIds = vectorStoreIdsEnv ? vectorStoreIdsEnv.split(',').map((s) => s.trim()).filter(Boolean) : []
 
     const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
@@ -45,12 +43,6 @@ export default async function handler(req: Request): Promise<Response> {
       body: JSON.stringify({
         model,
         ...(promptId ? { prompt: { id: promptId, ...(promptVersion ? { version: promptVersion } : {}) } } : {}),
-        ...(vectorStoreIds.length
-          ? {
-              tools: [{ type: 'file_search' }],
-              tool_resources: { file_search: { vector_store_ids: vectorStoreIds } },
-            }
-          : {}),
       }),
     })
 
