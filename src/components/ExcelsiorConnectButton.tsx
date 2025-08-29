@@ -57,7 +57,7 @@ export default function ExcelsiorConnectButton() {
             // 2) session.update mínimo (modalities/voice)
             dc.send(JSON.stringify({
               type: 'session.update',
-              session: { modalities: ['audio','text'], voice: 'ash' },
+              session: { modalities: ['audio','text'] },
             }))
             dc.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio', 'text'] } }))
           } catch {}
