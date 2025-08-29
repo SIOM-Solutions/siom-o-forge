@@ -4,12 +4,13 @@ export default function ExcelsiorConnectButton() {
   const [connected, setConnected] = useState(false)
   const pcRef = useRef<RTCPeerConnection | null>(null)
   const localRef = useRef<MediaStream | null>(null)
-  const INSTRUCTIONS = 'Eres Excelsior, la guía experta de O-Forge de SIOM Solutions. Habla en español (España), tono ejecutivo y directo, orientado a impacto. No compartas detalles técnicos internos. Si la pregunta sale del alcance, reconduce y ofrece el siguiente paso útil dentro de la plataforma.'
+  // Instrucciones gestionadas por prompt asset (pmpt_...) o session.update externo
 
   const handleClick = async () => {
     if (!connected) {
       try {
         // 1) Token efímero
+        // Permitir probar prompt assets por query (si existen env, se usan por defecto)
         const ep = await fetch('/api/openai/ephemeral')
         if (!ep.ok) throw new Error(`ephemeral ${ep.status}`)
         const ej = await ep.json()
@@ -42,7 +43,8 @@ export default function ExcelsiorConnectButton() {
             dc.send(
               JSON.stringify({
                 type: 'session.update',
-                session: { modalities: ['audio', 'text'], voice: 'ash', turn_detection: { type: 'server_vad' }, instructions: INSTRUCTIONS },
+                // Si vamos con prompt asset, no sobreescribimos instrucciones aquí
+                session: { modalities: ['audio', 'text'], voice: 'ash', turn_detection: { type: 'server_vad' } },
               }),
             )
             dc.send(

@@ -21,6 +21,8 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Missing OPENAI_API_KEY', { status: 500, headers: cors })
   }
 
+  const url = new URL(req.url)
+  const qp = url.searchParams
   const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-realtime'
   // Voz y demás parámetros se aplican luego vía session.update en el cliente
 
@@ -30,8 +32,9 @@ export default async function handler(req: Request): Promise<Response> {
 
   try {
     // Crear sesión Realtime con prompt asset (si está definido)
-    const promptId = process.env.OPENAI_REALTIME_PROMPT_ID
-    const promptVersion = process.env.OPENAI_REALTIME_PROMPT_VERSION
+    const promptId = qp.get('prompt_id') || process.env.OPENAI_REALTIME_PROMPT_ID || undefined
+    const promptVersionStr = qp.get('prompt_version') || process.env.OPENAI_REALTIME_PROMPT_VERSION || undefined
+    const promptVersion = promptVersionStr ? Number(promptVersionStr) : undefined
 
     const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
@@ -42,7 +45,7 @@ export default async function handler(req: Request): Promise<Response> {
       },
       body: JSON.stringify({
         model,
-        ...(promptId ? { prompt: { id: promptId, ...(promptVersion ? { version: promptVersion } : {}) } } : {}),
+        ...(promptId ? { prompt: { id: promptId, ...(Number.isFinite(promptVersion) ? { version: promptVersion } : {}) } } : {}),
       }),
     })
 
