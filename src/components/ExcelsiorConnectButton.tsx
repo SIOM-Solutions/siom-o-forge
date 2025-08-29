@@ -39,12 +39,26 @@ export default function ExcelsiorConnectButton() {
         const dc = pc.createDataChannel('oai-events')
         dc.onopen = () => {
           try {
-            dc.send(
-              JSON.stringify({
-                type: 'session.update',
-                session: { modalities: ['audio', 'text'], voice: 'ash' },
-              }),
-            )
+            // 1) Adjuntar VS vía session.update (si existe en env backend)
+            // El backend no pasa VS en /sessions; lo hacemos aquí
+            const vsIdsEnv = (import.meta.env as any).VITE_OPENAI_VECTOR_STORE_IDS as string | undefined
+            if (vsIdsEnv) {
+              const ids = vsIdsEnv.split(',').map((s)=>s.trim()).filter(Boolean)
+              if (ids.length) {
+                dc.send(JSON.stringify({
+                  type: 'session.update',
+                  session: {
+                    tools: [{ type: 'file_search' }],
+                    tool_resources: { file_search: { vector_store_ids: ids } },
+                  },
+                }))
+              }
+            }
+            // 2) session.update mínimo (modalities/voice)
+            dc.send(JSON.stringify({
+              type: 'session.update',
+              session: { modalities: ['audio','text'], voice: 'ash' },
+            }))
             dc.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio', 'text'] } }))
           } catch {}
         }
