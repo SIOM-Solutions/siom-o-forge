@@ -1,4 +1,10 @@
+export const config = { runtime: 'nodejs' }
+
 export default async function handler(req: any, res: any) {
+  // Cabeceras JSON por defecto
+  try {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  } catch {}
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method Not Allowed' })
     return
@@ -11,8 +17,19 @@ export default async function handler(req: any, res: any) {
     }
 
     let body = req.body
-    if (!body || typeof body === 'string') {
-      try { body = body ? JSON.parse(body) : {} } catch { body = {} }
+    if (!body) {
+      // Fallback para builders que no parsean automáticamente
+      const raw = await new Promise<string>((resolve, reject) => {
+        try {
+          let data = ''
+          req.on('data', (c: Buffer) => { data += c.toString() })
+          req.on('end', () => resolve(data))
+          req.on('error', reject)
+        } catch (e) { resolve('') }
+      })
+      try { body = raw ? JSON.parse(raw) : {} } catch { body = {} }
+    } else if (typeof body === 'string') {
+      try { body = JSON.parse(body) } catch { body = {} }
     }
     const agentId = (body && body.agent_id) || process.env.VITE_EXCELSIOR_AGENT_ID
     if (!agentId) {
