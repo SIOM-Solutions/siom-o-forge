@@ -20,7 +20,7 @@ import ExcelsiorHost from './components/ExcelsiorHost'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 import ExcelsiorHUD from './components/ExcelsiorHUD'
 import RealtimeLabPage from './pages/lab/RealtimeLabPage'
-import TriangleRealtimeButton from './components/TriangleRealtimeButton'
+import ExcelsiorConnectButton from './components/ExcelsiorConnectButton'
 
 function App() {
   return (
@@ -33,8 +33,8 @@ function App() {
               <ExcelsiorHUD />
               <ExcelsiorHost />
             </div>
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] pointer-events-auto">
-              <TriangleRealtimeButton />
+            <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+              <ExcelsiorConnectButton />
             </div>
           </ExcelsiorProvider>
           <Routes>
