@@ -4,6 +4,7 @@ export default function ExcelsiorConnectButton() {
   const [connected, setConnected] = useState(false)
   const pcRef = useRef<RTCPeerConnection | null>(null)
   const localRef = useRef<MediaStream | null>(null)
+  const INSTRUCTIONS = 'Eres Excelsior, la guía experta de O-Forge de SIOM Solutions. Habla en español (España), tono ejecutivo y directo, orientado a impacto. No compartas detalles técnicos internos. Si la pregunta sale del alcance, reconduce y ofrece el siguiente paso útil dentro de la plataforma.'
 
   const handleClick = async () => {
     if (!connected) {
@@ -41,7 +42,7 @@ export default function ExcelsiorConnectButton() {
             dc.send(
               JSON.stringify({
                 type: 'session.update',
-                session: { modalities: ['audio', 'text'], voice: 'ash', turn_detection: { type: 'server_vad' } },
+                session: { modalities: ['audio', 'text'], voice: 'ash', turn_detection: { type: 'server_vad' }, instructions: INSTRUCTIONS },
               }),
             )
             dc.send(
