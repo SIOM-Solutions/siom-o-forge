@@ -47,13 +47,6 @@ export default function ExcelsiorConnectButton() {
                 session: { modalities: ['audio', 'text'], voice: 'ash', turn_detection: { type: 'server_vad' } },
               }),
             )
-            dc.send(
-              JSON.stringify({
-                type: 'conversation.item.create',
-                item: { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Hola, preséntate brevemente.' }] },
-              }),
-            )
-            dc.send(JSON.stringify({ type: 'response.create', response: { modalities: ['audio', 'text'] } }))
           } catch {}
         }
 
