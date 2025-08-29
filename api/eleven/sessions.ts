@@ -1,4 +1,4 @@
-export const config = { runtime: 'edge' }
+export const config = { runtime: 'nodejs22.x' }
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') {
