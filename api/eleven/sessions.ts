@@ -1,70 +1,48 @@
-export const config = { runtime: 'edge' }
+export const config = { runtime: 'nodejs' }
 
-export default async function handler(req: Request): Promise<Response> {
-  const origin = req.headers.get('origin') || '*'
-  const cors = {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  }
-
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: cors })
-  }
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
-      status: 405,
-      headers: { ...cors, 'content-type': 'application/json' },
-    })
+    res.status(405).json({ error: 'Method Not Allowed' })
+    return
   }
-
   try {
     const apiKey = process.env.ELEVENLABS_API_KEY
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Missing ELEVENLABS_API_KEY' }), {
-        status: 500,
-        headers: { ...cors, 'content-type': 'application/json' },
-      })
+      res.status(500).json({ error: 'Missing ELEVENLABS_API_KEY' })
+      return
     }
 
-    const body = await req.json().catch(() => ({} as any))
+    let body = req.body
+    if (!body || typeof body === 'string') {
+      try { body = body ? JSON.parse(body) : {} } catch { body = {} }
+    }
     const agentId = (body && body.agent_id) || process.env.VITE_EXCELSIOR_AGENT_ID
     if (!agentId) {
-      return new Response(JSON.stringify({ error: 'Missing agent_id' }), {
-        status: 400,
-        headers: { ...cors, 'content-type': 'application/json' },
-      })
+      res.status(400).json({ error: 'Missing agent_id' })
+      return
     }
 
-    const r = await fetch('https://api.elevenlabs.io/v1/convai/connections', {
-      method: 'POST',
-      headers: {
-        'xi-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ agent_id: agentId }),
-    })
+    // Endpoint oficial: GET get-signed-url
+    const url = `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`
+    const r = await fetch(url, { headers: { 'xi-api-key': apiKey } })
     const text = await r.text()
-    let j: any = null
-    try { j = JSON.parse(text) } catch { j = null }
+    let data: any = null
+    try { data = JSON.parse(text) } catch { data = null }
 
     if (!r.ok) {
-      return new Response(j ? JSON.stringify(j) : JSON.stringify({ error: 'Upstream error', details: text }), {
-        status: r.status,
-        headers: { ...cors, 'content-type': 'application/json' },
-      })
+      res.status(r.status).json({ error: 'Upstream error', details: data || text })
+      return
     }
 
-    const wsUrl = j?.websocket_url || j?.ws_url || j?.url || j?.signed_url
-    return new Response(JSON.stringify({ ws_url: wsUrl }), {
-      status: 200,
-      headers: { ...cors, 'content-type': 'application/json' },
-    })
+    const signed = data?.signed_url || data?.ws_url || data?.websocket_url || data?.url
+    if (!signed) {
+      res.status(502).json({ error: 'No signed_url in upstream response', details: data || text })
+      return
+    }
+
+    res.status(200).json({ ws_url: signed })
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: String(e?.message || e) }), {
-      status: 500,
-      headers: { ...cors, 'content-type': 'application/json' },
-    })
+    res.status(500).json({ error: e?.message || 'Unknown error' })
   }
 }
 
