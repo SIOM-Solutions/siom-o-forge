@@ -27,6 +27,8 @@ export default async function handler(req: Request): Promise<Response> {
     const promptId = process.env.OPENAI_REALTIME_PROMPT_ID
     const promptVersionEnv = process.env.OPENAI_REALTIME_PROMPT_VERSION
     const promptVersion = promptVersionEnv ? Number(promptVersionEnv) : undefined
+    const vsEnv = process.env.OPENAI_VECTOR_STORE_IDS
+    const vectorStoreIds = vsEnv ? vsEnv.split(',').map(s=>s.trim()).filter(Boolean) : []
 
     const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
@@ -46,7 +48,12 @@ export default async function handler(req: Request): Promise<Response> {
       return new Response(text, { status: r.status, headers: { ...cors, 'content-type': 'application/json' } })
     }
     const data = await r.json()
-    return new Response(JSON.stringify(data), {
+    // Adjuntamos metadatos útiles para el cliente (no se envían a /sessions)
+    const payload = {
+      ...data,
+      ...(vectorStoreIds.length ? { vector_store_ids: vectorStoreIds } : {}),
+    }
+    return new Response(JSON.stringify(payload), {
       status: 200,
       headers: { ...cors, 'content-type': 'application/json' },
     })

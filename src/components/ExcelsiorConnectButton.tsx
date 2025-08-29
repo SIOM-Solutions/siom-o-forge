@@ -15,6 +15,7 @@ export default function ExcelsiorConnectButton() {
         const ej = await ep.json()
         const token: string | undefined = ej?.client_secret?.value || ej?.client_secret
         const model: string = ej?.model || 'gpt-realtime'
+        const vsIdsServer: string[] = Array.isArray(ej?.vector_store_ids) ? ej.vector_store_ids : []
         if (!token) throw new Error('missing client secret')
 
         // 2) RTCPeerConnection y audio remoto
@@ -39,20 +40,15 @@ export default function ExcelsiorConnectButton() {
         const dc = pc.createDataChannel('oai-events')
         dc.onopen = () => {
           try {
-            // 1) Adjuntar VS vía session.update (si existe en env backend)
-            // El backend no pasa VS en /sessions; lo hacemos aquí
-            const vsIdsEnv = (import.meta.env as any).VITE_OPENAI_VECTOR_STORE_IDS as string | undefined
-            if (vsIdsEnv) {
-              const ids = vsIdsEnv.split(',').map((s)=>s.trim()).filter(Boolean)
-              if (ids.length) {
-                dc.send(JSON.stringify({
-                  type: 'session.update',
-                  session: {
-                    tools: [{ type: 'file_search' }],
-                    tool_resources: { file_search: { vector_store_ids: ids } },
-                  },
-                }))
-              }
+            // 1) Adjuntar VS vía session.update (ids recibidos del backend por efímero)
+            if (vsIdsServer.length) {
+              dc.send(JSON.stringify({
+                type: 'session.update',
+                session: {
+                  tools: [{ type: 'file_search' }],
+                  tool_resources: { file_search: { vector_store_ids: vsIdsServer } },
+                },
+              }))
             }
             // 2) session.update mínimo (modalities/voice)
             dc.send(JSON.stringify({
