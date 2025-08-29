@@ -24,6 +24,10 @@ export default async function handler(req: Request): Promise<Response> {
   const model = process.env.OPENAI_REALTIME_MODEL || 'gpt-realtime'
 
   try {
+    const promptId = process.env.OPENAI_REALTIME_PROMPT_ID
+    const promptVersionEnv = process.env.OPENAI_REALTIME_PROMPT_VERSION
+    const promptVersion = promptVersionEnv ? Number(promptVersionEnv) : undefined
+
     const r = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
       headers: {
@@ -31,7 +35,10 @@ export default async function handler(req: Request): Promise<Response> {
         'Content-Type': 'application/json',
         'OpenAI-Beta': 'realtime=v1',
       },
-      body: JSON.stringify({ model }),
+      body: JSON.stringify({
+        model,
+        ...(promptId ? { prompt: { id: promptId, ...(Number.isFinite(promptVersion) ? { version: promptVersion } : {}) } } : {}),
+      }),
     })
 
     if (!r.ok) {
