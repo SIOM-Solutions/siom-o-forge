@@ -1,73 +1,37 @@
 export const config = { runtime: 'nodejs22.x' }
 
-function corsHeaders(origin: string | null) {
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Max-Age': '600',
-  }
-}
-
 export default async function handler(req: Request): Promise<Response> {
-  const origin = req.headers.get('origin')
-
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders(origin) })
-  }
-
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405, headers: corsHeaders(origin) })
+    return new Response('Method Not Allowed', { status: 405 })
   }
-
   try {
     const apiKey = process.env.ELEVENLABS_API_KEY
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Missing ELEVENLABS_API_KEY' }), {
-        status: 500,
-        headers: { 'content-type': 'application/json', ...corsHeaders(origin) },
-      })
-    }
+    if (!apiKey) return new Response('Missing ELEVENLABS_API_KEY', { status: 500 })
 
     const body = await req.json().catch(() => ({}))
-    const agentId: string | undefined = body?.agent_id
-    if (!agentId) {
-      return new Response(JSON.stringify({ error: 'agent_id is required' }), {
-        status: 400,
-        headers: { 'content-type': 'application/json', ...corsHeaders(origin) },
-      })
-    }
+    const agentId = (body && body.agent_id) || process.env.VITE_EXCELSIOR_AGENT_ID
+    if (!agentId) return new Response('Missing agent_id', { status: 400 })
 
-    // Intento 1: get_signed_url
-    const url1 = `https://api.elevenlabs.io/v1/convai/conversation/get_signed_url?agent_id=${encodeURIComponent(agentId)}`
-    let r = await fetch(url1, { headers: { 'xi-api-key': apiKey } })
-    let data: any = null
-    if (r.ok) {
-      data = await r.json().catch(() => null)
-    } else {
-      // Intento 2: get-signed-url (variación)
-      const url2 = `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`
-      r = await fetch(url2, { headers: { 'xi-api-key': apiKey } })
-      if (r.ok) data = await r.json().catch(() => null)
-    }
+    // Solicitar la URL de WS para el agente (Convai)
+    const r = await fetch('https://api.elevenlabs.io/v1/convai/connections', {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ agent_id: agentId }),
+    })
+    const j = await r.json()
+    if (!r.ok) return new Response(JSON.stringify(j), { status: r.status, headers: { 'content-type': 'application/json' } })
 
-    const signed = data?.signed_url || data?.ws_url || null
-    if (!signed) {
-      const text = await r.text()
-      return new Response(JSON.stringify({ error: 'Failed to get signed_url', details: text }), {
-        status: 502,
-        headers: { 'content-type': 'application/json', ...corsHeaders(origin) },
-      })
-    }
-
-    return new Response(JSON.stringify({ ok: true, ws_url: signed }), {
+    return new Response(JSON.stringify({ ws_url: j?.websocket_url || j?.ws_url || j?.url }), {
       status: 200,
-      headers: { 'content-type': 'application/json', ...corsHeaders(origin) },
+      headers: { 'content-type': 'application/json' },
     })
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message || 'Unknown error' }), {
+    return new Response(JSON.stringify({ error: String(e?.message || e) }), {
       status: 500,
-      headers: { 'content-type': 'application/json', ...corsHeaders(origin) },
+      headers: { 'content-type': 'application/json' },
     })
   }
 }

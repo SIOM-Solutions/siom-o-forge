@@ -17,9 +17,11 @@ import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
 import OpsLandingPage from './pages/ops/OpsLandingPage'
 import WelcomeScreen from './components/WelcomeScreen'
 import ExcelsiorHost from './components/ExcelsiorHost'
-import SiomOrbButton from './components/SiomOrbButton'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 import ExcelsiorHUD from './components/ExcelsiorHUD'
+import RealtimeLabPage from './pages/lab/RealtimeLabPage'
+import ElevenLabPage from './pages/lab/ElevenLabPage'
+import ExcelsiorConnectButton from './components/ExcelsiorConnectButton'
 
 function App() {
   return (
@@ -28,10 +30,12 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-950 text-gray-100">
           <ExcelsiorProvider>
-            <div className="fixed bottom-4 right-4 z-40">
+            <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
               <ExcelsiorHUD />
               <ExcelsiorHost />
-              <SiomOrbButton />
+            </div>
+            <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+              <ExcelsiorConnectButton />
             </div>
           </ExcelsiorProvider>
           <Routes>
@@ -47,6 +51,8 @@ function App() {
             {/* Rutas protegidas con layout */}
             <Route element={<ProtectedLayout />}>
               <Route path="/hub" element={<HubPage />} />
+              <Route path="/lab/realtime" element={<RealtimeLabPage />} />
+              <Route path="/lab/eleven" element={<ElevenLabPage />} />
               <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
               <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
               <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />
