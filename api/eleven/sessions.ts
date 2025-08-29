@@ -1,63 +1,71 @@
-export const config = { runtime: 'nodejs' }
+export const config = { runtime: 'edge' }
 
-export default async function handler(req: any, res: any) {
-  // Cabeceras JSON por defecto
-  try {
-    res.setHeader('Content-Type', 'application/json; charset=utf-8')
-  } catch {}
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method Not Allowed' })
-    return
+export default async function handler(req: Request): Promise<Response> {
+  const origin = req.headers.get('origin') || '*'
+  const cors = {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   }
+
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: cors })
+  }
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
+      status: 405,
+      headers: { ...cors, 'content-type': 'application/json' },
+    })
+  }
+
   try {
     const apiKey = process.env.ELEVENLABS_API_KEY
     if (!apiKey) {
-      res.status(500).json({ error: 'Missing ELEVENLABS_API_KEY' })
-      return
+      return new Response(JSON.stringify({ error: 'Missing ELEVENLABS_API_KEY' }), {
+        status: 500,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
     }
 
-    let body = req.body
-    if (!body) {
-      // Fallback para builders que no parsean automáticamente
-      const raw = await new Promise<string>((resolve, reject) => {
-        try {
-          let data = ''
-          req.on('data', (c: Buffer) => { data += c.toString() })
-          req.on('end', () => resolve(data))
-          req.on('error', reject)
-        } catch (e) { resolve('') }
-      })
-      try { body = raw ? JSON.parse(raw) : {} } catch { body = {} }
-    } else if (typeof body === 'string') {
-      try { body = JSON.parse(body) } catch { body = {} }
-    }
+    const body = await req.json().catch(() => ({} as any))
     const agentId = (body && body.agent_id) || process.env.VITE_EXCELSIOR_AGENT_ID
     if (!agentId) {
-      res.status(400).json({ error: 'Missing agent_id' })
-      return
+      return new Response(JSON.stringify({ error: 'Missing agent_id' }), {
+        status: 400,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
     }
 
-    // Endpoint oficial: GET get-signed-url
     const url = `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`
-    const r = await fetch(url, { headers: { 'xi-api-key': apiKey } })
-    const text = await r.text()
+    const upstream = await fetch(url, { headers: { 'xi-api-key': apiKey } })
+    const text = await upstream.text()
     let data: any = null
     try { data = JSON.parse(text) } catch { data = null }
 
-    if (!r.ok) {
-      res.status(r.status).json({ error: 'Upstream error', details: data || text })
-      return
+    if (!upstream.ok) {
+      return new Response(JSON.stringify({ error: 'Upstream error', details: data || text }), {
+        status: upstream.status,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
     }
 
     const signed = data?.signed_url || data?.ws_url || data?.websocket_url || data?.url
     if (!signed) {
-      res.status(502).json({ error: 'No signed_url in upstream response', details: data || text })
-      return
+      return new Response(JSON.stringify({ error: 'No signed_url in upstream response', details: data || text }), {
+        status: 502,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
     }
 
-    res.status(200).json({ ws_url: signed })
+    return new Response(JSON.stringify({ ws_url: signed }), {
+      status: 200,
+      headers: { ...cors, 'content-type': 'application/json' },
+    })
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || 'Unknown error' })
+    return new Response(JSON.stringify({ error: e?.message || 'Unknown error' }), {
+      status: 500,
+      headers: { ...cors, 'content-type': 'application/json' },
+    })
   }
 }
 
