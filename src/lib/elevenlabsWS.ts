@@ -83,6 +83,8 @@ export async function startElevenWS(): Promise<boolean> {
         const pcm16 = downsampleTo16kAndEncodePCM16(samples, audioCtx!.sampleRate)
         const b64 = base64FromArrayBuffer(pcm16.buffer)
         try {
+          // Declarar inicio de buffer explícitamente para robustez
+          ws.send(JSON.stringify({ type: 'input_audio_buffer.start' }))
           ws.send(JSON.stringify({ type: 'input_audio_buffer.append', audio: b64 }))
           ws.send(JSON.stringify({ type: 'input_audio_buffer.commit' }))
           if (!awaitingResponse) {
@@ -130,7 +132,13 @@ export async function startElevenWS(): Promise<boolean> {
         try {
           const j = JSON.parse(msg)
           // Si el servidor confirma fin de respuesta, desbloquear siguiente
-          if (j?.type === 'response.completed' || j?.type === 'output_audio_buffer.commit') {
+          if (
+            j?.type === 'response.completed' ||
+            j?.type === 'output_audio_buffer.commit' ||
+            j?.type === 'agent_response_event' ||
+            j?.type === 'agent_response' ||
+            j?.type === 'interruption'
+          ) {
             awaitingResponse = false
           }
           // Manejo de audio JSON de ElevenLabs: type: 'audio' con audio_event.audio_base_64
@@ -144,7 +152,11 @@ export async function startElevenWS(): Promise<boolean> {
           if (j?.type === 'output_audio_buffer.append' && j?.audio) {
             const bytes = base64ToUint8(j.audio)
             remotePcmChunks.push(bytes)
-          } else if (j?.type === 'output_audio_buffer.commit' || j?.type === 'agent_response_event') {
+          } else if (
+            j?.type === 'output_audio_buffer.commit' ||
+            j?.type === 'agent_response_event' ||
+            j?.type === 'agent_response'
+          ) {
             const merged = concatUint8(remotePcmChunks)
             remotePcmChunks = []
             // Asumimos PCM16 mono 16k → creamos WAV para reproducir fácilmente
