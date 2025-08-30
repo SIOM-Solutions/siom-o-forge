@@ -21,6 +21,7 @@ import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 import ExcelsiorHUD from './components/ExcelsiorHUD'
 import RealtimeLabPage from './pages/lab/RealtimeLabPage'
 import ElevenLabPage from './pages/lab/ElevenLabPage'
+import ElevenCleanPage from './pages/lab/ElevenCleanPage'
 import ExcelsiorConnectButton from './components/ExcelsiorConnectButton'
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
               <Route path="/hub" element={<HubPage />} />
               <Route path="/lab/realtime" element={<RealtimeLabPage />} />
               <Route path="/lab/eleven" element={<ElevenLabPage />} />
+              <Route path="/lab/eleven-clean" element={<ElevenCleanPage />} />
               <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
               <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
               <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />

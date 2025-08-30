@@ -36,7 +36,7 @@ export default async function handler(req: Request): Promise<Response> {
       })
     }
 
-    const url = `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`
+    const url = `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}&inactivity_timeout=180`
     const upstream = await fetch(url, { headers: { 'xi-api-key': apiKey } })
     const text = await upstream.text()
     let data: any = null
