@@ -5,6 +5,8 @@ let micSource: MediaStreamAudioSourceNode | null = null
 let micProcessor: ScriptProcessorNode | null = null
 let micBuffer: Float32Array[] = []
 let nextAudioStart = 0
+let agentSpeaking = false
+let lastVoiceAt = 0
 
 async function getSignedWsUrl(): Promise<string | null> {
   const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
@@ -49,47 +51,64 @@ export async function connectConvai(): Promise<boolean> {
     ws.binaryType = 'arraybuffer'
 
     ws.onopen = () => {
-      // Declarar sesión exactamente según especificación solicitada
+      // Configuración opcional: idioma español. El agente debe tener VAD server ya configurado.
       try {
         ws!.send(JSON.stringify({
-          type: 'session.update',
-          session: {
-            input_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
-            output_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
-            turn_detection: { type: 'server_vad' },
-            language: 'es',
+          type: 'conversation_initiation_client_data',
+          conversation_config_override: {
+            agent: { language: 'es' },
           },
         }))
       } catch {}
 
-      // Iniciar buffer de entrada antes de enviar los primeros chunks
-      try {
-        ws!.send(JSON.stringify({ type: 'input_audio_buffer.start' }))
-      } catch {}
-
-      // Envío periódico de frames (20–50ms). El servidor hará commit con VAD
+      // Envío periódico de frames (20–50ms). Solo enviamos mientras el usuario habla y el agente NO está hablando
       const interval = setInterval(() => {
         if (!ws || ws.readyState !== WebSocket.OPEN) return
+        if (!audioCtx) return
+        if (agentSpeaking) return
         const samples = mergeFloat32(micBuffer)
         micBuffer = []
-        if (samples.length === 0 || !audioCtx) return
+        if (samples.length === 0) return
+        // VAD local muy simple con RMS para evitar enviar ruido/silencio
+        const level = computeRms(samples)
+        const now = performance.now()
+        if (level > 0.01) lastVoiceAt = now
+        if (now - lastVoiceAt > 200) return // sin voz reciente → no enviar
+
         const pcm16 = downsampleTo16kPcm16(samples, audioCtx.sampleRate)
         const b64 = base64FromBytes(pcm16)
         try {
-          ws!.send(JSON.stringify({ type: 'input_audio_buffer.append', audio: b64 }))
+          ws!.send(JSON.stringify({ user_audio_chunk: b64 }))
         } catch {}
       }, 50)
       ;(ws as any)._sendInterval = interval
     }
 
     ws.onmessage = (ev) => {
-      // Reproducir únicamente eventos type: 'audio'
       if (typeof ev.data === 'string') {
         try {
           const j = JSON.parse(ev.data)
+          // keep-alive
+          if (j?.type === 'ping' && j?.ping_event?.event_id) {
+            try { ws!.send(JSON.stringify({ type: 'pong', event_id: j.ping_event.event_id })) } catch {}
+          }
+          // agente empieza a responder → pausamos envío de micro
+          if (j?.type === 'agent_response') {
+            agentSpeaking = true
+          }
+          // audio del agente
           if (j?.type === 'audio' && j?.audio_event?.audio_base_64) {
+            agentSpeaking = true
             const bytes = base64ToBytes(j.audio_event.audio_base_64)
-            playPcm16(bytes, 16000)
+            playPcm16(bytes, 16000, () => {
+              // al terminar este segmento de audio, permitimos reanudar si no llega más audio
+              agentSpeaking = false
+              lastVoiceAt = 0
+            })
+          }
+          // algunos agentes podrían enviar señal de fin explícita
+          if (j?.type === 'response.completed') {
+            agentSpeaking = false
           }
         } catch {}
       }
@@ -175,7 +194,7 @@ function base64ToBytes(b64: string): Uint8Array {
   return out
 }
 
-function playPcm16(bytes: Uint8Array, sampleRateHz: number) {
+function playPcm16(bytes: Uint8Array, sampleRateHz: number, onEnded?: () => void) {
   if (!audioCtx) return
   const frameCount = bytes.length / 2
   const audioBuffer = audioCtx.createBuffer(1, frameCount, sampleRateHz)
@@ -194,6 +213,13 @@ function playPcm16(bytes: Uint8Array, sampleRateHz: number) {
   const startAt = Math.max(audioCtx.currentTime, nextAudioStart)
   try { src.start(startAt) } catch { try { src.start() } catch {} }
   nextAudioStart = startAt + audioBuffer.duration
+  if (onEnded) src.onended = onEnded
+}
+
+function computeRms(samples: Float32Array): number {
+  let sum = 0
+  for (let i = 0; i < samples.length; i++) { const v = samples[i]; sum += v * v }
+  return Math.sqrt(sum / (samples.length || 1))
 }
 
 
