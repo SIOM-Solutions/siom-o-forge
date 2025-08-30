@@ -8,7 +8,7 @@ let remotePcmChunks: Uint8Array[] = []
 let awaitingResponse = false
 let lastRxMs = 0
 let pttActive = false
-const PTT_MODE = true
+const PTT_MODE = false
 
 async function getWsUrl(): Promise<string | null> {
   const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
