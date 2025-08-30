@@ -34,9 +34,12 @@ function App() {
               <ExcelsiorHUD />
               <ExcelsiorHost />
             </div>
-            <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
-              <ExcelsiorConnectButton />
-            </div>
+            {/* Ocultar el botón en rutas de laboratorio para no interferir con pruebas de voz nativa */}
+            {!(location.pathname.startsWith('/lab/eleven') || location.pathname.startsWith('/lab/realtime')) && (
+              <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+                <ExcelsiorConnectButton />
+              </div>
+            )}
           </ExcelsiorProvider>
           <Routes>
             {/* Ruta raíz redirige a login */}

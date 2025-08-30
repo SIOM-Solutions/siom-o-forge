@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 export default function ExcelsiorHost() {
   const location = useLocation()
 
-  const hideOn = [/^\/performance\/forja/, /^\/ops\/sesion/]
+  const hideOn = [/^\/performance\/forja/, /^\/ops\/sesion/, /^\/lab\/eleven/, /^\/lab\/realtime/]
   const hidden = hideOn.some((re) => re.test(location.pathname))
 
   useEffect(() => {
