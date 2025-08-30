@@ -6,6 +6,7 @@ let processorNode: ScriptProcessorNode | null = null
 let captureBuffer: Float32Array[] = []
 let remotePcmChunks: Uint8Array[] = []
 let awaitingResponse = false
+let lastRxMs = 0
 
 async function getWsUrl(): Promise<string | null> {
   const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
@@ -54,8 +55,7 @@ export async function startElevenWS(): Promise<boolean> {
         captureBuffer.push(new Float32Array(input))
       }
       sourceNode.connect(processorNode)
-      // No conectamos a destination para evitar eco; basta con procesar frames
-      try { processorNode.connect(audioCtx.destination) } catch {}
+      // No conectar a destination (evita eco)
 
       // Declarar formato y VAD al servidor (algunos proveedores lo requieren)
       try {
@@ -94,6 +94,15 @@ export async function startElevenWS(): Promise<boolean> {
         } catch {}
       }, 300)
 
+      // Watchdog: si el servidor no emite eventos en ~5s, liberar el gating para permitir nueva petición
+      const watchdog = setInterval(() => {
+        if (!awaitingResponse) return
+        const now = Date.now()
+        if (now - lastRxMs > 5000) {
+          awaitingResponse = false
+        }
+      }, 1000)
+
       // Guardar para cleanup
       ;(ws as any)._siom_sendInterval = sendInterval
     }
@@ -125,6 +134,7 @@ export async function startElevenWS(): Promise<boolean> {
         } catch {}
         // Al recibir audio remoto, permitimos la siguiente petición
         awaitingResponse = false
+        lastRxMs = Date.now()
         return
       }
       const msg = typeof ev.data === 'string' ? ev.data : ''
@@ -140,12 +150,14 @@ export async function startElevenWS(): Promise<boolean> {
             j?.type === 'interruption'
           ) {
             awaitingResponse = false
+            lastRxMs = Date.now()
           }
           // Manejo de audio JSON de ElevenLabs: type: 'audio' con audio_event.audio_base_64
           if (j?.type === 'audio' && j?.audio_event?.audio_base_64) {
             try {
               const bytes = base64ToUint8(j.audio_event.audio_base_64)
               remotePcmChunks.push(bytes)
+              lastRxMs = Date.now()
             } catch {}
           }
           // Convenciones típicas: output_audio_buffer.append/commit
@@ -166,6 +178,7 @@ export async function startElevenWS(): Promise<boolean> {
               audioEl.src = url
               audioEl.play().catch(() => {})
             }
+            lastRxMs = Date.now()
           }
         } catch {
           // noop
@@ -217,6 +230,9 @@ export function stopElevenWS() {
   try {
     const intId = (ws as any)?._siom_sendInterval
     if (intId) clearInterval(intId)
+    // limpiar watchdog si existe
+    const wd = (ws as any)?._siom_watchdog
+    if (wd) clearInterval(wd)
   } catch {}
   ws = null
 }
