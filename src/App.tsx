@@ -36,7 +36,7 @@ function App() {
               <ExcelsiorHost />
             </div>
             {/* Ocultar el botón en rutas de laboratorio para no interferir con pruebas de voz nativa */}
-            {!(location.pathname.startsWith('/lab/eleven') || location.pathname.startsWith('/lab/realtime')) && (
+            {!(location.pathname.startsWith('/lab/eleven') || location.pathname.startsWith('/lab/realtime') || location.pathname.startsWith('/lab/eleven-clean')) && (
               <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
                 <ExcelsiorConnectButton />
               </div>

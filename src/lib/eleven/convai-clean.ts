@@ -55,13 +55,19 @@ async function getSignedUrl(agentId?: string) {
 }
 
 export async function connectConvaiClean() {
-  if (ws) return;
-  const { ws_url } = await getSignedUrl((import.meta as any).env?.VITE_EXCELSIOR_AGENT_ID);
+  console.log('[convai-clean] start connect');
+  if (ws) { console.log('[convai-clean] already connected'); return; }
+  const signed = await getSignedUrl((import.meta as any).env?.VITE_EXCELSIOR_AGENT_ID);
+  console.log('[convai-clean] sessions JSON:', signed);
+  const { ws_url } = signed;
+  if (!ws_url) throw new Error('No ws_url from /api/eleven/sessions');
 
+  console.log('[convai-clean] opening WS:', ws_url);
   ws = new WebSocket(ws_url);
   ws.binaryType = 'arraybuffer';
 
   ws.onopen = async () => {
+    console.log('[convai-clean] WS open');
     try {
       ws?.send(JSON.stringify({
         type: 'session.update',
@@ -72,7 +78,10 @@ export async function connectConvaiClean() {
           turn_detection: { type: 'server_vad' }
         }
       }));
-    } catch {}
+      console.log('[convai-clean] session.update sent');
+    } catch (e) {
+      console.warn('[convai-clean] session.update error', e);
+    }
 
     audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ latencyHint: 'interactive' });
     try { await audioCtx.resume(); } catch {}
@@ -80,7 +89,7 @@ export async function connectConvaiClean() {
     source = audioCtx.createMediaStreamSource(media);
     processor = audioCtx.createScriptProcessor(2048, 1, 1);
     source.connect(processor);
-    processor.connect(audioCtx.destination);
+    // No conectar processor a destination para evitar eco/feedback
 
     processor.onaudioprocess = (e) => {
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
@@ -92,22 +101,24 @@ export async function connectConvaiClean() {
       const ds = downsampleTo16k(inBuf, audioCtx!.sampleRate);
       const pcm = floatToPcm16le(ds);
       const b64 = u8ToB64(pcm);
-      try { ws.send(JSON.stringify({ user_audio_chunk: b64 })); } catch {}
+      try { ws.send(JSON.stringify({ user_audio_chunk: b64 })); } catch (err) { console.warn('[convai-clean] send user_audio_chunk error', err); }
     };
   };
 
   ws.onmessage = (ev) => {
     if (ev.data instanceof ArrayBuffer) return;
     let msg: any;
-    try { msg = JSON.parse(String(ev.data)); } catch { return; }
+    try { msg = JSON.parse(String(ev.data)); } catch { console.warn('[convai-clean] non-JSON message'); return; }
 
     if (msg?.type === 'ping' && msg?.ping_event?.event_id) {
-      try { ws?.send(JSON.stringify({ type: 'pong', event_id: msg.ping_event.event_id })); } catch {}
+      try { ws?.send(JSON.stringify({ type: 'pong', event_id: msg.ping_event.event_id })); console.log('[convai-clean] pong sent'); } catch {}
     }
     if (msg?.type === 'agent_response') {
       agentSpeaking = true;
+      console.log('[convai-clean] agent_response → pause mic');
     }
     if (msg?.type === 'audio' && msg?.audio_event?.audio_base_64) {
+      // console.log('[convai-clean] audio chunk len:', msg.audio_event.audio_base_64.length);
       if (!audioCtx) return;
       const bin = atob(msg.audio_event.audio_base_64);
       const u8 = new Uint8Array(bin.length);
@@ -121,12 +132,12 @@ export async function connectConvaiClean() {
       src.buffer = buf;
       src.connect(audioCtx.destination);
       src.start();
-      src.onended = () => { agentSpeaking = false; };
+      src.onended = () => { agentSpeaking = false; console.log('[convai-clean] audio ended → resume mic'); };
     }
   };
 
-  ws.onclose = () => { cleanup(); };
-  ws.onerror = () => { cleanup(); };
+  ws.onclose = (e) => { console.log('[convai-clean] WS close', e.code, e.reason); cleanup(); };
+  ws.onerror = (e) => { console.warn('[convai-clean] WS error', e); cleanup(); };
 }
 
 export function disconnectConvaiClean() {

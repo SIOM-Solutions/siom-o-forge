@@ -7,18 +7,25 @@ export default function ElevenCleanPage() {
   useEffect(() => () => { try { disconnectConvaiClean() } catch {} }, [])
 
   const start = async () => {
+    console.log('[UI] Iniciar clic')
+    try { await new Audio().play().catch(() => {}) } catch {}
     try {
-      try { await new Audio().play().catch(() => {}) } catch {}
+      if (typeof connectConvaiClean !== 'function') {
+        console.error('connectConvaiClean no es función (¿import correcto?)')
+        return
+      }
       await connectConvaiClean()
+      console.log('[UI] connectConvaiClean OK')
       setOn(true)
     } catch (e) {
-      console.error('No se pudo conectar:', e)
+      console.error('[UI] connectConvaiClean FAIL', e)
       setOn(false)
     }
   }
 
   const stop = () => {
-    try { disconnectConvaiClean() } catch {}
+    console.log('[UI] Colgar clic')
+    try { disconnectConvaiClean() } catch (e) { console.warn('disconnect error', e) }
     setOn(false)
   }
 
