@@ -26,6 +26,15 @@ export default function ElevenLabPage() {
       <div className="flex items-center gap-2 mb-4">
         <button className="px-3 py-2 rounded bg-cyan-500 text-black disabled:opacity-50" onClick={handleConnect} disabled={connected}>Conectar</button>
         <button className="px-3 py-2 rounded bg-zinc-700 text-white disabled:opacity-50" onClick={handleDisconnect} disabled={!connected}>Desconectar</button>
+        <button
+          className="px-3 py-2 rounded bg-amber-500 text-black disabled:opacity-50"
+          onMouseDown={() => (window as any)._siom_ptt = true}
+          onMouseUp={() => (window as any)._siom_ptt = false}
+          onTouchStart={() => (window as any)._siom_ptt = true}
+          onTouchEnd={() => (window as any)._siom_ptt = false}
+          disabled={!connected}
+          title="Pulsa para hablar"
+        >Pulsar para hablar</button>
       </div>
       <audio id="eleven-remote-audio" autoPlay controls style={{ position: 'fixed', bottom: 12, left: 12 }} />
       <p className="text-xs opacity-70">Agente: usa ELEVENLABS_API_KEY y agent_id (VITE_EXCELSIOR_AGENT_ID) para crear la conexión en /api/eleven/sessions.</p>

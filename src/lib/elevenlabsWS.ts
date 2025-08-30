@@ -7,6 +7,8 @@ let captureBuffer: Float32Array[] = []
 let remotePcmChunks: Uint8Array[] = []
 let awaitingResponse = false
 let lastRxMs = 0
+let pttActive = false
+const PTT_MODE = true
 
 async function getWsUrl(): Promise<string | null> {
   const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
@@ -50,6 +52,7 @@ export async function startElevenWS(): Promise<boolean> {
       sourceNode = audioCtx.createMediaStreamSource(mediaStream!)
       processorNode = audioCtx.createScriptProcessor(4096, 1, 1)
       processorNode.onaudioprocess = (ev) => {
+        if (!pttActive && PTT_MODE) return
         const input = ev.inputBuffer.getChannelData(0)
         // Copiamos frame
         captureBuffer.push(new Float32Array(input))
@@ -74,6 +77,7 @@ export async function startElevenWS(): Promise<boolean> {
 
       // Envío periódico de frames PCM16 (16 kHz)
       const sendInterval = setInterval(() => {
+        if (PTT_MODE) return
         if (!ws || ws.readyState !== WebSocket.OPEN) return
         const samples = mergeFloat32(captureBuffer)
         captureBuffer = []
@@ -102,6 +106,7 @@ export async function startElevenWS(): Promise<boolean> {
           awaitingResponse = false
         }
       }, 1000)
+      ;(ws as any)._siom_watchdog = watchdog
 
       // Guardar para cleanup
       ;(ws as any)._siom_sendInterval = sendInterval
