@@ -6,7 +6,6 @@ let source: MediaStreamAudioSourceNode | null = null;
 let processor: ScriptProcessorNode | null = null;
 
 let agentSpeaking = false;      // pausa el envío de micro mientras habla el agente
-let lastVoiceAt = 0;            // VAD local simple
 const SR_TARGET = 16000;
 
 function floatToPcm16le(float32: Float32Array): Uint8Array {
@@ -141,5 +140,5 @@ function cleanup() {
   try { media?.getTracks()?.forEach(t => { try { t.stop(); } catch {} }); } catch {}
   try { audioCtx?.close(); } catch {}
   ws = null; audioCtx = null; media = null; source = null; processor = null;
-  agentSpeaking = false; lastVoiceAt = 0;
+  agentSpeaking = false;
 }
