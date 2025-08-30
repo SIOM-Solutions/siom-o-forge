@@ -49,19 +49,25 @@ export async function connectConvai(): Promise<boolean> {
     ws.binaryType = 'arraybuffer'
 
     ws.onopen = () => {
-      // Declarar sesión: PCM16/16k + transcripción + VAD servidor
+      // Declarar sesión exactamente según especificación solicitada
       try {
         ws!.send(JSON.stringify({
           type: 'session.update',
           session: {
             input_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
-            input_audio_transcription: { enabled: true, language: 'es' },
-            turn_detection: { type: 'server', silence_duration_ms: 700 },
+            output_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
+            turn_detection: { type: 'server_vad' },
+            language: 'es',
           },
         }))
       } catch {}
 
-      // Envío periódico de frames (20–40ms). Dejamos a VAD del servidor gestionar turnos.
+      // Iniciar buffer de entrada antes de enviar los primeros chunks
+      try {
+        ws!.send(JSON.stringify({ type: 'input_audio_buffer.start' }))
+      } catch {}
+
+      // Envío periódico de frames (20–50ms). El servidor hará commit con VAD
       const interval = setInterval(() => {
         if (!ws || ws.readyState !== WebSocket.OPEN) return
         const samples = mergeFloat32(micBuffer)
@@ -77,17 +83,12 @@ export async function connectConvai(): Promise<boolean> {
     }
 
     ws.onmessage = (ev) => {
-      // Procesamos SOLO audio JSON del agente para evitar duplicaciones
+      // Reproducir únicamente eventos type: 'audio'
       if (typeof ev.data === 'string') {
         try {
           const j = JSON.parse(ev.data)
           if (j?.type === 'audio' && j?.audio_event?.audio_base_64) {
             const bytes = base64ToBytes(j.audio_event.audio_base_64)
-            playPcm16(bytes, 16000)
-          }
-          // Alternativamente algunos agentes usan output_audio_buffer.append/commit
-          if (j?.type === 'output_audio_buffer.append' && j?.audio) {
-            const bytes = base64ToBytes(j.audio)
             playPcm16(bytes, 16000)
           }
         } catch {}
