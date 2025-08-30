@@ -51,12 +51,15 @@ export async function connectConvai(): Promise<boolean> {
     ws.binaryType = 'arraybuffer'
 
     ws.onopen = () => {
-      // Configuración opcional: idioma español. El agente debe tener VAD server ya configurado.
+      // Configurar sesión con formato y VAD del servidor (protocolo oficial)
       try {
         ws!.send(JSON.stringify({
-          type: 'conversation_initiation_client_data',
-          conversation_config_override: {
-            agent: { language: 'es' },
+          type: 'session.update',
+          session: {
+            input_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
+            output_audio_format: { type: 'pcm16', sample_rate_hz: 16000 },
+            turn_detection: { type: 'server_vad' },
+            language: 'es',
           },
         }))
       } catch {}
