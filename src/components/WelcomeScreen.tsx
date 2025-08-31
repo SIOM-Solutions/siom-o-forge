@@ -19,13 +19,8 @@ export default function WelcomeScreen() {
   return (
     <div className="relative min-h-screen bg-gray-950">
       <TechBackground />
-      <div className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center p-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={isLeaving ? { opacity: 0, scale: 0.98 } : { opacity: 1, scale: 1 }}
-          transition={{ duration: isLeaving ? 0.5 : 0.8, ease: 'easeOut' }}
-          className="max-w-3xl"
-        >
+      <div className="relative z-10 min-h-screen w-full grid md:grid-cols-2 gap-10 items-center p-8">
+        <div className="text-center md:text-left max-w-3xl mx-auto md:mx-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isLeaving ? { opacity: 0, y: -6 } : { opacity: 1, y: 0 }}
@@ -41,20 +36,39 @@ export default function WelcomeScreen() {
               <span className="text-cyan-300"> Inteligencia Artificial Multiplataforma</span> de manera sinérgica para potenciar tus capacidades
               y obtener <span className="text-white font-semibold">resultados medibles</span>.
             </p>
-            <p className="text-lg md:text-xl text-white font-semibold mb-10">
+            <p className="text-lg md:text-xl text-white font-semibold mb-8 md:mb-10">
               Esto es <span className="italic">ingeniería de precisión</span> aplicada al rendimiento humano. Aquí no ofrecemos un curso online:
               te brindamos un <span className="text-cyan-300">arsenal</span> a tu medida.
             </p>
             <button
               onClick={handleContinue}
-              className="max-w-xs mx-auto px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-cyan-900/20"
+              className="max-w-xs md:max-w-none md:w-auto mx-auto md:mx-0 px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-lg shadow-cyan-900/20"
             >
               ACCEDE AL HUB CENTRAL
             </button>
           </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={isLeaving ? { opacity: 0, scale: 0.98 } : { opacity: 1, scale: 1 }}
+          transition={{ duration: isLeaving ? 0.4 : 0.8, ease: 'easeOut' }}
+          className="max-w-3xl w-full mx-auto md:mx-0"
+        >
+          <div className="relative rounded-2xl border border-gray-700/70 bg-gray-900/60 backdrop-blur-sm shadow-lg overflow-hidden">
+            <video
+              src="/images/p4t50UvD9W7ti1DfxPRX7.mp4"
+              autoPlay
+              muted
+              playsInline
+              loop
+              preload="auto"
+              className="w-full h-[240px] sm:h-[300px] md:h-[420px] object-cover"
+            />
+            <div className="pointer-events-none absolute inset-0 rounded-2xl" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.03)' }} />
+          </div>
         </motion.div>
       </div>
-      {/* Excelsior está alojado globalmente en App.tsx */}
     </div>
   )
 }
