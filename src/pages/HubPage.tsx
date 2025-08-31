@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAccess } from '../contexts/AccessContext'
-import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 export default function HubPage() {
@@ -18,7 +17,7 @@ export default function HubPage() {
   // Heartbeat de presencia (cada 30s, pestaña activa)
   useEffect(() => {
     let t: any
-    const beat = async () => { try { await supabase.rpc('heartbeat', { p_seconds: 30 }) } catch {} }
+    const beat = async () => { try { await (supabase as any).rpc('heartbeat', { p_seconds: 30 }) } catch {} }
     const loop = () => { beat(); t = setTimeout(loop, 30000) }
     if (document.visibilityState === 'visible') loop()
     const onVis = () => {
@@ -33,7 +32,7 @@ export default function HubPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const { data: pres } = await supabase
+        const { data: pres } = await (supabase as any)
           .from('user_presence_counters')
           .select('seconds_active')
           .eq('yyyymm', new Date().toISOString().slice(0,7).replace('-',''))
@@ -41,7 +40,7 @@ export default function HubPage() {
         setPresenceSeconds(pres?.seconds_active ?? 0)
       } catch {}
       try {
-        const { data: sessions } = await supabase
+        const { data: sessions } = await (supabase as any)
           .from('ai_sessions')
           .select('id', { count: 'exact', head: true })
           .gte('started_at', new Date(Date.now() - 30*24*60*60*1000).toISOString())

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import TechBackground from './TechBackground'
+import { supabase } from '../lib/supabase'
 
 export default function WelcomeScreen() {
   const navigate = useNavigate()
@@ -13,7 +14,7 @@ export default function WelcomeScreen() {
 
   const handleContinue = () => {
     setIsLeaving(true)
-    try { supabase.rpc('set_last_location', { p_route: '/hub', p_context: {} as any }).catch(()=>{}) } catch {}
+    try { (supabase as any).rpc('set_last_location', { p_route: '/hub', p_context: {} as any }).catch(()=>{}) } catch {}
     window.setTimeout(() => navigate('/hub'), 500)
   }
 
