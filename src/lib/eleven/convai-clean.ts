@@ -51,7 +51,11 @@ async function getSignedUrl(agentId?: string) {
     headers: { 'Content-Type': 'application/json' },
     body: agentId ? JSON.stringify({ agent_id: agentId }) : undefined
   });
-  if (!r.ok) throw new Error(`sessions ${r.status}`);
+  if (!r.ok) {
+    const body = await r.text().catch(() => '')
+    console.error('[convai-clean] sessions failed', r.status, body)
+    throw new Error(`sessions ${r.status}`)
+  }
   return r.json() as Promise<{ ws_url: string }>;
 }
 
@@ -102,7 +106,7 @@ export async function connectConvaiClean() {
       const ds = downsampleTo16k(inBuf, audioCtx!.sampleRate);
       const pcm = floatToPcm16le(ds);
       const b64 = u8ToB64(pcm);
-      try { ws.send(JSON.stringify({ user_audio_chunk: b64 })); } catch (err) { console.warn('[convai-clean] send user_audio_chunk error', err); }
+      try { ws.send(JSON.stringify({ user_audio_chunk: b64 })); console.log('[WS ->] user_audio_chunk', { bytes: pcm.byteLength }); } catch (err) { console.warn('[convai-clean] send user_audio_chunk error', err); }
     };
   };
 
@@ -116,9 +120,10 @@ export async function connectConvaiClean() {
     }
     if (msg?.type === 'agent_response') {
       agentSpeaking = true;
-      console.log('[convai-clean] agent_response → pause mic');
+      console.log('[WS <-] agent_response → pause mic');
     }
     if (msg?.type === 'audio' && msg?.audio_event?.audio_base_64) {
+      console.log('[WS <-] audio chunk');
       // console.log('[convai-clean] audio chunk len:', msg.audio_event.audio_base_64.length);
       if (!audioCtx) return;
       const bin = atob(msg.audio_event.audio_base_64);
@@ -133,7 +138,7 @@ export async function connectConvaiClean() {
       src.buffer = buf;
       src.connect(audioCtx.destination);
       src.start();
-      src.onended = () => { agentSpeaking = false; console.log('[convai-clean] audio ended → resume mic'); };
+      src.onended = () => { agentSpeaking = false; console.log('audio ended → resume mic'); };
     }
   };
 
