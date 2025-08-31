@@ -62,7 +62,8 @@ export default function HubPage() {
       bullets: [
         'Mapa de brechas y fortalezas',
         'KPIs y plan de acción priorizado',
-      ]
+      ],
+      caption: 'Imprescindible para diseñar tu Learning Path a medida'
     },
     {
       id: 'psitac',
@@ -74,7 +75,8 @@ export default function HubPage() {
       bullets: [
         'Perfiles aplicados a contexto real',
         'Protocolos de influencia y mando',
-      ]
+      ],
+      caption: 'Conoce a tu enemigo y conócete a ti mismo: dirige con ventaja'
     },
     {
       id: 'performance',
@@ -99,7 +101,8 @@ export default function HubPage() {
       bullets: [
         'Playbooks y automatizaciones',
         'Orquestación e informes ejecutivos',
-      ]
+      ],
+      caption: 'Apoyo táctico 24/7 y ejecución asistida por IA'
     }
   ]
 
@@ -115,7 +118,7 @@ export default function HubPage() {
         </div>
 
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-2 tech-glow">Centro de Mando</h2>
+          <h2 className="text-2xl font-semibold text-white mb-2 tech-glow">Hub Central</h2>
           <p className="text-gray-300 max-w-3xl mx-auto">Cuatro divisiones integradas para decidir mejor y ejecutar más rápido: <span className="text-white">SystemAIR</span> (diagnóstico con datos), <span className="text-white">SIOM PSITAC</span> (dirección e influencia), <span className="text-white">Performance</span> (fisiología aplicada) y <span className="text-white">OPS</span> (operaciones y orquestación con IA).</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Neurociencia</span>
@@ -179,7 +182,7 @@ export default function HubPage() {
                 <div className="relative z-10">
                   <h3 className="text-xl font-semibold text-white mb-2 tech-glow">{module.title}</h3>
                   <p className="text-gray-400 text-sm mb-1">{module.description}</p>
-                  {module.id === 'performance' && ( <div className="text-xs text-cyan-300 mb-3">{module.caption}</div> )}
+                  {module.caption && ( <div className="text-xs text-cyan-300 mb-3">{module.caption}</div> )}
                   
                   <div className="flex items-center justify-between">
                     <span className={`text-sm px-2 py-1 rounded-full ${
