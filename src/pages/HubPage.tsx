@@ -15,7 +15,7 @@ export default function HubPage() {
     {
       id: 'air',
       title: 'SystemAIR™',
-      description: 'Auditoría Inicial de Rendimiento. Diagnóstico 360° para acciones con datos.',
+      description: 'Auditoría Inicial de Rendimiento. Línea base objetiva en 10 áreas clave para priorizar con datos.',
       color: 'from-cyan-500 to-cyan-600',
       href: '/air',
       active: accessLoading ? false : Boolean(access?.air)
@@ -23,7 +23,7 @@ export default function HubPage() {
     {
       id: 'psitac',
       title: 'SIOM PSITAC™',
-      description: 'Inteligencia Táctica de la Personalidad. Decodifica perfiles y mejora la influencia.',
+      description: 'Inteligencia Táctica de la Personalidad. Decodifica perfiles y dirige con precisión operativa.',
       color: 'from-violet-500 to-violet-600',
       href: '/psitac',
       active: accessLoading ? false : Boolean(access?.psitac)
@@ -31,15 +31,15 @@ export default function HubPage() {
     {
       id: 'performance',
       title: 'SIOM Performance™',
-      description: 'Programas de Rendimiento Humano Táctico para líderes y equipos.',
+      description: 'Rendimiento humano táctico. Protocolos de fisiología aplicada para operar bajo presión.',
       color: 'from-emerald-500 to-emerald-600',
       href: '/performance',
       active: accessLoading ? false : Boolean(access?.forge_performance)
     },
     {
       id: 'ops',
-      title: 'SIOM OPS™',
-      description: 'Centro de Operaciones Estratégicas: IA y procesos para ejecutar sin fricción.',
+      title: 'Centro de Operaciones Estratégicas SIOM™',
+      description: 'Playbooks, procesos e IA Multiplataforma para ejecutar con precisión y sin fricción.',
       color: 'from-amber-500 to-amber-600',
       href: '/ops',
       active: accessLoading ? false : Boolean(access?.forge_ops)
@@ -51,15 +51,15 @@ export default function HubPage() {
       <div>
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">O-Forge</h1>
-            <p className="text-gray-400">Ecosistema de inteligencia híbrida de élite. SIOM Solutions</p>
+            <h1 className="text-3xl font-bold text-white">Hub Central</h1>
+            <p className="text-gray-400">Ecosistema de Inteligencia Híbrida de Élite — SIOM Solutions</p>
           </div>
           <div />
         </div>
 
         <div className="text-center mb-10">
-          <h2 className="text-2xl font-semibold text-white mb-2">Tu Centro de Mando</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Desde aquí orquestas cuatro divisiones: <span className="text-white">SystemAIR</span> (diagnóstico de base), <span className="text-white">SIOM PSITAC</span> (perfilamiento táctico), <span className="text-white">Performance</span> (entrenamiento de élite) y <span className="text-white">OPS</span> (ejecución asistida por IA). El acceso y el contenido se adaptan a tu perfil en Supabase en tiempo real.</p>
+          <h2 className="text-2xl font-semibold text-white mb-2 tech-glow">Centro de Mando</h2>
+          <p className="text-gray-300 max-w-3xl mx-auto">Cuatro divisiones integradas para decidir mejor y ejecutar más rápido: <span className="text-white">SystemAIR</span> (diagnóstico con datos), <span className="text-white">SIOM PSITAC</span> (dirección e influencia), <span className="text-white">Performance</span> (fisiología aplicada) y <span className="text-white">OPS</span> (operaciones y orquestación con IA).</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Neurociencia</span>
             <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Fisiología</span>
@@ -73,19 +73,15 @@ export default function HubPage() {
             <div
               key={module.id}
               onClick={() => module.active && navigate(module.href)}
-              className={`relative group cursor-pointer h-full ${
+              className={`relative group cursor-pointer h-full hud-card ${
                 module.active ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
               }`}
             >
-              <div className={`
-                bg-gray-900 rounded-2xl p-8 border border-gray-800 h-full
-                transition-all duration-300 group-hover:scale-[1.01]
-                ${module.active ? 'hover:border-gray-700' : ''}
-              `}>
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${module.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
+              <div className="rounded-2xl p-8 h-full transition-all duration-300 group-hover:scale-[1.01]">
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${module.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
                 
                 <div className="relative z-10">
-                  <h3 className="text-xl font-semibold text-white mb-2">{module.title}</h3>
+                  <h3 className="text-xl font-semibold text-white mb-2 tech-glow">{module.title}</h3>
                   <p className="text-gray-400 text-sm mb-4">{module.description}</p>
                   
                   <div className="flex items-center justify-between">
@@ -97,9 +93,7 @@ export default function HubPage() {
                       {module.active ? 'Activo' : 'Bloqueado'}
                     </span>
                     
-                    {module.active && (
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                    )}
+                    {module.active && (<div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />)}
                   </div>
 
                   {!module.active && (
