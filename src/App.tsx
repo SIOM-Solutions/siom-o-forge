@@ -31,6 +31,7 @@ function App() {
         <div className="min-h-screen bg-gray-950 text-gray-100">
           <ExcelsiorProvider>
             <ExcelsiorMounts />
+            <GlobalCornerLogo />
           </ExcelsiorProvider>
           <AnimatePresence mode="wait">
             <Routes>
@@ -87,5 +88,18 @@ function ExcelsiorMounts() {
         <ExcelsiorConnectButton />
       </div>
     </>
+  )
+}
+
+function GlobalCornerLogo() {
+  const location = useLocation()
+  if (location.pathname === '/auth/login') return null
+  return (
+    <img
+      src="/brand/logo-oro.png"
+      alt="SIOM Solutions"
+      className="fixed bottom-4 left-4 h-12 w-auto opacity-80 logo-electric"
+      style={{ zIndex: 38 }}
+    />
   )
 }

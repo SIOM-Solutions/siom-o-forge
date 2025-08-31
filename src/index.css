@@ -89,6 +89,12 @@
   .animate-float {
     animation: float-y 6s ease-in-out infinite;
   }
+  /* entrada suave para logos/hero */
+  @keyframes fade-in-scale {
+    0% { opacity: 0; transform: translateY(6px) scale(0.985); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .fade-in-scale { animation: fade-in-scale 0.7s ease-out both; }
   .btn {
     @apply inline-flex items-center justify-center font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:opacity-60 disabled:cursor-not-allowed;
     min-height: 2.5rem;
@@ -124,4 +130,9 @@
   .btn-performance:hover { background: var(--mod-performance-hover); }
   .btn-ops { background: var(--mod-ops); }
   .btn-ops:hover { background: var(--mod-ops-hover); }
+
+  /* logo azul eléctrico a partir del oro (PNG) */
+  .logo-electric {
+    filter: hue-rotate(165deg) saturate(2) brightness(1.05);
+  }
 }
