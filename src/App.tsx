@@ -19,9 +19,7 @@ import WelcomeScreen from './components/WelcomeScreen'
 import ExcelsiorHost from './components/ExcelsiorHost'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 import ExcelsiorHUD from './components/ExcelsiorHUD'
-import RealtimeLabPage from './pages/lab/RealtimeLabPage'
-import ElevenLabPage from './pages/lab/ElevenLabPage'
-import ElevenCleanPage from './pages/lab/ElevenCleanPage'
+// Labs eliminados del build
 import ExcelsiorConnectButton from './components/ExcelsiorConnectButton'
 
 function App() {
@@ -35,12 +33,12 @@ function App() {
               <ExcelsiorHUD />
               <ExcelsiorHost />
             </div>
-            {/* Ocultar el botón en rutas de laboratorio para no interferir con pruebas de voz nativa */}
-            {!(location.pathname.startsWith('/lab/eleven') || location.pathname.startsWith('/lab/realtime') || location.pathname.startsWith('/lab/eleven-clean')) && (
+            {/* Botón de Excelsior siempre visible salvo donde se desee explícitamente ocultar */}
+            {
               <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
                 <ExcelsiorConnectButton />
               </div>
-            )}
+            }
           </ExcelsiorProvider>
           <Routes>
             {/* Ruta raíz redirige a login */}
@@ -55,9 +53,7 @@ function App() {
             {/* Rutas protegidas con layout */}
             <Route element={<ProtectedLayout />}>
               <Route path="/hub" element={<HubPage />} />
-              <Route path="/lab/realtime" element={<RealtimeLabPage />} />
-              <Route path="/lab/eleven" element={<ElevenLabPage />} />
-              <Route path="/lab/eleven-clean" element={<ElevenCleanPage />} />
+              {/* Rutas de laboratorio eliminadas */}
               <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
               <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
               <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />
