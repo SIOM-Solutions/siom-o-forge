@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import TechBackground from './TechBackground'
@@ -6,9 +6,20 @@ import TechBackground from './TechBackground'
 export default function WelcomeScreen() {
   const navigate = useNavigate()
   const [isLeaving, setIsLeaving] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     document.title = 'Bienvenido a La Forja | SIOM Solutions'
+  }, [])
+
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    try { v.muted = true; (v as any).playsInline = true } catch {}
+    const tryPlay = () => { try { v.play().catch(() => {}) } catch {} }
+    if (v.readyState >= 2) tryPlay()
+    else v.addEventListener('canplay', tryPlay, { once: true })
+    return () => { try { v.removeEventListener('canplay', tryPlay as any) } catch {} }
   }, [])
 
   const handleContinue = () => {
@@ -63,6 +74,7 @@ export default function WelcomeScreen() {
               playsInline
               loop
               preload="auto"
+              ref={videoRef}
               className="w-full h-[240px] sm:h-[300px] md:h-[420px] object-cover"
             />
             <div className="pointer-events-none absolute inset-0 rounded-2xl" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.03)' }} />
