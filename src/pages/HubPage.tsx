@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { useAccess } from '../contexts/AccessContext'
 
 export default function HubPage() {
@@ -46,7 +47,7 @@ export default function HubPage() {
   ]
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: 'easeOut' }}>
       <div>
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -112,6 +113,6 @@ export default function HubPage() {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
