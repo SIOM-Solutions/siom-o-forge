@@ -5,6 +5,7 @@ export default function ElevenCleanPage() {
   const [on, setOn] = useState(false)
 
   useEffect(() => () => { try { disconnectConvaiClean() } catch {} }, [])
+  useEffect(() => { console.log('[ElevenCleanPage] mounted'); return () => console.log('[ElevenCleanPage] unmounted') }, [])
 
   const start = async () => {
     console.log('[UI] Iniciar clic')

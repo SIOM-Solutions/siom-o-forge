@@ -45,6 +45,7 @@ function rms(buf: Float32Array): number {
 }
 
 async function getSignedUrl(agentId?: string) {
+  console.log('[convai-clean] fetching /api/eleven/sessions with agentId:', agentId)
   const r = await fetch('/api/eleven/sessions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -139,6 +140,10 @@ export async function connectConvaiClean() {
   ws.onclose = (e) => { console.log('[convai-clean] WS close', e.code, e.reason); cleanup(); };
   ws.onerror = (e) => { console.warn('[convai-clean] WS error', e); cleanup(); };
 }
+
+// Exponer para depuración manual en consola del navegador
+;(globalThis as any).connectConvaiClean = connectConvaiClean
+;(globalThis as any).disconnectConvaiClean = disconnectConvaiClean
 
 export function disconnectConvaiClean() {
   try { ws?.close(1000, 'bye'); } catch {}
