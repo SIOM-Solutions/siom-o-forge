@@ -37,6 +37,7 @@ export default function LoginPage() {
       <TechBackground />
       <div className="relative z-10 max-w-7xl mx-auto min-h-screen grid md:grid-cols-2 gap-8 items-center place-items-center p-6">
         <div className="hidden md:block justify-self-start text-center">
+          <img src="/brand/logo-oro.png" alt="SIOM Solutions" className="mx-auto mb-4 h-12 w-auto" />
           <h1 className="text-4xl font-bold text-white mb-2">O‑Forge</h1>
           <p className="text-gray-400 max-w-md mx-auto">El ecosistema de inteligencia híbrida de élite de SIOM Solutions</p>
         </div>

@@ -29,16 +29,17 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-950 text-gray-100">
           <ExcelsiorProvider>
-            <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
-              <ExcelsiorHUD />
-              <ExcelsiorHost />
-            </div>
-            {/* Botón de Excelsior siempre visible salvo donde se desee explícitamente ocultar */}
-            {
-              <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
-                <ExcelsiorConnectButton />
-              </div>
-            }
+            {location.pathname !== '/auth/login' && (
+              <>
+                <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
+                  <ExcelsiorHUD />
+                  <ExcelsiorHost />
+                </div>
+                <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+                  <ExcelsiorConnectButton />
+                </div>
+              </>
+            )}
           </ExcelsiorProvider>
           <Routes>
             {/* Ruta raíz redirige a login */}
