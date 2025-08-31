@@ -111,10 +111,19 @@ export default function HubPage() {
       <div>
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Hub Central</h1>
             <p className="text-gray-400">Ecosistema de Inteligencia Híbrida de Élite — SIOM Solutions</p>
           </div>
-          <div />
+          <div className="hidden md:flex items-center gap-4 text-sm text-gray-300">
+            <button onClick={() => navigate('/air/assignments')} className="hover:text-white">AIR</button>
+            <span className="opacity-40">•</span>
+            <button onClick={() => navigate('/psitac')} className="hover:text-white">PSITAC</button>
+            <span className="opacity-40">•</span>
+            <button onClick={() => navigate('/performance')} className="hover:text-white">Performance</button>
+            <span className="opacity-40">•</span>
+            <button onClick={() => navigate('/ops')} className="hover:text-white">OPS</button>
+            <span className="opacity-40">•</span>
+            <button onClick={() => navigate('/hub?tab=descargas')} className="hover:text-white">Descargas</button>
+          </div>
         </div>
 
         <div className="text-center mb-8">
@@ -128,15 +137,7 @@ export default function HubPage() {
           </div>
         </div>
 
-        {/* Acciones rápidas */}
-        <div className="hud-card p-4 mb-8">
-          <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start">
-            <button onClick={() => navigate('/air/assignments')} className="btn btn-secondary">Continuar AIR</button>
-            <button onClick={() => navigate('/psitac')} className="btn btn-secondary">Abrir PSITAC</button>
-            <button onClick={() => navigate('/performance')} className="btn btn-secondary">Entrar Performance</button>
-            <button onClick={() => navigate('/ops')} className="btn btn-secondary">Centro de Operaciones</button>
-          </div>
-        </div>
+        {/* Acciones rápidas eliminadas; accesos en la barra superior */}
 
         {/* Panel de situación */}
         <div className="hud-card p-5 mb-10">
