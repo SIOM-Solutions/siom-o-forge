@@ -13,6 +13,7 @@ export default function WelcomeScreen() {
 
   const handleContinue = () => {
     setIsLeaving(true)
+    try { supabase.rpc('set_last_location', { p_route: '/hub', p_context: {} as any }).catch(()=>{}) } catch {}
     window.setTimeout(() => navigate('/hub'), 500)
   }
 

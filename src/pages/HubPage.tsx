@@ -2,13 +2,54 @@ import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAccess } from '../contexts/AccessContext'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 
 export default function HubPage() {
   const navigate = useNavigate()
   const { access, loading: accessLoading } = useAccess()
+  const [presenceSeconds, setPresenceSeconds] = useState<number | null>(null)
+  const [iaSessions30d, setIaSessions30d] = useState<number | null>(null)
 
   useEffect(() => {
     document.title = 'O-Forge — Hub'
+  }, [])
+
+  // Heartbeat de presencia (cada 30s, pestaña activa)
+  useEffect(() => {
+    let t: any
+    const beat = async () => { try { await supabase.rpc('heartbeat', { p_seconds: 30 }) } catch {} }
+    const loop = () => { beat(); t = setTimeout(loop, 30000) }
+    if (document.visibilityState === 'visible') loop()
+    const onVis = () => {
+      if (document.visibilityState === 'visible') loop()
+      else if (t) clearTimeout(t)
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => { if (t) clearTimeout(t); document.removeEventListener('visibilitychange', onVis) }
+  }, [])
+
+  // Cargar métricas básicas
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { data: pres } = await supabase
+          .from('user_presence_counters')
+          .select('seconds_active')
+          .eq('yyyymm', new Date().toISOString().slice(0,7).replace('-',''))
+          .maybeSingle()
+        setPresenceSeconds(pres?.seconds_active ?? 0)
+      } catch {}
+      try {
+        const { data: sessions } = await supabase
+          .from('ai_sessions')
+          .select('id', { count: 'exact', head: true })
+          .gte('started_at', new Date(Date.now() - 30*24*60*60*1000).toISOString())
+        // @ts-ignore supabase-js count on head
+        setIaSessions30d((sessions as any)?.count ?? null)
+      } catch {}
+    }
+    load()
   }, [])
 
   const modules = [
@@ -111,16 +152,16 @@ export default function HubPage() {
         {/* Métricas ejecutivas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="hud-card p-4">
-            <div className="text-sm text-gray-400 mb-1">Tiempo ahorrado estimado</div>
-            <div className="text-2xl font-bold text-white">—</div>
+            <div className="text-sm text-gray-400 mb-1">Tiempo en plataforma (mes)</div>
+            <div className="text-2xl font-bold text-white">{presenceSeconds == null ? '—' : `${Math.round((presenceSeconds/60))} min`}</div>
           </div>
           <div className="hud-card p-4">
             <div className="text-sm text-gray-400 mb-1">Tareas clave ejecutadas (7d)</div>
             <div className="text-2xl font-bold text-white">—</div>
           </div>
           <div className="hud-card p-4">
-            <div className="text-sm text-gray-400 mb-1">Readiness Score (β)</div>
-            <div className="text-2xl font-bold text-white">—</div>
+            <div className="text-sm text-gray-400 mb-1">Sesiones IA (30 días)</div>
+            <div className="text-2xl font-bold text-white">{iaSessions30d == null ? '—' : iaSessions30d}</div>
           </div>
         </div>
 
