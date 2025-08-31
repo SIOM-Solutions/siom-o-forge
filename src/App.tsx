@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom"
 
 import { AuthProvider } from './contexts/AuthContext'
 import { AccessProvider } from './contexts/AccessContext'
@@ -29,17 +29,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-950 text-gray-100">
           <ExcelsiorProvider>
-            {location.pathname !== '/auth/login' && (
-              <>
-                <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
-                  <ExcelsiorHUD />
-                  <ExcelsiorHost />
-                </div>
-                <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
-                  <ExcelsiorConnectButton />
-                </div>
-              </>
-            )}
+            <ExcelsiorMounts />
           </ExcelsiorProvider>
           <Routes>
             {/* Ruta raíz redirige a login */}
@@ -80,3 +70,19 @@ function App() {
 }
 
 export default App
+
+function ExcelsiorMounts() {
+  const location = useLocation()
+  if (location.pathname === '/auth/login') return null
+  return (
+    <>
+      <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
+        <ExcelsiorHUD />
+        <ExcelsiorHost />
+      </div>
+      <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+        <ExcelsiorConnectButton />
+      </div>
+    </>
+  )
+}
