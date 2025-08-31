@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom"
+import { AnimatePresence } from 'framer-motion'
 
 import { AuthProvider } from './contexts/AuthContext'
 import { AccessProvider } from './contexts/AccessContext'
@@ -31,37 +32,39 @@ function App() {
           <ExcelsiorProvider>
             <ExcelsiorMounts />
           </ExcelsiorProvider>
-          <Routes>
-            {/* Ruta raíz redirige a login */}
-            <Route path="/" element={<Navigate to="/auth/login" replace />} />
-            
-            {/* Login público */}
-            <Route path="/auth/login" element={<LoginPage />} />
-            
-            {/* Pantalla de bienvenida tras login (protegida, sin layout superior) */}
-            <Route path="/welcome" element={<ProtectedRoute><WelcomeScreen /></ProtectedRoute>} />
+          <AnimatePresence mode="wait">
+            <Routes>
+              {/* Ruta raíz redirige a login */}
+              <Route path="/" element={<Navigate to="/auth/login" replace />} />
+              
+              {/* Login público */}
+              <Route path="/auth/login" element={<LoginPage />} />
+              
+              {/* Pantalla de bienvenida tras login (protegida, sin layout superior) */}
+              <Route path="/welcome" element={<ProtectedRoute><WelcomeScreen /></ProtectedRoute>} />
 
-            {/* Rutas protegidas con layout */}
-            <Route element={<ProtectedLayout />}>
-              <Route path="/hub" element={<HubPage />} />
-              {/* Rutas de laboratorio eliminadas */}
-              <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
-              <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
-              <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />
+              {/* Rutas protegidas con layout */}
+              <Route element={<ProtectedLayout />}>
+                <Route path="/hub" element={<HubPage />} />
+                {/* Rutas de laboratorio eliminadas */}
+                <Route path="/air" element={<ProtectedRoute requiredAccess="air"><AirLandingPage /></ProtectedRoute>} />
+                <Route path="/air/assignments" element={<ProtectedRoute requiredAccess="air"><AirAssignmentsPage /></ProtectedRoute>} />
+                <Route path="/air/assignments/:slug" element={<ProtectedRoute requiredAccess="air"><AirAssignmentDetailPage /></ProtectedRoute>} />
 
-              {/* PSITAC */}
-              <Route path="/psitac" element={<ProtectedRoute requiredAccess="psitac"><PsitacLandingPage /></ProtectedRoute>} />
-              <Route path="/psitac/parte-i" element={<ProtectedRoute requiredAccess="psitac"><PsitacPartIPage /></ProtectedRoute>} />
-              <Route path="/psitac/parte-ii" element={<ProtectedRoute requiredAccess="psitac"><PsitacPartIIPage /></ProtectedRoute>} />
+                {/* PSITAC */}
+                <Route path="/psitac" element={<ProtectedRoute requiredAccess="psitac"><PsitacLandingPage /></ProtectedRoute>} />
+                <Route path="/psitac/parte-i" element={<ProtectedRoute requiredAccess="psitac"><PsitacPartIPage /></ProtectedRoute>} />
+                <Route path="/psitac/parte-ii" element={<ProtectedRoute requiredAccess="psitac"><PsitacPartIIPage /></ProtectedRoute>} />
 
-              {/* Performance y OPS placeholders */}
-              <Route path="/performance" element={<ProtectedRoute requiredAccess="forge_performance"><PerformanceLandingPage /></ProtectedRoute>} />
-              <Route path="/ops" element={<ProtectedRoute requiredAccess="forge_ops"><OpsLandingPage /></ProtectedRoute>} />
-            </Route>
+                {/* Performance y OPS placeholders */}
+                <Route path="/performance" element={<ProtectedRoute requiredAccess="forge_performance"><PerformanceLandingPage /></ProtectedRoute>} />
+                <Route path="/ops" element={<ProtectedRoute requiredAccess="forge_ops"><OpsLandingPage /></ProtectedRoute>} />
+              </Route>
 
-            {/* 404 */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+              {/* 404 */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </AnimatePresence>
         </div>
       </Router>
       </AccessProvider>
