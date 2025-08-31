@@ -1,11 +1,12 @@
 // src/lib/eleven/convai-clean.ts
 let ws: WebSocket | null = null;
+let connecting = false; // evita conexiones duplicadas
 let audioCtx: AudioContext | null = null;
 let media: MediaStream | null = null;
 let source: MediaStreamAudioSourceNode | null = null;
 let processor: ScriptProcessorNode | null = null;
 
-let agentSpeaking = false;      // pausa el envío de micro mientras habla el agente
+let nextAudioStart = 0; // cola de reproducción para evitar solapes
 const SR_TARGET = 16000;
 
 function floatToPcm16le(float32: Float32Array): Uint8Array {
@@ -61,8 +62,16 @@ async function getSignedUrl(agentId?: string) {
 
 export async function connectConvaiClean() {
   console.log('[convai-clean] start connect');
+  if (connecting) { console.log('[convai-clean] connecting in progress'); return; }
   if (ws && ws.readyState === WebSocket.OPEN) { console.log('[convai-clean] already connected'); return; }
-  const signed = await getSignedUrl((import.meta as any).env?.VITE_EXCELSIOR_AGENT_ID);
+  connecting = true;
+  let signed: { ws_url: string };
+  try {
+    signed = await getSignedUrl((import.meta as any).env?.VITE_EXCELSIOR_AGENT_ID);
+  } catch (e) {
+    connecting = false;
+    throw e;
+  }
   console.log('[convai-clean] sessions JSON:', signed);
   const { ws_url } = signed;
   if (!ws_url) throw new Error('No ws_url from /api/eleven/sessions');
@@ -73,6 +82,7 @@ export async function connectConvaiClean() {
 
   ws.onopen = async () => {
     console.log('[convai-clean] WS open');
+    connecting = false;
     try {
       ws?.send(JSON.stringify({
         type: 'session.update',
@@ -96,10 +106,10 @@ export async function connectConvaiClean() {
     source.connect(processor);
     // NECESARIO: conectar el processor al destino para que onaudioprocess dispare
     processor.connect(audioCtx.destination);
+    nextAudioStart = audioCtx.currentTime;
 
     processor.onaudioprocess = (e) => {
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
-      if (agentSpeaking) return;
       const inBuf = e.inputBuffer.getChannelData(0);
       const level = rms(inBuf);
       const speaking = level > 0.01;
@@ -120,8 +130,11 @@ export async function connectConvaiClean() {
       try { ws?.send(JSON.stringify({ type: 'pong', event_id: msg.ping_event.event_id })); console.log('[convai-clean] pong sent'); } catch {}
     }
     if (msg?.type === 'agent_response') {
-      agentSpeaking = true;
-      console.log('[WS <-] agent_response → pause mic');
+      console.log('[WS <-] agent_response');
+    }
+    if (msg?.type === 'response.completed') {
+      console.log('[convai-clean] response.completed');
+      if (audioCtx) nextAudioStart = audioCtx.currentTime; // reset cola si aplica
     }
     if (msg?.type === 'audio' && msg?.audio_event?.audio_base_64) {
       console.log('[WS <-] audio chunk');
@@ -138,13 +151,15 @@ export async function connectConvaiClean() {
       const src = audioCtx.createBufferSource();
       src.buffer = buf;
       src.connect(audioCtx.destination);
-      src.start();
-      src.onended = () => { agentSpeaking = false; console.log('audio ended → resume mic'); };
+      const startAt = Math.max(audioCtx.currentTime, nextAudioStart);
+      try { src.start(startAt) } catch { try { src.start() } catch {} }
+      nextAudioStart = startAt + buf.duration;
+      src.onended = () => { /* cola liberada automáticamente por nextAudioStart */ };
     }
   };
 
-  ws.onclose = (e) => { console.log('[convai-clean] WS close', e.code, e.reason); cleanup(); };
-  ws.onerror = (e) => { console.warn('[convai-clean] WS error', e); cleanup(); };
+  ws.onclose = (e) => { console.log('[convai-clean] WS close', e.code, e.reason); connecting = false; cleanup(); };
+  ws.onerror = (e) => { console.warn('[convai-clean] WS error', e); connecting = false; cleanup(); };
 }
 
 // Exponer para depuración manual en consola del navegador
@@ -162,5 +177,5 @@ function cleanup() {
   try { media?.getTracks()?.forEach(t => { try { t.stop(); } catch {} }); } catch {}
   try { audioCtx?.close(); } catch {}
   ws = null; audioCtx = null; media = null; source = null; processor = null;
-  agentSpeaking = false;
+  connecting = false;
 }
