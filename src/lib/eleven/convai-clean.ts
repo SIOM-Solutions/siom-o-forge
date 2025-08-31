@@ -61,7 +61,7 @@ async function getSignedUrl(agentId?: string) {
 
 export async function connectConvaiClean() {
   console.log('[convai-clean] start connect');
-  if (ws) { console.log('[convai-clean] already connected'); return; }
+  if (ws && ws.readyState === WebSocket.OPEN) { console.log('[convai-clean] already connected'); return; }
   const signed = await getSignedUrl((import.meta as any).env?.VITE_EXCELSIOR_AGENT_ID);
   console.log('[convai-clean] sessions JSON:', signed);
   const { ws_url } = signed;
@@ -94,7 +94,8 @@ export async function connectConvaiClean() {
     source = audioCtx.createMediaStreamSource(media);
     processor = audioCtx.createScriptProcessor(2048, 1, 1);
     source.connect(processor);
-    // No conectar processor a destination para evitar eco/feedback
+    // NECESARIO: conectar el processor al destino para que onaudioprocess dispare
+    processor.connect(audioCtx.destination);
 
     processor.onaudioprocess = (e) => {
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
