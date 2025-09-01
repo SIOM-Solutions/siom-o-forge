@@ -79,7 +79,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
     .select('agent_id, channel')
     .in('agent_id', agentIds.length ? agentIds : ['-nope-'])
   if (agentsErr) throw agentsErr
-  const agentIdToChannel = new Map<string, 'voice' | 'text' | string>()
+  const agentIdToChannel = new Map<string, 'voice' | 'text' | 'chat' | string>()
   ;(agents || []).forEach((a: any) => agentIdToChannel.set(a.agent_id, a.channel))
 
   // 7) Políticas activas en ventana (scope='materia') y con canal
@@ -91,10 +91,10 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
     .eq('scope', 'materia')
     .in('materia_id', materiaIds)
   if (polErr) throw polErr
-  const now = new Date().toISOString()
+  const nowMs = Date.now()
   const policies = (policiesAll || []).filter((p: any) => {
-    const startOk = !p.access_start_at || p.access_start_at <= now
-    const endOk = !p.access_end_at || p.access_end_at >= now
+    const startOk = !p.access_start_at || (Date.parse(p.access_start_at) <= nowMs)
+    const endOk = !p.access_end_at || (Date.parse(p.access_end_at) >= nowMs)
     return startOk && endOk
   })
 
@@ -103,7 +103,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
     const channel = agentIdToChannel.get(r.agent_id)
     if (!materiaIdToAgents.has(r.materia_id)) materiaIdToAgents.set(r.materia_id, { voice: new Set(), text: new Set() })
     if (channel === 'voice') materiaIdToAgents.get(r.materia_id)!.voice.add(r.agent_id)
-    if (channel === 'text') materiaIdToAgents.get(r.materia_id)!.text.add(r.agent_id)
+    if (channel === 'text' || channel === 'chat') materiaIdToAgents.get(r.materia_id)!.text.add(r.agent_id)
   })
   // 8) Uso en ventana por política para calcular restante (consulta única y agregación en cliente)
   const policyAgentIds: string[] = Array.from(new Set((policies || []).map((p: any) => p.agent_id)))
@@ -143,7 +143,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
       }, 0)
       if (p.monthly_seconds_cap != null) out.voiceRemainingSeconds = Math.max(out.voiceRemainingSeconds ?? 0, Math.max(0, p.monthly_seconds_cap - usedSeconds))
     }
-    if (channel === 'text' && mapped && mapped.text.has(p.agent_id)) {
+    if ((channel === 'text' || channel === 'chat') && mapped && mapped.text.has(p.agent_id)) {
       out.hasChat = true
       if (p.monthly_token_cap != null) out.chatCapTokens = Math.max(out.chatCapTokens ?? 0, p.monthly_token_cap)
       const winStart = p.access_start_at ? new Date(p.access_start_at).getTime() : new Date('1970-01-01T00:00:00Z').getTime()

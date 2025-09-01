@@ -173,7 +173,7 @@ export default function PerformanceLandingPage() {
                                             {m.hasVoice && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Voz</span>)}
                                             {m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Chat</span>)}
                                             {!m.hasVoice && !m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-gray-800 text-gray-500 border-gray-700">IA inactiva</span>)}
-                                            {m.voiceCapSeconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {Math.round(m.voiceCapSeconds/60)} min/mes{m.voiceRemainingSeconds != null ? ` · restante ${Math.max(0, Math.floor(m.voiceRemainingSeconds/60))} min` : ''}</span>)}
+                                            {m.voiceCapSeconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {Math.round(m.voiceCapSeconds/60)} min/mes{m.voiceRemainingSeconds != null ? ` · restante ${Math.max(0, Math.round(m.voiceRemainingSeconds/60))} min` : ''}</span>)}
                                             {m.chatCapTokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {m.chatCapTokens} tokens/mes{m.chatRemainingTokens != null ? ` · restante ${m.chatRemainingTokens}` : ''}</span>)}
                                           </div>
                                         </div>
