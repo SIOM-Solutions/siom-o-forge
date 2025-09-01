@@ -198,7 +198,11 @@ export default function AirAssignmentDetailPage() {
               </span>
             </div>
             <h1 className="text-3xl font-bold text-white mb-1">{materia.name}</h1>
-            <p className="text-gray-400">Briefing de diagnóstico: por qué auditar esta materia y cómo impactará en tus resultados.</p>
+            <p className="text-gray-300">Diagnóstico táctico para elevar tu rendimiento en esta materia. <span className="text-white font-semibold">Datos reales</span> para <span className="text-cyan-300 font-semibold">decisiones mejores</span> y mejoras con impacto.</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className="bg-gray-800/60 border border-gray-700 rounded px-2 py-0.5 text-gray-300">Confidencial</span>
+              <span className="bg-gray-800/60 border border-gray-700 rounded px-2 py-0.5 text-gray-300">Orientado a resultados</span>
+            </div>
           </div>
           <button onClick={() => navigate('/air/assignments')} className="btn btn-secondary">← Materias</button>
         </div>
@@ -210,16 +214,16 @@ export default function AirAssignmentDetailPage() {
             <div className="hud-card p-6">
               <div className="grid md:grid-cols-3 gap-6">
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">El Dolor</div>
-                  <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.dolor ?? 'Diagnóstico del problema clave en esta materia.'}</p>
+                  <div className="text-xs uppercase tracking-wide text-cyan-300 mb-1">❗ Dolor</div>
+                  <p className="text-gray-300 text-sm leading-relaxed">{BRIEFINGS[materia.slug]?.dolor ?? 'Diagnóstico del problema clave en esta materia.'}</p>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">La Solución SIOM</div>
-                  <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.solucion ?? 'Protocolos y metodología aplicada para resolverlo.'}</p>
+                  <div className="text-xs uppercase tracking-wide text-cyan-300 mb-1">🛠️ Solución SIOM</div>
+                  <p className="text-gray-300 text-sm leading-relaxed">{BRIEFINGS[materia.slug]?.solucion ?? 'Protocolos y metodología aplicada para resolverlo.'}</p>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">El Impacto</div>
-                  <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.impacto ?? 'Resultados esperables y ventajas operativas.'}</p>
+                  <div className="text-xs uppercase tracking-wide text-cyan-300 mb-1">🎯 Impacto</div>
+                  <p className="text-gray-300 text-sm leading-relaxed">{BRIEFINGS[materia.slug]?.impacto ?? 'Resultados esperables y ventajas operativas.'}</p>
                 </div>
               </div>
             </div>
@@ -230,6 +234,7 @@ export default function AirAssignmentDetailPage() {
                 <div className="flex items-center gap-2 text-xs text-gray-300">
                   <span className="bg-gray-800/60 border border-gray-700 rounded px-2 py-0.5">~50 preguntas</span>
                   <span className="bg-gray-800/60 border border-gray-700 rounded px-2 py-0.5">Tiempo variable</span>
+                  <span className="bg-gray-800/60 border border-gray-700 rounded px-2 py-0.5 text-cyan-300">Máxima dedicación</span>
                 </div>
               </div>
               <div className="rounded-xl overflow-hidden border border-gray-800 bg-gray-900">
@@ -260,7 +265,7 @@ export default function AirAssignmentDetailPage() {
                     assignment ? (track('air_auditoria_submit', { slug: materia.slug }), 'He Completado la Auditoría') : 'No tienes esta materia asignada'
                   )}
                 </button>
-                <p className="text-gray-400 text-sm mt-3">Pulsa cuando hayas terminado de responder todas las preguntas.</p>
+                <p className="text-gray-400 text-sm mt-3">Pulsa cuando hayas terminado de responder todas las preguntas. <span className="text-cyan-300">Cada respuesta cuenta</span> para diseñar tu <span className="text-white font-semibold">Learning Path</span>.</p>
               </div>
             </div>
           </div>
@@ -268,24 +273,24 @@ export default function AirAssignmentDetailPage() {
           {/* Sidebar */}
           <aside className="space-y-6">
             <div className="hud-card p-5">
-              <div className="text-sm text-gray-400 mb-2">Resumen de la materia</div>
+              <div className="text-sm text-cyan-300 mb-2">Resumen de la materia</div>
               <ul className="text-sm text-gray-300 space-y-2">
-                <li><span className="text-gray-400">Qué analizas:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ? 'Factores clave de rendimiento' : 'Diagnóstico específico'}</span></li>
-                <li><span className="text-gray-400">Dolor:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ?? '—'}</span></li>
-                <li><span className="text-gray-400">Qué obtienes:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.impacto ?? '—'}</span></li>
+                <li><span className="text-cyan-300">Qué analizas:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ? 'Factores clave de rendimiento' : 'Diagnóstico específico'}</span></li>
+                <li><span className="text-cyan-300">Dolor:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ?? '—'}</span></li>
+                <li><span className="text-cyan-300">Qué obtienes:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.impacto ?? '—'}</span></li>
               </ul>
             </div>
             <div className="hud-card p-5">
-              <div className="text-sm text-gray-400 mb-2">Recomendaciones</div>
-              <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
-                <li>Responde con calma y sinceridad.</li>
-                <li>Evita interrupciones para mantener el foco.</li>
-                <li>Si se corta, recarga la página y continúa.</li>
+              <div className="text-sm text-cyan-300 mb-2">Recomendaciones</div>
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>✔️ <span className="text-white/90">Responde con calma y sinceridad</span>.</li>
+                <li>✔️ Evita interrupciones para mantener el <span className="text-white/90">foco</span>.</li>
+                <li>✔️ Si se corta, recarga la página y <span className="text-white/90">continúa</span>.</li>
               </ul>
             </div>
             <div className="hud-card p-5">
-              <div className="text-sm text-gray-400 mb-2">Soporte</div>
-              <a href="mailto:contacto@siomsolutions.com" className="text-blue-300 hover:text-blue-200 text-sm">contacto@siomsolutions.com</a>
+              <div className="text-sm text-cyan-300 mb-2">Soporte</div>
+              <a href="mailto:contacto@siomsolutions.com" className="text-blue-300 hover:text-blue-200 text-sm underline underline-offset-2">contacto@siomsolutions.com</a>
             </div>
           </aside>
         </div>
