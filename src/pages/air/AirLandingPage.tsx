@@ -52,12 +52,14 @@ export default function AirLandingPage() {
                   <li>Integración operativa con <span className="text-white font-semibold">PSITAC</span>, <span className="text-white font-semibold">Performance</span> y <span className="text-white font-semibold">OPS</span></li>
                 </ul>
               </div>
-              <button
-                onClick={() => navigate('/air/assignments')}
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors duration-200"
-              >
-                Ver Mis Materias
-              </button>
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={() => navigate('/air/assignments')}
+                  className="btn btn-air"
+                >
+                  Ver Mis Materias
+                </button>
+              </div>
             </div>
             <div className="h-full">
               {!imgError ? (
