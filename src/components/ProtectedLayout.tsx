@@ -21,14 +21,16 @@ export default function ProtectedLayout() {
           <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button onClick={() => navigate('/hub')} className="text-white font-semibold text-lg">
-                O-Forge
+                Hub
               </button>
               <span className="text-xs text-gray-400 border border-gray-800 rounded px-2 py-0.5">SIOM</span>
             </div>
             <nav className="flex items-center gap-2">
-              <button onClick={() => navigate('/hub')} className="px-3 py-2 text-gray-300 hover:text-white rounded-md hover:bg-gray-800">
-                Hub
-              </button>
+              <button onClick={() => navigate('/air/assignments')} className="px-3 py-2 text-gray-300 hover:text-white rounded-md hover:bg-gray-800">AIR</button>
+              <button onClick={() => navigate('/psitac')} className="px-3 py-2 text-gray-300 hover:text-white rounded-md hover:bg-gray-800">PSITAC</button>
+              <button onClick={() => navigate('/performance')} className="px-3 py-2 text-gray-300 hover:text-white rounded-md hover:bg-gray-800">Performance</button>
+              <button onClick={() => navigate('/ops')} className="px-3 py-2 text-gray-300 hover:text-white rounded-md hover:bg-gray-800">OPS</button>
+              <button onClick={() => navigate('/downloads')} className="px-3 py-2 text-gray-300 hover:text-white rounded-md hover:bg-gray-800">Descargas</button>
               <button onClick={handleSignOut} className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-md">
                 Cerrar sesión
               </button>

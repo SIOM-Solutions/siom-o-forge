@@ -1,37 +1,70 @@
 export const config = { runtime: 'nodejs22.x' }
 
 export default async function handler(req: Request): Promise<Response> {
-  if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 })
+  const origin = req.headers.get('origin') || '*'
+  const cors = {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   }
+
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: cors })
+  }
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
+      status: 405,
+      headers: { ...cors, 'content-type': 'application/json' },
+    })
+  }
+
   try {
     const apiKey = process.env.ELEVENLABS_API_KEY
-    if (!apiKey) return new Response('Missing ELEVENLABS_API_KEY', { status: 500 })
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: 'Missing ELEVENLABS_API_KEY' }), {
+        status: 500,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
+    }
 
-    const body = await req.json().catch(() => ({}))
+    const body = await req.json().catch(() => ({} as any))
     const agentId = (body && body.agent_id) || process.env.VITE_EXCELSIOR_AGENT_ID
-    if (!agentId) return new Response('Missing agent_id', { status: 400 })
+    if (!agentId) {
+      return new Response(JSON.stringify({ error: 'Missing agent_id' }), {
+        status: 400,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
+    }
 
-    // Solicitar la URL de WS para el agente (Convai)
-    const r = await fetch('https://api.elevenlabs.io/v1/convai/connections', {
-      method: 'POST',
-      headers: {
-        'xi-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ agent_id: agentId }),
-    })
-    const j = await r.json()
-    if (!r.ok) return new Response(JSON.stringify(j), { status: r.status, headers: { 'content-type': 'application/json' } })
+    const url = `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}&inactivity_timeout=180`
+    const upstream = await fetch(url, { headers: { 'xi-api-key': apiKey } })
+    const text = await upstream.text()
+    let data: any = null
+    try { data = JSON.parse(text) } catch { data = null }
 
-    return new Response(JSON.stringify({ ws_url: j?.websocket_url || j?.ws_url || j?.url }), {
+    if (!upstream.ok) {
+      return new Response(JSON.stringify({ error: 'Upstream error', details: data || text }), {
+        status: upstream.status,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
+    }
+
+    const signed = data?.signed_url || data?.ws_url || data?.websocket_url || data?.url
+    if (!signed) {
+      return new Response(JSON.stringify({ error: 'No signed_url in upstream response', details: data || text }), {
+        status: 502,
+        headers: { ...cors, 'content-type': 'application/json' },
+      })
+    }
+
+    return new Response(JSON.stringify({ ws_url: signed }), {
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { ...cors, 'content-type': 'application/json' },
     })
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: String(e?.message || e) }), {
+    return new Response(JSON.stringify({ error: e?.message || 'Unknown error' }), {
       status: 500,
-      headers: { 'content-type': 'application/json' },
+      headers: { ...cors, 'content-type': 'application/json' },
     })
   }
 }

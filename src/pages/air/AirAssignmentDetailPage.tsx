@@ -131,7 +131,7 @@ export default function AirAssignmentDetailPage() {
             </p>
             <button
               onClick={() => navigate('/air/assignments')}
-              className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors duration-200"
+              className="btn btn-air btn-lg"
             >
               Ver Otras Materias
             </button>
@@ -219,7 +219,7 @@ export default function AirAssignmentDetailPage() {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || !assignment}
-              className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-800 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 mx-auto"
+              className="btn btn-air btn-lg disabled:opacity-60 flex items-center justify-center gap-2 mx-auto"
             >
               {isSubmitting ? (
                 <>

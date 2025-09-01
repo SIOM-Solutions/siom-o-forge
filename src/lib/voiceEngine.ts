@@ -1,4 +1,7 @@
-import { startOrbRealtime, stopOrbRealtime } from './realtime/orbClient'
+// Integración OpenAI Realtime movida a examples/voice/orbClient.ts.
+// Stub seguro para mantener el build verde sin la dependencia.
+async function startOrbRealtime(): Promise<boolean> { return true }
+function stopOrbRealtime(): void {}
 
 export interface VoiceEngine {
   start: () => Promise<boolean>

@@ -1,64 +1,123 @@
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useAccess } from '../contexts/AccessContext'
+import { supabase } from '../lib/supabase'
 
 export default function HubPage() {
   const navigate = useNavigate()
   const { access, loading: accessLoading } = useAccess()
+  const [presenceSeconds, setPresenceSeconds] = useState<number | null>(null)
+  const [iaSessions30d, setIaSessions30d] = useState<number | null>(null)
 
   useEffect(() => {
     document.title = 'O-Forge — Hub'
+  }, [])
+
+  // Heartbeat de presencia (cada 30s, pestaña activa)
+  useEffect(() => {
+    let t: any
+    const beat = async () => { try { await (supabase as any).rpc('heartbeat', { p_seconds: 30 }) } catch {} }
+    const loop = () => { beat(); t = setTimeout(loop, 30000) }
+    if (document.visibilityState === 'visible') loop()
+    const onVis = () => {
+      if (document.visibilityState === 'visible') loop()
+      else if (t) clearTimeout(t)
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => { if (t) clearTimeout(t); document.removeEventListener('visibilitychange', onVis) }
+  }, [])
+
+  // Cargar métricas básicas
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { data: pres } = await (supabase as any)
+          .from('user_presence_counters')
+          .select('seconds_active')
+          .eq('yyyymm', new Date().toISOString().slice(0,7).replace('-',''))
+          .maybeSingle()
+        setPresenceSeconds(pres?.seconds_active ?? 0)
+      } catch {}
+      try {
+        const { data: sessions } = await (supabase as any)
+          .from('ai_sessions')
+          .select('id', { count: 'exact', head: true })
+          .gte('started_at', new Date(Date.now() - 30*24*60*60*1000).toISOString())
+        // @ts-ignore supabase-js count on head
+        setIaSessions30d((sessions as any)?.count ?? null)
+      } catch {}
+    }
+    load()
   }, [])
 
   const modules = [
     {
       id: 'air',
       title: 'SystemAIR™',
-      description: 'Auditoría Inicial de Rendimiento. Diagnóstico 360° para acciones con datos.',
+      description: 'Auditoría Inicial de Rendimiento. Línea base objetiva en 10 áreas clave para priorizar con datos.',
       color: 'from-cyan-500 to-cyan-600',
       href: '/air',
-      active: accessLoading ? false : Boolean(access?.air)
+      active: accessLoading ? false : Boolean(access?.air),
+      bullets: [
+        'Mapa de brechas y fortalezas',
+        'KPIs y plan de acción priorizado',
+      ],
+      caption: 'Imprescindible para diseñar tu Learning Path a medida'
     },
     {
       id: 'psitac',
       title: 'SIOM PSITAC™',
-      description: 'Inteligencia Táctica de la Personalidad. Decodifica perfiles y mejora la influencia.',
+      description: 'Inteligencia Táctica de la Personalidad. Decodifica perfiles y dirige con precisión operativa.',
       color: 'from-violet-500 to-violet-600',
       href: '/psitac',
-      active: accessLoading ? false : Boolean(access?.psitac)
+      active: accessLoading ? false : Boolean(access?.psitac),
+      bullets: [
+        'Perfiles aplicados a contexto real',
+        'Protocolos de influencia y mando',
+      ],
+      caption: 'Conoce a tu enemigo y conócete a ti mismo: dirige con ventaja'
     },
     {
       id: 'performance',
       title: 'SIOM Performance™',
-      description: 'Programas de Rendimiento Humano Táctico para líderes y equipos.',
+      description: 'Rendimiento humano táctico. Protocolos de fisiología aplicada para operar bajo presión.',
       color: 'from-emerald-500 to-emerald-600',
       href: '/performance',
-      active: accessLoading ? false : Boolean(access?.forge_performance)
+      active: accessLoading ? false : Boolean(access?.forge_performance),
+      bullets: [
+        'Sueño, energía y foco operativos',
+        'Protocolos medibles y sostenibles',
+      ],
+      caption: 'Incluye Instructores SIOM AI por materia'
     },
     {
       id: 'ops',
-      title: 'SIOM OPS™',
-      description: 'Centro de Operaciones Estratégicas: IA y procesos para ejecutar sin fricción.',
+      title: 'Centro de Operaciones Estratégicas SIOM™',
+      description: 'Playbooks, procesos e IA Multiplataforma para ejecutar con precisión y sin fricción.',
       color: 'from-amber-500 to-amber-600',
       href: '/ops',
-      active: accessLoading ? false : Boolean(access?.forge_ops)
+      active: accessLoading ? false : Boolean(access?.forge_ops),
+      bullets: [
+        'Playbooks y automatizaciones',
+        'Orquestación e informes ejecutivos',
+      ],
+      caption: 'Apoyo táctico 24/7 y ejecución asistida por IA'
     }
   ]
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: 'easeOut' }}>
       <div>
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">O-Forge</h1>
-            <p className="text-gray-400">Ecosistema de inteligencia híbrida de élite. SIOM Solutions</p>
+            <p className="text-gray-400">Ecosistema de Inteligencia Híbrida de Élite — SIOM Solutions</p>
           </div>
-          <div />
         </div>
 
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-semibold text-white mb-2">Tu Centro de Mando</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">Desde aquí orquestas cuatro divisiones: <span className="text-white">SystemAIR</span> (diagnóstico de base), <span className="text-white">SIOM PSITAC</span> (perfilamiento táctico), <span className="text-white">Performance</span> (entrenamiento de élite) y <span className="text-white">OPS</span> (ejecución asistida por IA). El acceso y el contenido se adaptan a tu perfil en Supabase en tiempo real.</p>
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-semibold text-white mb-2 tech-glow">Hub Central</h2>
+          <p className="text-gray-300 max-w-3xl mx-auto">Cuatro divisiones integradas para decidir mejor y ejecutar más rápido: <span className="text-white">SystemAIR</span> (diagnóstico con datos), <span className="text-white">SIOM PSITAC</span> (dirección e influencia), <span className="text-white">Performance</span> (fisiología aplicada) y <span className="text-white">OPS</span> (operaciones y orquestación con IA).</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Neurociencia</span>
             <span className="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Fisiología</span>
@@ -67,25 +126,53 @@ export default function HubPage() {
           </div>
         </div>
 
+        {/* Acciones rápidas eliminadas; accesos en la barra superior */}
+
+        {/* Panel de situación */}
+        <div className="hud-card p-5 mb-10">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <div className="text-sm text-gray-400">Estado del Operador</div>
+              <div className="text-white font-mono">SystemAIR: {access?.air ? 'Acceso activo' : 'Pendiente'}</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => navigate('/air/assignments')} className="btn btn-primary">Continuar AIR</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Métricas ejecutivas */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="hud-card p-4">
+            <div className="text-sm text-gray-400 mb-1">Tiempo en plataforma (mes)</div>
+            <div className="text-2xl font-bold text-white">{presenceSeconds == null ? '—' : `${Math.round((presenceSeconds/60))} min`}</div>
+          </div>
+          <div className="hud-card p-4">
+            <div className="text-sm text-gray-400 mb-1">Tareas clave ejecutadas (7d)</div>
+            <div className="text-2xl font-bold text-white">—</div>
+          </div>
+          <div className="hud-card p-4">
+            <div className="text-sm text-gray-400 mb-1">Sesiones IA (30 días)</div>
+            <div className="text-2xl font-bold text-white">{iaSessions30d == null ? '—' : iaSessions30d}</div>
+          </div>
+        </div>
+
         <div id="modules-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {modules.map((module) => (
             <div
               key={module.id}
               onClick={() => module.active && navigate(module.href)}
-              className={`relative group cursor-pointer h-full ${
+              className={`relative group cursor-pointer h-full hud-card ${
                 module.active ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
               }`}
             >
-              <div className={`
-                bg-gray-900 rounded-2xl p-8 border border-gray-800 h-full
-                transition-all duration-300 group-hover:scale-[1.01]
-                ${module.active ? 'hover:border-gray-700' : ''}
-              `}>
-                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${module.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
+              <div className="rounded-2xl p-8 h-full transition-all duration-300 group-hover:scale-[1.01]">
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${module.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
                 
                 <div className="relative z-10">
-                  <h3 className="text-xl font-semibold text-white mb-2">{module.title}</h3>
-                  <p className="text-gray-400 text-sm mb-4">{module.description}</p>
+                  <h3 className="text-xl font-semibold text-white mb-2 tech-glow">{module.title}</h3>
+                  <p className="text-gray-400 text-sm mb-1">{module.description}</p>
+                  {module.caption && ( <div className="text-xs text-cyan-300 mb-3">{module.caption}</div> )}
                   
                   <div className="flex items-center justify-between">
                     <span className={`text-sm px-2 py-1 rounded-full ${
@@ -96,14 +183,20 @@ export default function HubPage() {
                       {module.active ? 'Activo' : 'Bloqueado'}
                     </span>
                     
-                    {module.active && (
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                    )}
+                    {module.active && (<div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />)}
                   </div>
 
                   {!module.active && (
                     <div className="mt-3">
                       <a href="mailto:contacto@siomsolutions.com?subject=Solicitud%20de%20acceso%20O‑Forge" className="text-xs text-blue-400 hover:text-blue-300">Solicitar acceso</a>
+                    </div>
+                  )}
+
+                  {module.bullets && (
+                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
+                        {module.bullets.map((b, i) => (<li key={i}>{b}</li>))}
+                      </ul>
                     </div>
                   )}
                 </div>
@@ -112,6 +205,6 @@ export default function HubPage() {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
