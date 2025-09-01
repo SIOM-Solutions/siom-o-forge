@@ -12,7 +12,7 @@ export default function PsitacLandingPage() {
 
         <div className="hud-card p-5 mb-8">
           <div className="grid md:grid-cols-4 gap-4 items-stretch">
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
               <ul className="text-gray-300 space-y-1 mb-3">
                 <li>• Evalúa <span className="text-white font-semibold">estilo de liderazgo</span>, patrones de <span className="text-white font-semibold">influencia y persuasión</span>, perfiles psicológicos, tolerancia al estrés y <span className="text-white font-semibold">sesgos críticos</span>.</li>
                 <li>• Genera un <span className="text-white font-semibold">perfil operativo</span> que alimenta decisiones tácticas y rutas de intervención.</li>
@@ -20,8 +20,8 @@ export default function PsitacLandingPage() {
               </ul>
               <p className="text-gray-400 text-sm">PSITAC es un <span className="text-white font-semibold">Test Psicométrico‑Táctico propietario</span> de SIOM Solutions. Consta de dos partes: primero <span className="text-white font-semibold">personalidad bajo presión</span>; después, <span className="text-white font-semibold">auditoría de conocimientos tácticos</span> (liderazgo, negociación, análisis de personalidad, influencia y entorno organizacional). El resultado alimenta a tus asesores tácticos para ofrecerte <span className="text-cyan-300 font-semibold">soporte operativo 24/7</span>.</p>
             </div>
-            <div className="md:col-span-1">
-              <div className="rounded-xl overflow-hidden border border-gray-800 h-full">
+            <div className="md:col-span-2">
+              <div className="rounded-xl overflow-hidden border border-gray-800 h-full md:min-h-[480px]">
                 <img src="/images/psitac/psitac-hero.jpg" alt="Test SIOM PSITAC™ — Perfil táctico de liderazgo & personalidad" className="w-full h-full object-cover" />
               </div>
             </div>
