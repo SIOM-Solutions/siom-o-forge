@@ -257,78 +257,92 @@ export default function AirAssignmentsPage() {
           <div className="hud-card p-3 flex items-center gap-2 text-xs"><span className="badge bg-blue-900/20 text-blue-300 border-blue-800 border">Prog 4</span><span className="text-gray-300">The Master Concept</span></div>
         </div>
 
+        {([1,2,3,4] as const).map((pid) => {
+          const sectionItems = filteredAssignedItems.filter(i => getProgramMeta(i._ordinal).id === pid)
+          if (sectionItems.length === 0) return null
+          const title = getProgramMeta(pid === 4 ? 10 : pid * 3).name
+          return (
+            <div key={`prog-${pid}`} className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-xl font-semibold text-white">{title}</h2>
+                <span className="text-xs text-gray-500">{sectionItems.length} materias</span>
+              </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAssignedItems.map(({ materia, assignment, _ordinal }, idx) => {
-            const status = assignment ? (assignment.status === 'sent' ? 'completed' : 'assigned') : 'blocked'
-            const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
-            const program = getProgramMeta(badge)
-            const isOpen = !!expanded[materia.id]
-            return (
+                {sectionItems.map(({ materia, assignment, _ordinal }, idx) => {
+                  const status = assignment ? (assignment.status === 'sent' ? 'completed' : 'assigned') : 'blocked'
+                  const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
+                  const program = getProgramMeta(badge)
+                  const isOpen = !!expanded[materia.id]
+                  return (
             <div
               key={materia.id}
-              className={`group bg-gray-900 rounded-xl p-6 border border-gray-800 transition-all duration-200 ${
-                status === 'assigned' || status === 'completed'
-                  ? 'hover:border-emerald-600' 
+                      className={`group bg-gray-900 rounded-xl p-6 border border-gray-800 transition-all duration-200 ${
+                        status === 'assigned' || status === 'completed'
+                          ? 'hover:border-emerald-600' 
                   : 'opacity-60 cursor-not-allowed'
               }`}
-              onClick={() => setExpanded(prev => ({ ...prev, [materia.id]: !prev[materia.id] }))}
+                      onClick={() => setExpanded(prev => ({ ...prev, [materia.id]: !prev[materia.id] }))}
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">{badge}</span>
+                          <span className="text-white font-bold text-sm">{badge}</span>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(status)}`}>
-                  {getStatusText(status)}
+                        <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(status)}`}>
+                          {getStatusText(status)}
                 </span>
               </div>
 
-              <h3 className="text-lg font-semibold text-white mb-1">{materia.name}</h3>
-              <div className={`inline-flex items-center text-[11px] px-2 py-0.5 rounded-full border ${program.badgeClass} mb-3`} title={program.name}>
-                {program.short}
-              </div>
-              <p className="text-gray-400 text-sm mb-4">Materia {badge}</p>
+                      <h3 className="text-lg font-semibold text-white mb-1">{materia.name}</h3>
+                      <div className={`inline-flex items-center text-[11px] px-2 py-0.5 rounded-full border ${program.badgeClass} mb-3`} title={program.name}>
+                        {program.short}
+                      </div>
+                      <p className="text-gray-400 text-sm mb-4">Materia {badge}</p>
 
-              {(status === 'assigned' || status === 'completed') && (
-                <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-48' : 'max-h-0'} md:group-hover:max-h-48`}>
-                  <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-3 mb-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-300">
-                      <div>
-                        <div className="text-gray-400">Qué analizas</div>
-                        <div className="text-white/90">{HOVER_INFO[materia.slug]?.analiza ?? 'Diagnóstico específico de la materia'}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Dolor</div>
-                        <div className="text-white/90">{HOVER_INFO[materia.slug]?.dolor ?? 'Problema clave a detectar'}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400">Qué obtienes</div>
-                        <div className="text-white/90">{HOVER_INFO[materia.slug]?.obtienes ?? 'Resultados e impacto esperables'}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                      {(status === 'assigned' || status === 'completed') && (
+                        <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-48' : 'max-h-0'} md:group-hover:max-h-48`}>
+                          <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-3 mb-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-300">
+                              <div>
+                                <div className="text-gray-400">Qué analizas</div>
+                                <div className="text-white/90">{HOVER_INFO[materia.slug]?.analiza ?? 'Diagnóstico específico de la materia'}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-400">Dolor</div>
+                                <div className="text-white/90">{HOVER_INFO[materia.slug]?.dolor ?? 'Problema clave a detectar'}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-400">Qué obtienes</div>
+                                <div className="text-white/90">{HOVER_INFO[materia.slug]?.obtienes ?? 'Resultados e impacto esperables'}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
-              {status === 'assigned' && (
-                <button className="w-full btn btn-air text-sm font-semibold" onClick={(e) => { e.stopPropagation(); navigate(`/air/assignments/${materia.slug}`) }}>
+                      {status === 'assigned' && (
+                        <button className="w-full btn btn-air text-sm font-semibold" onClick={(e) => { e.stopPropagation(); navigate(`/air/assignments/${materia.slug}`) }}>
                   Iniciar Auditoría
                 </button>
-              )}
-              {status === 'completed' && (
-                <div className="text-center text-blue-300 text-sm">✅ Enviada</div>
-              )}
-              {status === 'blocked' && (
-                <div className="text-center text-gray-500 text-sm">🔒 No asignada</div>
-              )}
+                      )}
+                      {status === 'completed' && (
+                        <div className="text-center text-blue-300 text-sm">✅ Enviada</div>
+                      )}
+                      {status === 'blocked' && (
+                        <div className="text-center text-gray-500 text-sm">🔒 No asignada</div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          )})}
-        </div>
+          )
+        })}
 
-        {lockedItems.length > 0 && (
+        {filteredLockedItems.length > 0 && (
           <div className="mt-10">
             <h2 className="text-xl font-semibold text-white mb-4">Explora otras materias</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {lockedItems.map(({ materia, _ordinal }, idx) => {
+              {filteredLockedItems.map(({ materia, _ordinal }, idx) => {
                 const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
                 return (
                   <div key={materia.id} className="group bg-gray-900 rounded-xl p-6 border border-gray-800 opacity-60">
@@ -369,11 +383,11 @@ export default function AirAssignmentsPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                </div>
                 )
               })}
             </div>
-          </div>
+        </div>
         )}
 
         <div className="mt-8 text-center">
