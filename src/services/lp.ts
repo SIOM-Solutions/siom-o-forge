@@ -98,12 +98,11 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
     return startOk && endOk
   })
 
-  const materiaIdToAgents = new Map<Id, { voice: Set<string>; text: Set<string> }>()
+  // Set de agentes mapeados por materia (independiente de canal) — como en tu SQL
+  const materiaIdToAgentSet = new Map<Id, Set<string>>()
   ;(mapAgents || []).forEach((r: any) => {
-    const channel = agentIdToChannel.get(r.agent_id)
-    if (!materiaIdToAgents.has(r.materia_id)) materiaIdToAgents.set(r.materia_id, { voice: new Set(), text: new Set() })
-    if (channel === 'voice') materiaIdToAgents.get(r.materia_id)!.voice.add(r.agent_id)
-    if (channel === 'text' || channel === 'chat') materiaIdToAgents.get(r.materia_id)!.text.add(r.agent_id)
+    if (!materiaIdToAgentSet.has(r.materia_id)) materiaIdToAgentSet.set(r.materia_id, new Set())
+    materiaIdToAgentSet.get(r.materia_id)!.add(r.agent_id)
   })
   // 8) Uso en ventana por política para calcular restante (consulta única y agregación en cliente)
   const policyAgentIds: string[] = Array.from(new Set((policies || []).map((p: any) => p.agent_id)))
@@ -128,9 +127,9 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
   })
   ;(policies || []).forEach((p: any) => {
     const channel = agentIdToChannel.get(p.agent_id)
-    const mapped = materiaIdToAgents.get(p.materia_id)
+    const mapped = materiaIdToAgentSet.get(p.materia_id)
     const out = materiaChannelCaps.get(p.materia_id)!
-    if (channel === 'voice' && mapped && mapped.voice.has(p.agent_id)) {
+    if (channel === 'voice' && mapped && mapped.has(p.agent_id)) {
       out.hasVoice = true
       if (p.monthly_seconds_cap != null) out.voiceCapSeconds = Math.max(out.voiceCapSeconds ?? 0, p.monthly_seconds_cap)
       // calcular uso en ventana
@@ -143,7 +142,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
       }, 0)
       if (p.monthly_seconds_cap != null) out.voiceRemainingSeconds = Math.max(out.voiceRemainingSeconds ?? 0, Math.max(0, p.monthly_seconds_cap - usedSeconds))
     }
-    if ((channel === 'text' || channel === 'chat') && mapped && mapped.text.has(p.agent_id)) {
+    if ((channel === 'text' || channel === 'chat') && mapped && mapped.has(p.agent_id)) {
       out.hasChat = true
       if (p.monthly_token_cap != null) out.chatCapTokens = Math.max(out.chatCapTokens ?? 0, p.monthly_token_cap)
       const winStart = p.access_start_at ? new Date(p.access_start_at).getTime() : new Date('1970-01-01T00:00:00Z').getTime()
