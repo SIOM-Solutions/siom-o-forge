@@ -23,7 +23,7 @@ export default function ExcelsiorHost() {
     if (!agentId) return
 
     if (hidden) {
-      // En salas: quitar el elemento para pausar completamente
+      // En login y salas: quitar el elemento para pausar completamente
       const existing = document.getElementById(elId)
       if (existing) {
         try { document.body.removeChild(existing) } catch {}

@@ -18,9 +18,7 @@ import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
 import OpsLandingPage from './pages/ops/OpsLandingPage'
 import DownloadsPage from './pages/DownloadsPage'
 import WelcomeScreen from './components/WelcomeScreen'
-import ExcelsiorHost from './components/ExcelsiorHost'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
-import ExcelsiorHUD from './components/ExcelsiorHUD'
 // Labs eliminados del build
 
 function App() {
@@ -30,7 +28,6 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-950 text-gray-100">
           <ExcelsiorProvider>
-            <ExcelsiorMounts />
             <GlobalCornerLogo />
           </ExcelsiorProvider>
           <AnimatePresence mode="wait">
@@ -76,20 +73,7 @@ function App() {
 
 export default App
 
-function ExcelsiorMounts() {
-  const location = useLocation()
-  // Ocultar en login y en salas (forja/ops)
-  if (location.pathname === '/auth/login') return null
-  if (location.pathname.startsWith('/forja/') || location.pathname.startsWith('/ops/sala/')) return null
-  return (
-    <>
-      <div className="fixed bottom-4 right-4 z-40 pointer-events-none">
-        <ExcelsiorHUD />
-        <ExcelsiorHost />
-      </div>
-    </>
-  )
-}
+// (El montaje del widget se gestiona dentro de ProtectedLayout para evitar login)
 
 function GlobalCornerLogo() {
   const location = useLocation()

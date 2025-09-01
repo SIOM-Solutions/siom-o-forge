@@ -1,6 +1,7 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import ExcelsiorHost from './ExcelsiorHost'
 import ProtectedRoute from './ProtectedRoute'
 import TechBackground from './TechBackground'
 import { useAuth } from '../contexts/AuthContext'
@@ -52,7 +53,10 @@ export default function ProtectedLayout() {
           <Outlet />
         </main>
 
-        {/* Excelsior está alojado globalmente en App.tsx para persistencia entre rutas */}
+        {/* Montar el widget solo en zona protegida y fuera de salas dedicadas */}
+        {!(location.pathname.startsWith('/forja/') || location.pathname.startsWith('/ops/sala/')) && (
+          <ExcelsiorHost />
+        )}
       </div>
     </ProtectedRoute>
   )
