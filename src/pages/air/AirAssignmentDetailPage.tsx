@@ -99,6 +99,20 @@ export default function AirAssignmentDetailPage() {
     if (materia) document.title = `O-Forge — ${materia.name}`
   }, [materia?.name])
 
+  // Programa al que pertenece cada materia según ordinal (1-3, 4-6, 7-9, 10)
+  const getProgramMeta = (ordinal: number) => {
+    if (ordinal >= 1 && ordinal <= 3) {
+      return { id: 1, name: 'Programa 1 — Peak Physical Performance', short: 'Prog 1 · Peak Physical', badgeClass: 'bg-cyan-900/20 text-cyan-300 border-cyan-800' }
+    }
+    if (ordinal >= 4 && ordinal <= 6) {
+      return { id: 2, name: 'Programa 2 — Mind Mastery for Top Performers', short: 'Prog 2 · Mind Mastery', badgeClass: 'bg-violet-900/20 text-violet-300 border-violet-800' }
+    }
+    if (ordinal >= 7 && ordinal <= 9) {
+      return { id: 3, name: 'Programa 3 — Emotional Resilience', short: 'Prog 3 · Resilience', badgeClass: 'bg-amber-900/20 text-amber-300 border-amber-800' }
+    }
+    return { id: 4, name: 'Programa 4 — The Master Concept', short: 'Prog 4 · Master Concept', badgeClass: 'bg-blue-900/20 text-blue-300 border-blue-800' }
+  }
+
   const handleSubmit = async () => {
     if (!assignment) return
     setIsSubmitting(true)
@@ -165,84 +179,118 @@ export default function AirAssignmentDetailPage() {
 
   return (
     <div className="relative">
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-white">{materia.name}</h1>
-              <p className="text-gray-400">Briefing de diagnóstico: por qué auditar esta materia y cómo impactará en tus resultados.</p>
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Header */}
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              {(() => {
+                const match = materia.slug.match(/^M(\d+)_/)
+                const ordinal = match ? parseInt(match[1], 10) : 0
+                const prog = getProgramMeta(ordinal)
+                return (
+                  <span className={`inline-flex items-center text-[11px] px-2 py-0.5 rounded-full border ${prog.badgeClass}`} title={prog.name}>{prog.short}</span>
+                )
+              })()}
+              <span className={`text-[11px] px-2 py-0.5 rounded-full border ${assignment?.status === 'sent' ? 'bg-blue-900/20 text-blue-300 border-blue-800' : 'bg-emerald-900/20 text-emerald-400 border-emerald-800'}`}>
+                {assignment?.status === 'sent' ? 'Enviada' : 'Asignada'}
+              </span>
             </div>
-            <button
-              onClick={() => navigate('/air/assignments')}
-              className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors duration-200"
-            >
-              ← Volver a Materias
-            </button>
+            <h1 className="text-3xl font-bold text-white mb-1">{materia.name}</h1>
+            <p className="text-gray-400">Briefing de diagnóstico: por qué auditar esta materia y cómo impactará en tus resultados.</p>
           </div>
+          <button onClick={() => navigate('/air/assignments')} className="btn btn-secondary">← Materias</button>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 mb-8">
-          <div className="grid md:grid-cols-3 gap-6">
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-2">El Dolor</h3>
-              <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.dolor ?? 'Diagnóstico del problema clave en esta materia.'}</p>
+        {/* Layout principal */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Columna principal */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="hud-card p-6">
+              <div className="grid md:grid-cols-3 gap-6">
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">El Dolor</div>
+                  <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.dolor ?? 'Diagnóstico del problema clave en esta materia.'}</p>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">La Solución SIOM</div>
+                  <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.solucion ?? 'Protocolos y metodología aplicada para resolverlo.'}</p>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-400 mb-1">El Impacto</div>
+                  <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.impacto ?? 'Resultados esperables y ventajas operativas.'}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-2">La Solución SIOM</h3>
-              <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.solucion ?? 'Protocolos y metodología aplicada para resolverlo.'}</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-2">El Impacto</h3>
-              <p className="text-gray-300 text-sm">{BRIEFINGS[materia.slug]?.impacto ?? 'Resultados esperables y ventajas operativas.'}</p>
+
+            <div className="hud-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-white">Auditoría</h2>
+                <div className="flex items-center gap-2 text-xs text-gray-300">
+                  <span className="bg-gray-800/60 border border-gray-700 rounded px-2 py-0.5">~50 preguntas</span>
+                  <span className="bg-gray-800/60 border border-gray-700 rounded px-2 py-0.5">Tiempo variable</span>
+                </div>
+              </div>
+              <div className="rounded-xl overflow-hidden border border-gray-800 bg-gray-900">
+                {materia.typeform_id ? (
+                  <iframe
+                    title={`Auditoría ${materia.name}`}
+                    src={`https://form.typeform.com/to/${materia.typeform_id}`}
+                    className="w-full h-[70vh]"
+                    allow="camera; microphone; autoplay; encrypted-media;"
+                  />
+                ) : (
+                  <div className="p-6 text-gray-400">Cargando cuestionario… Si no aparece, ábrelo en una nueva ventana.</div>
+                )}
+              </div>
+
+              <div className="text-center mt-6">
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !assignment}
+                  className="btn btn-air btn-lg disabled:opacity-60 flex items-center justify-center gap-2 mx-auto"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    assignment ? 'He Completado la Auditoría' : 'No tienes esta materia asignada'
+                  )}
+                </button>
+                <p className="text-gray-400 text-sm mt-3">Pulsa cuando hayas terminado de responder todas las preguntas.</p>
+              </div>
             </div>
           </div>
+
+          {/* Sidebar */}
+          <aside className="space-y-6">
+            <div className="hud-card p-5">
+              <div className="text-sm text-gray-400 mb-2">Resumen de la materia</div>
+              <ul className="text-sm text-gray-300 space-y-2">
+                <li><span className="text-gray-400">Qué analizas:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ? 'Factores clave de rendimiento' : 'Diagnóstico específico'}</span></li>
+                <li><span className="text-gray-400">Dolor:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ?? '—'}</span></li>
+                <li><span className="text-gray-400">Qué obtienes:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.impacto ?? '—'}</span></li>
+              </ul>
+            </div>
+            <div className="hud-card p-5">
+              <div className="text-sm text-gray-400 mb-2">Recomendaciones</div>
+              <ul className="list-disc list-inside text-sm text-gray-300 space-y-1">
+                <li>Responde con calma y sinceridad.</li>
+                <li>Evita interrupciones para mantener el foco.</li>
+                <li>Si se corta, recarga la página y continúa.</li>
+              </ul>
+            </div>
+            <div className="hud-card p-5">
+              <div className="text-sm text-gray-400 mb-2">Soporte</div>
+              <a href="mailto:contacto@siomsolutions.com" className="text-blue-300 hover:text-blue-200 text-sm">contacto@siomsolutions.com</a>
+            </div>
+          </aside>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-6">Auditoría</h2>
-          
-          <div className="bg-gray-800 rounded-xl p-4 border-2 border-dashed border-gray-600 text-center mb-6">
-            <h3 className="text-lg font-semibold text-white mb-3">Cuestionario</h3>
-            {materia.typeform_id ? (
-              <iframe
-                title={`Auditoría ${materia.name}`}
-                src={`https://form.typeform.com/to/${materia.typeform_id}`}
-                className="w-full h-[70vh] rounded-lg border border-gray-700"
-                allow="camera; microphone; autoplay; encrypted-media;"
-              />
-            ) : (
-              <p className="text-gray-400">Cargando cuestionario… Si no aparece, ábrelo en una nueva ventana.</p>
-            )}
-          </div>
-
-          <div className="text-center">
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting || !assignment}
-              className="btn btn-air btn-lg disabled:opacity-60 flex items-center justify-center gap-2 mx-auto"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Enviando...
-                </>
-              ) : (
-                assignment ? 'He Completado la Auditoría' : 'No tienes esta materia asignada'
-              )}
-            </button>
-            <p className="text-gray-400 text-sm mt-3">
-              Haz clic cuando hayas terminado de responder todas las preguntas
-            </p>
-          </div>
-        </div>
-
-        <div className="flex justify-center">
-          <button
-            onClick={() => navigate('/air/assignments')}
-            className="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors duration-200"
-          >
-            ← Volver a Materias
-          </button>
+        <div className="mt-8 text-center">
+          <button onClick={() => navigate('/air/assignments')} className="btn btn-secondary">← Volver a Materias</button>
         </div>
       </div>
     </div>
