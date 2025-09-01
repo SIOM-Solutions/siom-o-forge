@@ -1,5 +1,5 @@
-import { Outlet, useNavigate } from 'react-router-dom'
-import { } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import ProtectedRoute from './ProtectedRoute'
 import TechBackground from './TechBackground'
 import { useAuth } from '../contexts/AuthContext'
@@ -7,6 +7,15 @@ import { useAuth } from '../contexts/AuthContext'
 export default function ProtectedLayout() {
   const { signOut } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Guardar última ubicación del usuario en Supabase (RPC sugerida: set_last_location)
+  useEffect(() => {
+    const save = async () => {
+      try { await (window as any).supabase?.rpc?.('set_last_location', { p_path: location.pathname }) } catch {}
+    }
+    save()
+  }, [location.pathname])
 
   const handleSignOut = async () => {
     await signOut()

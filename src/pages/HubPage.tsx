@@ -9,6 +9,7 @@ export default function HubPage() {
   const { access, loading: accessLoading } = useAccess()
   const [presenceSeconds, setPresenceSeconds] = useState<number | null>(null)
   const [iaSessions30d, setIaSessions30d] = useState<number | null>(null)
+  const [lastPath, setLastPath] = useState<string | null>(null)
 
   useEffect(() => {
     document.title = 'O-Forge — Hub'
@@ -31,6 +32,10 @@ export default function HubPage() {
   // Cargar métricas básicas
   useEffect(() => {
     const load = async () => {
+      try {
+        const { data: last } = await (supabase as any).from('user_last_location').select('path').maybeSingle()
+        setLastPath(last?.path ?? null)
+      } catch {}
       try {
         const { data: pres } = await (supabase as any)
           .from('user_presence_counters')
@@ -136,7 +141,11 @@ export default function HubPage() {
               <div className="text-white font-mono">SystemAIR: {access?.air ? 'Acceso activo' : 'Pendiente'}</div>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={() => navigate('/air/assignments')} className="btn btn-primary">Continuar AIR</button>
+              {lastPath ? (
+                <button onClick={() => navigate(lastPath!)} className="btn btn-primary">Retomar donde lo dejaste</button>
+              ) : (
+                <button onClick={() => navigate('/air/assignments')} className="btn btn-primary">Continuar AIR</button>
+              )}
             </div>
           </div>
         </div>

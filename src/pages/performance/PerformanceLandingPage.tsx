@@ -150,7 +150,7 @@ export default function PerformanceLandingPage() {
           <div className="hud-card p-5 mb-6">
             <div className="flex items-center justify-between mb-2">
               <div className="text-white font-semibold">Tipo de servicio contratado</div>
-              {plan?.plan_label && (<span className="text-sm text-cyan-300">{plan.plan_label}</span>)}
+              {(plan?.plan_label || plan?.plan_code) && (<span className="text-sm text-cyan-300">{plan?.plan_label ?? plan?.plan_code}</span>)}
             </div>
             <div className="grid sm:grid-cols-3 gap-3 text-sm text-gray-300">
               <div className="bg-gray-900/60 border border-gray-800 rounded p-3"><span className="text-gray-400">Plan:</span> <span className="text-white/90">{plan?.plan_label ?? plan?.plan_code ?? '—'}</span></div>
