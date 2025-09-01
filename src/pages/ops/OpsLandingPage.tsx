@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
-import { loadOpsPolicies, aggregateAreaAvailability } from '../../services/ops'
+import { loadOpsCoverage, aggregateOpsCoverageByArea } from '../../services/ops'
 
 export default function OpsLandingPage() {
   const { user } = useAuth()
   const [enabled, setEnabled] = useState<boolean | null>(null)
-  const [areaStatus, setAreaStatus] = useState<Record<string, { enabled: boolean; seconds?: number | null; tokens?: number | null }>>({})
+  const [areaStatus, setAreaStatus] = useState<Record<string, { enabled: boolean; minutesPerMonth?: number | null; tokensPerMonth?: number | null; minutesRemaining?: number | null; tokensRemaining?: number | null }>>({})
 
   useEffect(() => {
     let cancelled = false
@@ -21,10 +21,10 @@ export default function OpsLandingPage() {
           .maybeSingle()
         if (!cancelled) setEnabled(Boolean(data?.forge_ops))
       } catch { if (!cancelled) setEnabled(false) }
-      // Políticas por asesor (scope ops)
+      // Cobertura por asesor desde RPC
       try {
-        const pol = await loadOpsPolicies(user.id)
-        if (!cancelled) setAreaStatus(aggregateAreaAvailability(pol))
+        const rows = await loadOpsCoverage()
+        if (!cancelled) setAreaStatus(aggregateOpsCoverageByArea(rows))
       } catch {}
     }
     run()
@@ -69,8 +69,10 @@ export default function OpsLandingPage() {
               <p className="text-gray-300 text-sm">Arquitectura de concesiones, anclas, BATNA, guiones; preparación táctica para reuniones críticas.</p>
               <div className="mt-2 flex items-center gap-2 text-xs">
                 <span className={`px-2 py-0.5 rounded-full border ${areaStatus.negociacion?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.negociacion?.enabled ? 'Disponible' : 'No asignado'}</span>
-                {areaStatus.negociacion?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.negociacion.seconds} min/mes</span>)}
-                {areaStatus.negociacion?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.negociacion.tokens} tokens/mes</span>)}
+                {areaStatus.negociacion?.minutesPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.negociacion.minutesPerMonth} min/mes</span>)}
+                {areaStatus.negociacion?.minutesRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante voz: {areaStatus.negociacion.minutesRemaining} min</span>)}
+                {areaStatus.negociacion?.tokensPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.negociacion.tokensPerMonth} tokens/mes</span>)}
+                {areaStatus.negociacion?.tokensRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante chat: {areaStatus.negociacion.tokensRemaining}</span>)}
               </div>
             </div>
             <div className={`bg-gray-900/60 border rounded-lg p-4 ${areaStatus.analisis?.enabled ? 'border-amber-800' : 'border-gray-800 opacity-70'}`}>
@@ -78,8 +80,10 @@ export default function OpsLandingPage() {
               <p className="text-gray-300 text-sm">Perfiles, señales conductuales, escalada/desescalada y lectura del otro con precisión operativa.</p>
               <div className="mt-2 flex items-center gap-2 text-xs">
                 <span className={`px-2 py-0.5 rounded-full border ${areaStatus.analisis?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.analisis?.enabled ? 'Disponible' : 'No asignado'}</span>
-                {areaStatus.analisis?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.analisis.seconds} min/mes</span>)}
-                {areaStatus.analisis?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.analisis.tokens} tokens/mes</span>)}
+                {areaStatus.analisis?.minutesPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.analisis.minutesPerMonth} min/mes</span>)}
+                {areaStatus.analisis?.minutesRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante voz: {areaStatus.analisis.minutesRemaining} min</span>)}
+                {areaStatus.analisis?.tokensPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.analisis.tokensPerMonth} tokens/mes</span>)}
+                {areaStatus.analisis?.tokensRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante chat: {areaStatus.analisis.tokensRemaining}</span>)}
               </div>
             </div>
             <div className={`bg-gray-900/60 border rounded-lg p-4 ${areaStatus.nucleos?.enabled ? 'border-amber-800' : 'border-gray-800 opacity-70'}`}>
@@ -87,8 +91,10 @@ export default function OpsLandingPage() {
               <p className="text-gray-300 text-sm">Mapear stakeholders, priorizar actores clave y trazar rutas de acceso con ventaja política.</p>
               <div className="mt-2 flex items-center gap-2 text-xs">
                 <span className={`px-2 py-0.5 rounded-full border ${areaStatus.nucleos?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.nucleos?.enabled ? 'Disponible' : 'No asignado'}</span>
-                {areaStatus.nucleos?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.nucleos.seconds} min/mes</span>)}
-                {areaStatus.nucleos?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.nucleos.tokens} tokens/mes</span>)}
+                {areaStatus.nucleos?.minutesPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.nucleos.minutesPerMonth} min/mes</span>)}
+                {areaStatus.nucleos?.minutesRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante voz: {areaStatus.nucleos.minutesRemaining} min</span>)}
+                {areaStatus.nucleos?.tokensPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.nucleos.tokensPerMonth} tokens/mes</span>)}
+                {areaStatus.nucleos?.tokensRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante chat: {areaStatus.nucleos.tokensRemaining}</span>)}
               </div>
             </div>
             <div className={`bg-gray-900/60 border rounded-lg p-4 ${areaStatus.estrategia?.enabled ? 'border-amber-800' : 'border-gray-800 opacity-70'}`}>
@@ -96,8 +102,10 @@ export default function OpsLandingPage() {
               <p className="text-gray-300 text-sm">Opciones, COAs, wargaming y marcos de decisión para contextos de alta incertidumbre.</p>
               <div className="mt-2 flex items-center gap-2 text-xs">
                 <span className={`px-2 py-0.5 rounded-full border ${areaStatus.estrategia?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.estrategia?.enabled ? 'Disponible' : 'No asignado'}</span>
-                {areaStatus.estrategia?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.estrategia.seconds} min/mes</span>)}
-                {areaStatus.estrategia?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.estrategia.tokens} tokens/mes</span>)}
+                {areaStatus.estrategia?.minutesPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.estrategia.minutesPerMonth} min/mes</span>)}
+                {areaStatus.estrategia?.minutesRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante voz: {areaStatus.estrategia.minutesRemaining} min</span>)}
+                {areaStatus.estrategia?.tokensPerMonth != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.estrategia.tokensPerMonth} tokens/mes</span>)}
+                {areaStatus.estrategia?.tokensRemaining != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante chat: {areaStatus.estrategia.tokensRemaining}</span>)}
               </div>
             </div>
           </div>

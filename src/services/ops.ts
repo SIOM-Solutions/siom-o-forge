@@ -1,53 +1,52 @@
 import { supabase } from '../lib/supabase'
 
-export type OpsPolicy = {
+export type OpsCoverageRow = {
   agent_id: string
-  name?: string
-  channel?: string
+  agent_name: string
+  area: string
+  has_access: boolean
+  has_voice: boolean
+  has_chat: boolean
+  voice_min_mes: number | null
+  chat_tokens_mes: number | null
+  voice_min_restante: number | null
+  chat_tokens_restante: number | null
   access_start_at?: string | null
   access_end_at?: string | null
-  monthly_seconds_cap?: number | null
-  monthly_token_cap?: number | null
 }
 
-export async function loadOpsPolicies(userId: string): Promise<OpsPolicy[]> {
-  const { data, error } = await (supabase as any)
-    .from('ai_user_policy')
-    .select('agent_id, access_start_at, access_end_at, monthly_seconds_cap, monthly_token_cap, enabled, scope')
-    .eq('user_id', userId)
-    .eq('scope', 'ops')
-    .eq('enabled', true)
+export async function loadOpsCoverage(): Promise<OpsCoverageRow[]> {
+  const { data, error } = await (supabase as any).rpc('ops_coverage_by_user')
   if (error) throw error
   return (data || [])
 }
 
-export function mapAgentToArea(agentId: string): 'negociacion' | 'analisis' | 'nucleos' | 'estrategia' | 'otro' {
-  if (!agentId) return 'otro'
-  const id = agentId.toLowerCase()
-  if (id.startsWith('janus_')) return 'negociacion'
-  if (id.startsWith('argos_')) return 'analisis'
-  if (id.startsWith('arachne_')) return 'nucleos'
-  if (id.startsWith('pallas_')) return 'estrategia'
-  return 'otro'
-}
-
-export function aggregateAreaAvailability(policies: OpsPolicy[]) {
-  const areas: Record<string, { enabled: boolean; seconds?: number | null; tokens?: number | null }> = {
-    negociacion: { enabled: false, seconds: null, tokens: null },
-    analisis: { enabled: false, seconds: null, tokens: null },
-    nucleos: { enabled: false, seconds: null, tokens: null },
-    estrategia: { enabled: false, seconds: null, tokens: null },
+export function aggregateOpsCoverageByArea(rows: OpsCoverageRow[]) {
+  const areas: Record<string, {
+    enabled: boolean
+    minutesPerMonth?: number | null
+    tokensPerMonth?: number | null
+    minutesRemaining?: number | null
+    tokensRemaining?: number | null
+  }> = {
+    negociacion: { enabled: false, minutesPerMonth: null, tokensPerMonth: null, minutesRemaining: null, tokensRemaining: null },
+    analisis: { enabled: false, minutesPerMonth: null, tokensPerMonth: null, minutesRemaining: null, tokensRemaining: null },
+    nucleos: { enabled: false, minutesPerMonth: null, tokensPerMonth: null, minutesRemaining: null, tokensRemaining: null },
+    estrategia: { enabled: false, minutesPerMonth: null, tokensPerMonth: null, minutesRemaining: null, tokensRemaining: null },
   }
-  policies.forEach((p) => {
-    const area = mapAgentToArea(p.agent_id)
-    if (area === 'otro') return
-    areas[area].enabled = true
-    if (p.monthly_seconds_cap != null) {
-      areas[area].seconds = Math.max(areas[area].seconds ?? 0, p.monthly_seconds_cap)
-    }
-    if (p.monthly_token_cap != null) {
-      areas[area].tokens = Math.max(areas[area].tokens ?? 0, p.monthly_token_cap)
-    }
+  rows.forEach((r) => {
+    let key: keyof typeof areas = 'negociacion'
+    const a = r.area?.toLowerCase() || ''
+    if (a.includes('negoci')) key = 'negociacion'
+    else if (a.includes('análisis') || a.includes('analisis')) key = 'analisis'
+    else if (a.includes('núcleos') || a.includes('nucleos')) key = 'nucleos'
+    else if (a.includes('estratég') || a.includes('estrateg')) key = 'estrategia'
+    const areaRef = areas[key]
+    if (r.has_access && (r.has_voice || r.has_chat)) areaRef.enabled = true
+    if (r.voice_min_mes != null) areaRef.minutesPerMonth = Math.max(areaRef.minutesPerMonth ?? 0, r.voice_min_mes)
+    if (r.chat_tokens_mes != null) areaRef.tokensPerMonth = Math.max(areaRef.tokensPerMonth ?? 0, r.chat_tokens_mes)
+    if (r.voice_min_restante != null) areaRef.minutesRemaining = Math.max(areaRef.minutesRemaining ?? 0, r.voice_min_restante)
+    if (r.chat_tokens_restante != null) areaRef.tokensRemaining = Math.max(areaRef.tokensRemaining ?? 0, r.chat_tokens_restante)
   })
   return areas
 }
