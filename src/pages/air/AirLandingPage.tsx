@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 
 export default function AirLandingPage() {
   const navigate = useNavigate()
+  const [imgError, setImgError] = useState(false)
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: 'easeOut' }}>
@@ -26,17 +28,27 @@ export default function AirLandingPage() {
               </button>
             </div>
             <div>
-              <div className="relative rounded-xl overflow-hidden border border-gray-800 shadow-lg shadow-emerald-900/20">
-                <img
-                  src="/images/air/air-hero.jpg"
-                  alt="SystemAIR™ — Sistema de Diagnóstico"
-                  className="w-full h-auto object-cover aspect-video"
-                  loading="lazy"
-                />
-                <div className="absolute bottom-2 left-2 bg-black/55 text-gray-200 text-xs px-2 py-1 rounded">
-                  Sistema de Diagnóstico
+              {!imgError ? (
+                <div className="relative rounded-xl overflow-hidden border border-gray-800 shadow-lg shadow-emerald-900/20">
+                  <img
+                    src="/images/air/air-hero.jpg"
+                    alt="SystemAIR™ — Sistema de Diagnóstico"
+                    className="w-full h-auto object-cover aspect-video"
+                    loading="lazy"
+                    onError={() => setImgError(true)}
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black/55 text-gray-200 text-xs px-2 py-1 rounded">
+                    Sistema de Diagnóstico
+                  </div>
                 </div>
+              ) : (
+            <div className="text-center">
+                  <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg shadow-emerald-800/30">
+                    <span className="text-4xl font-bold text-white tracking-wide">AIR</span>
               </div>
+              <p className="text-gray-400 text-sm">Sistema de Diagnóstico</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -149,8 +161,9 @@ export default function AirLandingPage() {
                 <li>Learning Path: materias y acciones personalizadas</li>
               </ul>
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-gray-300">
-                <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">Tiempo: 12–20 min</div>
-                <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">Formato: cuestionario + micro‑retos</div>
+                <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">Bloques: ~50 preguntas por materia</div>
+                <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">Tiempo: variable según usuario</div>
+                <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700 col-span-2">Requisito: realizar con máxima dedicación para resultados reales</div>
               </div>
             </div>
           </div>
