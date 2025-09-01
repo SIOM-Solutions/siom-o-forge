@@ -8,7 +8,6 @@ export default function PerformanceLandingPage() {
   const [error, setError] = useState<string | null>(null)
   const [materias, setMaterias] = useState<LpMateria[]>([])
   const [plan, setPlan] = useState<{ plan_code?: string | null; plan_label?: string | null; plan_meta?: any } | null>(null)
-  const [policies, setPolicies] = useState<{ materia_id: number; monthly_seconds_cap?: number | null; monthly_token_cap?: number | null; access_start_at?: string | null; access_end_at?: string | null }[]>([])
   const [expandedPrograms, setExpandedPrograms] = useState<Record<string, boolean>>({})
   const [expandedMaterias, setExpandedMaterias] = useState<Record<number, boolean>>({})
   const [expandedDims, setExpandedDims] = useState<Record<number, boolean>>({})
@@ -27,7 +26,6 @@ export default function PerformanceLandingPage() {
         if (!cancelled) {
           setMaterias(data)
           setPlan(planData.plan)
-          setPolicies(planData.policies)
         }
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? 'No se pudo cargar el Learning Path')
