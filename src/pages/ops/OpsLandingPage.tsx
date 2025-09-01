@@ -16,6 +16,14 @@ export default function OpsLandingPage() {
             <li>• Interfaz dual: <span className="text-white font-semibold">orbe conversacional</span> (voz) + <span className="text-white font-semibold">chat</span> (texto) para interactuar de forma natural.</li>
             <li>• Tiempo real: prepara una negociación en 10 minutos o rediseña una jugada política sobre la marcha.</li>
           </ul>
+          <div className="grid md:grid-cols-2 gap-4 mt-5">
+            <div className="rounded-xl overflow-hidden border border-amber-800">
+              <img src="/images/ops/ops-hero-1.jpg" alt="OPS — Centro de Operaciones Estratégicas, imagen 1" className="w-full h-full object-cover" />
+            </div>
+            <div className="rounded-xl overflow-hidden border border-amber-800">
+              <img src="/images/ops/ops-hero-2.jpg" alt="OPS — Centro de Operaciones Estratégicas, imagen 2" className="w-full h-full object-cover" />
+            </div>
+          </div>
         </div>
 
         {/* Áreas de Asesoría */}
