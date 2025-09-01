@@ -186,9 +186,7 @@ export default function AirAssignmentsPage() {
     return assignedItems.filter(i => activeProgram === 'all' ? true : getProgramMeta(i._ordinal).id === activeProgram)
   }, [assignedItems, activeProgram])
 
-  const filteredLockedItems = useMemo(() => {
-    return lockedItems.filter(i => activeProgram === 'all' ? true : getProgramMeta(i._ordinal).id === activeProgram)
-  }, [lockedItems, activeProgram])
+  // Nota: bloqueadas se integran en los bloques por programa; no es necesario un listado aparte
 
   if (loading) {
     return (
@@ -258,14 +256,16 @@ export default function AirAssignmentsPage() {
         </div>
 
         {([1,2,3,4] as const).map((pid) => {
-          const sectionItems = filteredAssignedItems.filter(i => getProgramMeta(i._ordinal).id === pid)
+          const sectionItems = parsedAndSortedAll.filter(i => (activeProgram==='all' ? true : getProgramMeta(i._ordinal).id === activeProgram) && getProgramMeta(i._ordinal).id === pid)
           if (sectionItems.length === 0) return null
           const title = getProgramMeta(pid === 4 ? 10 : pid * 3).name
+          const assignedInBlock = sectionItems.filter(i => !!i.assignment)
+          const completedInBlock = sectionItems.filter(i => i.assignment?.status === 'sent')
           return (
             <div key={`prog-${pid}`} className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xl font-semibold text-white">{title}</h2>
-                <span className="text-xs text-gray-500">{sectionItems.length} materias</span>
+                <span className="text-xs text-gray-500">{completedInBlock.length}/{assignedInBlock.length}/{sectionItems.length}</span>
               </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {sectionItems.map(({ materia, assignment, _ordinal }, idx) => {
@@ -276,11 +276,11 @@ export default function AirAssignmentsPage() {
                   return (
             <div
               key={materia.id}
-                      className={`group bg-gray-900 rounded-xl p-6 border border-gray-800 transition-all duration-200 ${
+                      className={`group bg-gray-900 rounded-xl p-6 border transition-all duration-200 ${
                         status === 'assigned' || status === 'completed'
                           ? 'hover:border-emerald-600' 
-                  : 'opacity-60 cursor-not-allowed'
-              }`}
+                          : 'opacity-80'
+                      } ${program.badgeClass.replace('bg-','border-').replace(' text-',' ').replace(' border-',' border-')}`}
                       onClick={() => setExpanded(prev => ({ ...prev, [materia.id]: !prev[materia.id] }))}
             >
               <div className="flex justify-between items-start mb-4">
@@ -333,62 +333,12 @@ export default function AirAssignmentsPage() {
                     </div>
                   )
                 })}
-              </div>
+                </div>
             </div>
           )
         })}
 
-        {filteredLockedItems.length > 0 && (
-          <div className="mt-10">
-            <h2 className="text-xl font-semibold text-white mb-4">Explora otras materias</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredLockedItems.map(({ materia, _ordinal }, idx) => {
-                const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
-                return (
-                  <div key={materia.id} className="group bg-gray-900 rounded-xl p-6 border border-gray-800 opacity-60">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">{badge}</span>
-                      </div>
-                      <span className="text-xs px-2 py-1 rounded-full border bg-gray-800 text-gray-500 border-gray-700">Bloqueada</span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{materia.name}</h3>
-                    <p className="text-gray-500 text-sm mb-4">Materia {badge}</p>
-                    <div className="text-center text-gray-500 text-sm mb-3">🔒 No asignada</div>
-
-                    <div className="overflow-hidden transition-all duration-300 max-h-0 group-hover:max-h-56">
-                      <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-300">
-                          <div>
-                            <div className="text-gray-400">Qué trabajaríamos</div>
-                            <div className="text-white/90">{HOVER_INFO[materia.slug]?.analiza ?? 'Diagnóstico específico de la materia'}</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-400">Dolor a diagnosticar</div>
-                            <div className="text-white/90">{HOVER_INFO[materia.slug]?.dolor ?? 'Problema clave a detectar'}</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-400">Qué obtendrías</div>
-                            <div className="text-white/90">{HOVER_INFO[materia.slug]?.obtienes ?? 'Resultados e impacto esperables'}</div>
-                          </div>
-                        </div>
-                        <div className="mt-3 text-right">
-                          <a
-                            href={`mailto:contact@siomsolutions.com?subject=Solicitud%20acceso%20SystemAIR%20-%20${encodeURIComponent(materia.name)}&body=${encodeURIComponent('Hola, solicito acceso a la materia ' + materia.name + ' para completar mi auditoría SystemAIR.')}`}
-                            className="btn btn-air btn-sm"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Solicitar acceso
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                </div>
-                )
-              })}
-            </div>
-        </div>
-        )}
+        {/* La sección de bloqueadas independiente se elimina: ahora todas aparecen por programa */}
 
         <div className="mt-8 text-center">
           <button
