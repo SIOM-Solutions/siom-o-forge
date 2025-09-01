@@ -101,7 +101,7 @@ export default function AirLandingPage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-6 mt-2">
+          <div className="mt-2 space-y-8">
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Qué evalúa</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
