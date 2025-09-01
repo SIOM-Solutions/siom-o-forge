@@ -120,6 +120,40 @@ export default function AirAssignmentsPage() {
     },
   }
 
+  // Programa al que pertenece cada materia según ordinal (1-3, 4-6, 7-9, 10)
+  const getProgramMeta = (ordinal: number) => {
+    if (ordinal >= 1 && ordinal <= 3) {
+      return {
+        id: 1,
+        name: 'Programa 1 — Peak Physical Performance',
+        short: 'Prog 1 · Peak Physical',
+        badgeClass: 'bg-cyan-900/20 text-cyan-300 border-cyan-800',
+      }
+    }
+    if (ordinal >= 4 && ordinal <= 6) {
+      return {
+        id: 2,
+        name: 'Programa 2 — Mind Mastery for Top Performers',
+        short: 'Prog 2 · Mind Mastery',
+        badgeClass: 'bg-violet-900/20 text-violet-300 border-violet-800',
+      }
+    }
+    if (ordinal >= 7 && ordinal <= 9) {
+      return {
+        id: 3,
+        name: 'Programa 3 — Emotional Resilience',
+        short: 'Prog 3 · Resilience',
+        badgeClass: 'bg-amber-900/20 text-amber-300 border-amber-800',
+      }
+    }
+    return {
+      id: 4,
+      name: 'Programa 4 — The Master Concept',
+      short: 'Prog 4 · Master Concept',
+      badgeClass: 'bg-blue-900/20 text-blue-300 border-blue-800',
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'assigned':
@@ -196,10 +230,19 @@ export default function AirAssignmentsPage() {
           </div>
         </div>
 
+        {/* Leyenda de programas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div className="hud-card p-3 flex items-center gap-2 text-xs"><span className="badge bg-cyan-900/20 text-cyan-300 border-cyan-800 border">Prog 1</span><span className="text-gray-300">Peak Physical Performance</span></div>
+          <div className="hud-card p-3 flex items-center gap-2 text-xs"><span className="badge bg-violet-900/20 text-violet-300 border-violet-800 border">Prog 2</span><span className="text-gray-300">Mind Mastery</span></div>
+          <div className="hud-card p-3 flex items-center gap-2 text-xs"><span className="badge bg-amber-900/20 text-amber-300 border-amber-800 border">Prog 3</span><span className="text-gray-300">Emotional Resilience</span></div>
+          <div className="hud-card p-3 flex items-center gap-2 text-xs"><span className="badge bg-blue-900/20 text-blue-300 border-blue-800 border">Prog 4</span><span className="text-gray-300">The Master Concept</span></div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {assignedItems.map(({ materia, assignment, _ordinal }, idx) => {
             const status = assignment ? (assignment.status === 'sent' ? 'completed' : 'assigned') : 'blocked'
             const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
+            const program = getProgramMeta(badge)
             return (
             <div
               key={materia.id}
@@ -219,7 +262,10 @@ export default function AirAssignmentsPage() {
                 </span>
               </div>
 
-              <h3 className="text-lg font-semibold text-white mb-2">{materia.name}</h3>
+              <h3 className="text-lg font-semibold text-white mb-1">{materia.name}</h3>
+              <div className={`inline-flex items-center text-[11px] px-2 py-0.5 rounded-full border ${program.badgeClass} mb-3`} title={program.name}>
+                {program.short}
+              </div>
               <p className="text-gray-400 text-sm mb-4">Materia {badge}</p>
 
               {(status === 'assigned' || status === 'completed') && (
