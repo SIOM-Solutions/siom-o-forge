@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { loadUserLearningPath, type LpMateria } from '../../services/lp'
+import { loadUserLearningPath, loadUserPlanAndPolicies, type LpMateria } from '../../services/lp'
 
 export default function PerformanceLandingPage() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [materias, setMaterias] = useState<LpMateria[]>([])
+  const [plan, setPlan] = useState<{ plan_code?: string | null; plan_label?: string | null; plan_meta?: any } | null>(null)
+  const [policies, setPolicies] = useState<{ materia_id: number; monthly_seconds_cap?: number | null; monthly_token_cap?: number | null; access_start_at?: string | null; access_end_at?: string | null }[]>([])
   const [expandedPrograms, setExpandedPrograms] = useState<Record<string, boolean>>({})
   const [expandedMaterias, setExpandedMaterias] = useState<Record<number, boolean>>({})
   const [expandedDims, setExpandedDims] = useState<Record<number, boolean>>({})
@@ -18,8 +20,15 @@ export default function PerformanceLandingPage() {
       setLoading(true)
       setError(null)
       try {
-        const data = await loadUserLearningPath(user.id)
-        if (!cancelled) setMaterias(data)
+        const [data, planData] = await Promise.all([
+          loadUserLearningPath(user.id),
+          loadUserPlanAndPolicies(user.id),
+        ])
+        if (!cancelled) {
+          setMaterias(data)
+          setPlan(planData.plan)
+          setPolicies(planData.policies)
+        }
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? 'No se pudo cargar el Learning Path')
       } finally {
@@ -102,6 +111,21 @@ export default function PerformanceLandingPage() {
         )}
         {error && (
           <div className="hud-card p-6 text-center text-red-300">{error}</div>
+        )}
+
+        {!loading && !error && (
+          <div className="hud-card p-5 mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-white font-semibold">Tipo de servicio contratado</div>
+              {plan?.plan_label && (<span className="text-sm text-cyan-300">{plan.plan_label}</span>)}
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3 text-sm text-gray-300">
+              <div className="bg-gray-900/60 border border-gray-800 rounded p-3"><span className="text-gray-400">Plan:</span> <span className="text-white/90">{plan?.plan_label ?? plan?.plan_code ?? '—'}</span></div>
+              <div className="bg-gray-900/60 border border-gray-800 rounded p-3"><span className="text-gray-400">Materias en LP:</span> <span className="text-white/90">{materias.length}</span></div>
+              <div className="bg-gray-900/60 border border-gray-800 rounded p-3"><span className="text-gray-400">Cobertura IA:</span> <span className="text-white/90">{materias.filter(m=>m.hasAi).length} materias</span></div>
+            </div>
+            <div className="mt-3 text-xs text-gray-400">Nivel de dominio recomendado: Funcional (1 sesión/dim) · Intermedio (2) · Avanzado (3) · Maestro (3+ ad hoc).</div>
+          </div>
         )}
 
         {!loading && !error && groups.map((g) => {

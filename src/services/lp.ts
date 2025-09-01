@@ -5,6 +5,8 @@ type Id = number
 export type LpSession = { id: Id; slug: string; name: string }
 export type LpDimension = { id: Id; slug: string; name: string; sessions: LpSession[] }
 export type LpMateria = { id: Id; slug: string; name: string; hasAi: boolean; dimensions: LpDimension[] }
+export type PlanSummary = { plan_code?: string | null; plan_label?: string | null; plan_meta?: any }
+export type PolicySummary = { materia_id: Id; monthly_seconds_cap?: number | null; monthly_token_cap?: number | null; access_start_at?: string | null; access_end_at?: string | null }
 
 export async function loadUserLearningPath(userId: string): Promise<LpMateria[]> {
   // 1) LP activo
@@ -101,6 +103,36 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
   })
 
   return result
+}
+
+export async function loadUserPlanAndPolicies(userId: string): Promise<{ plan: PlanSummary | null; policies: PolicySummary[] }>{
+  // Plan del LP activo
+  const { data: lpRow, error: lpErr } = await (supabase as any)
+    .from('lp')
+    .select('plan_code, plan_label, plan_meta')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (lpErr) throw lpErr
+  const plan: PlanSummary | null = lpRow ? { plan_code: lpRow.plan_code ?? null, plan_label: lpRow.plan_label ?? null, plan_meta: lpRow.plan_meta ?? null } : null
+
+  // Políticas IA por materia
+  const { data: pol, error: polErr } = await (supabase as any)
+    .from('ai_user_policy')
+    .select('materia_id, monthly_seconds_cap, monthly_token_cap, access_start_at, access_end_at, enabled')
+    .eq('user_id', userId)
+    .eq('enabled', true)
+  if (polErr) throw polErr
+  const policies: PolicySummary[] = (pol || []).map((p: any) => ({
+    materia_id: p.materia_id,
+    monthly_seconds_cap: p.monthly_seconds_cap ?? null,
+    monthly_token_cap: p.monthly_token_cap ?? null,
+    access_start_at: p.access_start_at ?? null,
+    access_end_at: p.access_end_at ?? null,
+  }))
+
+  return { plan, policies }
 }
 
 
