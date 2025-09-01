@@ -171,6 +171,8 @@ export default function PerformanceLandingPage() {
                                           <div className="text-xs text-gray-400">{s.slug}</div>
                                           <div className="mt-2 flex items-center gap-2 text-xs">
                                             <span className={`px-2 py-0.5 rounded-full border ${m.hasAi ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{m.hasAi ? '✓ IA Voz/Chat' : 'IA inactiva'}</span>
+                                            {m.voiceCap != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {m.voiceCap} min/mes</span>)}
+                                            {m.chatCap != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {m.chatCap} tokens/mes</span>)}
                                           </div>
                                         </div>
                                       ))}

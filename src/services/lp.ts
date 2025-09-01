@@ -4,7 +4,7 @@ type Id = number
 
 export type LpSession = { id: Id; slug: string; name: string }
 export type LpDimension = { id: Id; slug: string; name: string; sessions: LpSession[] }
-export type LpMateria = { id: Id; slug: string; name: string; hasAi: boolean; dimensions: LpDimension[] }
+export type LpMateria = { id: Id; slug: string; name: string; hasAi: boolean; voiceCap?: number | null; chatCap?: number | null; dimensions: LpDimension[] }
 export type PlanSummary = { plan_code?: string | null; plan_label?: string | null; plan_meta?: any }
 export type PolicySummary = { materia_id: Id; monthly_seconds_cap?: number | null; monthly_token_cap?: number | null; access_start_at?: string | null; access_end_at?: string | null }
 
@@ -48,7 +48,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
   // 5) materias
   const { data: materias, error: matErr } = await (supabase as any)
     .from('materias_catalog')
-    .select('id, slug, name')
+    .select('id, slug, name, position')
     .in('id', materiaIds)
   if (matErr) throw matErr
 
@@ -60,7 +60,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
   if (mapErr) throw mapErr
   const { data: policies, error: polErr } = await (supabase as any)
     .from('ai_user_policy')
-    .select('agent_id, materia_id, enabled')
+    .select('agent_id, materia_id, enabled, monthly_seconds_cap, monthly_token_cap')
     .eq('user_id', userId)
     .eq('enabled', true)
   if (polErr) throw polErr
@@ -71,6 +71,13 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
     materiaIdToAgents.get(r.materia_id)!.add(r.agent_id)
   })
   const userAgents = new Set<string>((policies || []).map((p: any) => p.agent_id))
+  const materiaCaps = new Map<Id, { voice?: number | null; chat?: number | null }>()
+  ;(policies || []).forEach((p: any) => {
+    const cur = materiaCaps.get(p.materia_id) || { voice: null, chat: null }
+    if (p.monthly_seconds_cap != null) cur.voice = Math.max(cur.voice ?? 0, p.monthly_seconds_cap)
+    if (p.monthly_token_cap != null) cur.chat = Math.max(cur.chat ?? 0, p.monthly_token_cap)
+    materiaCaps.set(p.materia_id, cur)
+  })
   const materiaHasAi = (materiaId: Id) => {
     const allowed = materiaIdToAgents.get(materiaId)
     if (!allowed || !allowed.size) return false
@@ -91,7 +98,18 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
     sessByDimension.get(s.dimension_id)!.push(s)
   })
 
-  const materiasSorted = [...(materias || [])].sort((a: any, b: any) => String(a.slug).localeCompare(String(b.slug)))
+  const getSlugNum = (slug: string) => {
+    const num = String(slug || '').replace(/\D/g, '')
+    return num ? parseInt(num, 10) : Number.MAX_SAFE_INTEGER
+  }
+  const materiasSorted = [...(materias || [])].sort((a: any, b: any) => {
+    const pa = a.position ?? null
+    const pb = b.position ?? null
+    if (pa != null && pb != null) return pa - pb
+    if (pa != null) return -1
+    if (pb != null) return 1
+    return getSlugNum(a.slug) - getSlugNum(b.slug)
+  })
   const result: LpMateria[] = materiasSorted.map((m: any) => {
     const dims = (dimsByMateria.get(m.id) || []).sort((a: any, b: any) => String(a.slug).localeCompare(String(b.slug)))
     const dimsOut: LpDimension[] = dims.map((d: any) => {
@@ -99,7 +117,8 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
       const sessOut: LpSession[] = sess.map((s: any) => ({ id: s.id, slug: s.slug, name: s.name }))
       return { id: d.id, slug: d.slug, name: d.name, sessions: sessOut }
     })
-    return { id: m.id, slug: m.slug, name: m.name, hasAi: materiaHasAi(m.id), dimensions: dimsOut }
+    const caps = materiaCaps.get(m.id)
+    return { id: m.id, slug: m.slug, name: m.name, hasAi: materiaHasAi(m.id), voiceCap: caps?.voice ?? null, chatCap: caps?.chat ?? null, dimensions: dimsOut }
   })
 
   return result
