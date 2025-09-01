@@ -65,8 +65,7 @@ export default function AirAssignmentsPage() {
     return { completed, totalAssigned, percent }
   }, [parsedAndSortedAll])
 
-  const assignedItems = useMemo(() => parsedAndSortedAll.filter(i => !!i.assignment), [parsedAndSortedAll])
-  const lockedItems = useMemo(() => parsedAndSortedAll.filter(i => !i.assignment), [parsedAndSortedAll])
+  // Nota: las listas filtradas por programa se derivan en tiempo de render a partir de parsedAndSortedAll
 
   // Briefings breves para vista de tarjetas (hover)
   const HOVER_INFO: Record<string, { analiza: string; dolor: string; obtienes: string }> = {
@@ -182,9 +181,7 @@ export default function AirAssignmentsPage() {
     }
   }
 
-  const filteredAssignedItems = useMemo(() => {
-    return assignedItems.filter(i => activeProgram === 'all' ? true : getProgramMeta(i._ordinal).id === activeProgram)
-  }, [assignedItems, activeProgram])
+  // El filtro activo se aplica directamente sobre parsedAndSortedAll dentro de cada bloque
 
   // Nota: bloqueadas se integran en los bloques por programa; no es necesario un listado aparte
 
