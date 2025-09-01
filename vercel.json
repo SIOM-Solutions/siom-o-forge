@@ -1,4 +1,14 @@
 {
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "github": {
+    "silent": false
+  }
+}
+
+{
   "installCommand": "npm ci",
   "buildCommand": "npm run build && echo 'skip lint gate'",
   "outputDirectory": "dist",
