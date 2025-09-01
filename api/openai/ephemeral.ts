@@ -1,4 +1,4 @@
-export const config = { runtime: 'nodejs22.x' }
+export const config = { runtime: 'nodejs' }
 
 export default async function handler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin') || '*'
@@ -64,9 +64,4 @@ export default async function handler(req: Request): Promise<Response> {
     })
   }
 }
-
-
-git checkout elevenlabs-native-clean
-git commit --allow-empty -m "chore(vercel): redeploy preview to load envs"
-git push origin elevenlabs-native-clean
 
