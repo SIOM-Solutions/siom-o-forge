@@ -162,7 +162,7 @@ export default function AirAssignmentsPage() {
       case 'completed':
         return 'bg-blue-900/20 text-blue-300 border-blue-800'
       case 'blocked':
-        return 'bg-gray-800 text-gray-500 border-gray-700'
+        return 'bg-red-900/20 text-red-300 border-red-800'
       default:
         return 'bg-gray-800 text-gray-500 border-gray-700'
     }
@@ -276,8 +276,8 @@ export default function AirAssignmentsPage() {
                       className={`group bg-gray-900 rounded-xl p-6 border transition-all duration-200 ${
                         status === 'assigned' || status === 'completed'
                           ? 'hover:border-emerald-600' 
-                          : 'opacity-80'
-                      } ${program.badgeClass.replace('bg-','border-').replace(' text-',' ').replace(' border-',' border-')}`}
+                          : 'opacity-70'
+                      } ${program.badgeClass.replace('bg-','border-').replace(' text-',' ').replace(' border-',' border-')} ${status==='blocked' ? 'relative' : ''}`}
                       onClick={() => setExpanded(prev => ({ ...prev, [materia.id]: !prev[materia.id] }))}
             >
               <div className="flex justify-between items-start mb-4">
@@ -325,7 +325,24 @@ export default function AirAssignmentsPage() {
                         <div className="text-center text-blue-300 text-sm">✅ Enviada</div>
                       )}
                       {status === 'blocked' && (
-                        <div className="text-center text-gray-500 text-sm">🔒 No asignada</div>
+                        <>
+                          <div className="text-center text-red-300 text-sm">🔒 No asignada</div>
+                          <div className="mt-3 overflow-hidden transition-all duration-300 max-h-0 group-hover:max-h-32">
+                            <div className="bg-red-900/10 border border-red-800 rounded-lg p-3 text-xs text-red-300">
+                              <div className="mb-1">Esta materia no está incluida en tu auditoría actual.</div>
+                              <div className="flex items-center justify-between">
+                                <span>Solicita acceso para añadirla.</span>
+                                <a
+                                  href={`mailto:contact@siomsolutions.com?subject=Solicitud%20acceso%20SystemAIR%20-%20${encodeURIComponent(materia.name)}&body=${encodeURIComponent('Hola, solicito acceso a la materia ' + materia.name + ' para completar mi auditoría SystemAIR.')}`}
+                                  className="btn btn-air btn-sm"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Solicitar acceso
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </>
                       )}
                     </div>
                   )
