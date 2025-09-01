@@ -279,6 +279,7 @@ export default function AirAssignmentDetailPage() {
                 <li><span className="text-cyan-300">Formato:</span> <span className="text-white/90">Cuestionario online (~50 preguntas)</span></li>
                 <li><span className="text-cyan-300">Tiempo:</span> <span className="text-white/90">Variable (hazlo sin interrupciones)</span></li>
                 <li><span className="text-cyan-300">Dedicación:</span> <span className="text-white/90">Máxima, para resultados reales</span></li>
+                <li><span className="text-cyan-300">Qué obtendrás:</span> <span className="text-white/90">Recomendaciones priorizadas + Learning Path personalizado</span></li>
               </ul>
             </div>
             <div className="hud-card p-5">
