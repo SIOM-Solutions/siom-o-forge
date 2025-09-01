@@ -275,9 +275,10 @@ export default function AirAssignmentDetailPage() {
             <div className="hud-card p-5">
               <div className="text-sm text-cyan-300 mb-2">Resumen de la materia</div>
               <ul className="text-sm text-gray-300 space-y-2">
-                <li><span className="text-cyan-300">Qué analizas:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ? 'Factores clave de rendimiento' : 'Diagnóstico específico'}</span></li>
-                <li><span className="text-cyan-300">Dolor:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.dolor ?? '—'}</span></li>
-                <li><span className="text-cyan-300">Qué obtienes:</span> <span className="text-white/90">{BRIEFINGS[materia.slug]?.impacto ?? '—'}</span></li>
+                <li><span className="text-cyan-300">Qué analizas:</span> <span className="text-white/90">Indicadores y hábitos clave de esta materia</span></li>
+                <li><span className="text-cyan-300">Formato:</span> <span className="text-white/90">Cuestionario online (~50 preguntas)</span></li>
+                <li><span className="text-cyan-300">Tiempo:</span> <span className="text-white/90">Variable (hazlo sin interrupciones)</span></li>
+                <li><span className="text-cyan-300">Dedicación:</span> <span className="text-white/90">Máxima, para resultados reales</span></li>
               </ul>
             </div>
             <div className="hud-card p-5">
