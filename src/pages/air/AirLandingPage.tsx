@@ -35,23 +35,104 @@ export default function AirLandingPage() {
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-4">SystemAIR en SIOM O‑Forge</h2>
-          <p className="text-gray-300">Como parte del Ecosistema de Inteligencia Híbrida de SIOM Solutions, AIR combina neurociencia, fisiología aplicada e inteligencia artificial para transformar datos en decisiones. El objetivo es simple: aumentar tu capacidad de rendir mejor, incluso bajo presión.</p>
-          <div className="grid md:grid-cols-2 gap-6 mt-6">
+          <h2 className="text-2xl font-semibold text-white mb-2">SystemAIR en SIOM O‑Forge</h2>
+          <div className="hud-card p-5 mb-6">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="badge badge-info">Neurociencia</span>
+              <span className="badge badge-info">Fisiología aplicada</span>
+              <span className="badge badge-info">IA Multiplataforma</span>
+            </div>
+            <p className="text-gray-300 leading-relaxed">
+              Como parte del <span className="text-white font-semibold">Ecosistema de Inteligencia Híbrida de SIOM Solutions</span>, AIR combina estas disciplinas para transformar datos en decisiones.
+              El objetivo es simple: <span className="text-white font-semibold">aumentar tu capacidad de rendir mejor, incluso bajo presión</span>.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 mt-2">
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Qué evalúa</h3>
-              <ul className="list-disc list-inside text-gray-300 space-y-1">
-                <li><span className="text-white">Sueño y recuperación</span> — calidad del descanso y ritmos de recuperación</li>
-                <li><span className="text-white">Acondicionamiento físico</span> — fuerza, cardio y movilidad orientados a función</li>
-                <li><span className="text-white">Nutrición</span> — energía estable y densidad nutritiva</li>
-                <li><span className="text-white">Atención y foco</span> — control de distracciones y trabajo profundo</li>
-                <li><span className="text-white">Dominio del aprendizaje</span> — método para aprender rápido lo crítico</li>
-                <li><span className="text-white">Productividad ejecutiva</span> — decisión, priorización y ejecución</li>
-                <li><span className="text-white">Gestión del estrés</span> — autorregulación y rendimiento bajo presión</li>
-                <li><span className="text-white">Neuroquímica</span> — energía, motivación y control emocional</li>
-                <li><span className="text-white">Liderazgo</span> — dirección, influencia y cohesión</li>
-                <li><span className="text-white">The Master Concept</span> — integración de prácticas SIOM en tu sistema</li>
-              </ul>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* 1 Sueño */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🌙</span>
+                  <div>
+                    <div className="text-white font-semibold">Sueño y recuperación</div>
+                    <div className="text-gray-400 text-sm">Calidad del descanso y ritmos de recuperación</div>
+                  </div>
+                </div>
+                {/* 2 Acondicionamiento */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🏋️</span>
+                  <div>
+                    <div className="text-white font-semibold">Acondicionamiento físico</div>
+                    <div className="text-gray-400 text-sm">Fuerza, cardio y movilidad orientados a función</div>
+                  </div>
+                </div>
+                {/* 3 Nutrición */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🥗</span>
+                  <div>
+                    <div className="text-white font-semibold">Nutrición</div>
+                    <div className="text-gray-400 text-sm">Energía estable y densidad nutritiva</div>
+                  </div>
+                </div>
+                {/* 4 Atención */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🎯</span>
+                  <div>
+                    <div className="text-white font-semibold">Atención y foco</div>
+                    <div className="text-gray-400 text-sm">Control de distracciones y trabajo profundo</div>
+                  </div>
+                </div>
+                {/* 5 Aprendizaje */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">📘</span>
+                  <div>
+                    <div className="text-white font-semibold">Dominio del aprendizaje</div>
+                    <div className="text-gray-400 text-sm">Método para aprender rápido lo crítico</div>
+                  </div>
+                </div>
+                {/* 6 Productividad */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🗂️</span>
+                  <div>
+                    <div className="text-white font-semibold">Productividad ejecutiva</div>
+                    <div className="text-gray-400 text-sm">Decisión, priorización y ejecución</div>
+                  </div>
+                </div>
+                {/* 7 Estrés */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🧘</span>
+                  <div>
+                    <div className="text-white font-semibold">Gestión del estrés</div>
+                    <div className="text-gray-400 text-sm">Autorregulación y rendimiento bajo presión</div>
+                  </div>
+                </div>
+                {/* 8 Neuroquímica */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">⚛️</span>
+                  <div>
+                    <div className="text-white font-semibold">Neuroquímica</div>
+                    <div className="text-gray-400 text-sm">Energía, motivación y control emocional</div>
+                  </div>
+                </div>
+                {/* 9 Liderazgo */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🏁</span>
+                  <div>
+                    <div className="text-white font-semibold">Liderazgo</div>
+                    <div className="text-gray-400 text-sm">Dirección, influencia y cohesión</div>
+                  </div>
+                </div>
+                {/* 10 Master Concept */}
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🧩</span>
+                  <div>
+                    <div className="text-white font-semibold">The Master Concept</div>
+                    <div className="text-gray-400 text-sm">Integración de prácticas SIOM en tu sistema</div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Cómo usamos los datos</h3>
