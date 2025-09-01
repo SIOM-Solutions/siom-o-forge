@@ -84,9 +84,6 @@ function ExcelsiorMounts() {
         <ExcelsiorHUD />
         <ExcelsiorHost />
       </div>
-      <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
-        <ExcelsiorConnectButton />
-      </div>
     </>
   )
 }
