@@ -181,7 +181,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
     if (pb != null) return 1
     return getSlugNum(a.slug) - getSlugNum(b.slug)
   })
-  const result: LpMateria[] = materiasSorted.map((m: any) => {
+  let result: LpMateria[] = materiasSorted.map((m: any) => {
     const dims = (dimsByMateria.get(m.id) || []).sort((a: any, b: any) => String(a.slug).localeCompare(String(b.slug)))
     const dimsOut: LpDimension[] = dims.map((d: any) => {
       const sess = (sessByDimension.get(d.id) || []).sort((a: any, b: any) => String(a.slug).localeCompare(String(b.slug)))
@@ -204,6 +204,29 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
       dimensions: dimsOut,
     }
   })
+
+  // 9) OPCIONAL: si existe la RPC `ia_coverage_by_materia`, superponer cobertura desde Supabase (evita problemas RLS)
+  try {
+    const { data: cov, error: covErr } = await (supabase as any).rpc('ia_coverage_by_materia')
+    if (!covErr && Array.isArray(cov) && cov.length) {
+      const bySlug = new Map<string, any>()
+      for (const r of cov) bySlug.set(r.materia_slug, r)
+      result = result.map((m) => {
+        const row = bySlug.get(m.slug)
+        if (!row) return m
+        const hasVoice = !!row.has_voice
+        const hasChat = !!row.has_chat
+        const hasAi = hasVoice || hasChat
+        const voiceCapSeconds = row.voice_min_mes != null ? Number(row.voice_min_mes) * 60 : m.voiceCapSeconds ?? null
+        const chatCapTokens = row.chat_tokens_mes != null ? Number(row.chat_tokens_mes) : m.chatCapTokens ?? null
+        const voiceRemainingSeconds = row.voice_min_restante != null ? Number(row.voice_min_restante) * 60 : m.voiceRemainingSeconds ?? null
+        const chatRemainingTokens = row.chat_tokens_restante != null ? Number(row.chat_tokens_restante) : m.chatRemainingTokens ?? null
+        return { ...m, hasAi, hasVoice, hasChat, voiceCapSeconds, chatCapTokens, voiceRemainingSeconds, chatRemainingTokens }
+      })
+    }
+  } catch (_) {
+    // ignore and keep local computation
+  }
 
   return result
 }
