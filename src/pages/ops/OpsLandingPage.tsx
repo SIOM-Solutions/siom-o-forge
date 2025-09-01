@@ -1,4 +1,38 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
+import { supabase } from '../../lib/supabase'
+import { loadOpsPolicies, aggregateAreaAvailability } from '../../services/ops'
+
 export default function OpsLandingPage() {
+  const { user } = useAuth()
+  const [enabled, setEnabled] = useState<boolean | null>(null)
+  const [areaStatus, setAreaStatus] = useState<Record<string, { enabled: boolean; seconds?: number | null; tokens?: number | null }>>({})
+
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      if (!user) return
+      // Gating OPS
+      try {
+        const { data } = await (supabase as any)
+          .from('user_access')
+          .select('forge_ops')
+          .eq('user_id', user.id)
+          .maybeSingle()
+        if (!cancelled) setEnabled(Boolean(data?.forge_ops))
+      } catch { if (!cancelled) setEnabled(false) }
+      // Políticas por asesor (scope ops)
+      try {
+        const pol = await loadOpsPolicies(user.id)
+        if (!cancelled) setAreaStatus(aggregateAreaAvailability(pol))
+      } catch {}
+    }
+    run()
+    return () => { cancelled = true }
+  }, [user?.id])
+
+  const gated = enabled === false
+
   return (
     <div>
       <div className="max-w-6xl mx-auto">
@@ -30,23 +64,44 @@ export default function OpsLandingPage() {
         <div className="hud-card p-6 mb-6">
           <h3 className="text-lg font-semibold text-white mb-4">Áreas de Asesoría</h3>
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-gray-900/60 border border-amber-800 rounded-lg p-4">
+            <div className={`bg-gray-900/60 border rounded-lg p-4 ${areaStatus.negociacion?.enabled ? 'border-amber-800' : 'border-gray-800 opacity-70'}`}>
               <div className="text-white font-semibold mb-1">Negociación de Alto Impacto</div>
               <p className="text-gray-300 text-sm">Arquitectura de concesiones, anclas, BATNA, guiones; preparación táctica para reuniones críticas.</p>
+              <div className="mt-2 flex items-center gap-2 text-xs">
+                <span className={`px-2 py-0.5 rounded-full border ${areaStatus.negociacion?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.negociacion?.enabled ? 'Disponible' : 'No asignado'}</span>
+                {areaStatus.negociacion?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.negociacion.seconds} min/mes</span>)}
+                {areaStatus.negociacion?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.negociacion.tokens} tokens/mes</span>)}
+              </div>
             </div>
-            <div className="bg-gray-900/60 border border-amber-800 rounded-lg p-4">
+            <div className={`bg-gray-900/60 border rounded-lg p-4 ${areaStatus.analisis?.enabled ? 'border-amber-800' : 'border-gray-800 opacity-70'}`}>
               <div className="text-white font-semibold mb-1">Análisis Táctico de la Personalidad</div>
               <p className="text-gray-300 text-sm">Perfiles, señales conductuales, escalada/desescalada y lectura del otro con precisión operativa.</p>
+              <div className="mt-2 flex items-center gap-2 text-xs">
+                <span className={`px-2 py-0.5 rounded-full border ${areaStatus.analisis?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.analisis?.enabled ? 'Disponible' : 'No asignado'}</span>
+                {areaStatus.analisis?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.analisis.seconds} min/mes</span>)}
+                {areaStatus.analisis?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.analisis.tokens} tokens/mes</span>)}
+              </div>
             </div>
-            <div className="bg-gray-900/60 border border-amber-800 rounded-lg p-4">
+            <div className={`bg-gray-900/60 border rounded-lg p-4 ${areaStatus.nucleos?.enabled ? 'border-amber-800' : 'border-gray-800 opacity-70'}`}>
               <div className="text-white font-semibold mb-1">Núcleos de Poder y Redes de Influencia</div>
               <p className="text-gray-300 text-sm">Mapear stakeholders, priorizar actores clave y trazar rutas de acceso con ventaja política.</p>
+              <div className="mt-2 flex items-center gap-2 text-xs">
+                <span className={`px-2 py-0.5 rounded-full border ${areaStatus.nucleos?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.nucleos?.enabled ? 'Disponible' : 'No asignado'}</span>
+                {areaStatus.nucleos?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.nucleos.seconds} min/mes</span>)}
+                {areaStatus.nucleos?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.nucleos.tokens} tokens/mes</span>)}
+              </div>
             </div>
-            <div className="bg-gray-900/60 border border-amber-800 rounded-lg p-4">
+            <div className={`bg-gray-900/60 border rounded-lg p-4 ${areaStatus.estrategia?.enabled ? 'border-amber-800' : 'border-gray-800 opacity-70'}`}>
               <div className="text-white font-semibold mb-1">Pensamiento Estratégico y Problemas Complejos</div>
               <p className="text-gray-300 text-sm">Opciones, COAs, wargaming y marcos de decisión para contextos de alta incertidumbre.</p>
+              <div className="mt-2 flex items-center gap-2 text-xs">
+                <span className={`px-2 py-0.5 rounded-full border ${areaStatus.estrategia?.enabled ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{areaStatus.estrategia?.enabled ? 'Disponible' : 'No asignado'}</span>
+                {areaStatus.estrategia?.seconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {areaStatus.estrategia.seconds} min/mes</span>)}
+                {areaStatus.estrategia?.tokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {areaStatus.estrategia.tokens} tokens/mes</span>)}
+              </div>
             </div>
           </div>
+          {gated && (<div className="mt-3 text-xs text-amber-300">Tu acceso a OPS no está activo. Solicita activación para iniciar sesiones con Asesores Tácticos.</div>)}
         </div>
 
         {/* Entregables inmediatos */}
