@@ -66,6 +66,60 @@ export default function AirAssignmentsPage() {
   const assignedItems = useMemo(() => parsedAndSortedAll.filter(i => !!i.assignment), [parsedAndSortedAll])
   const lockedItems = useMemo(() => parsedAndSortedAll.filter(i => !i.assignment), [parsedAndSortedAll])
 
+  // Briefings breves para vista de tarjetas (hover)
+  const HOVER_INFO: Record<string, { analiza: string; dolor: string; obtienes: string }> = {
+    M1_SUENO: {
+      analiza: 'Patrones de sueño, profundidad y recuperación',
+      dolor: 'Privación → peor decisión y claridad',
+      obtienes: 'Protocolo para dormir profundo y rendir estable',
+    },
+    M2_ACOND: {
+      analiza: 'Fuerza, cardio y movilidad orientados a función',
+      dolor: 'Sedentarismo → baja energía y estrés alto',
+      obtienes: 'Plan de atleta corporativo eficiente en tiempo',
+    },
+    M3_NUTRI: {
+      analiza: 'Ritmos y densidad nutritiva',
+      dolor: 'Picos de glucosa → niebla mental y fatiga',
+      obtienes: 'Energía sostenida y enfoque estable',
+    },
+    M4_ATENCION: {
+      analiza: 'Foco, trabajo profundo y control de distracciones',
+      dolor: 'Multitarea y ruido digital',
+      obtienes: 'Más output de calidad en menos tiempo',
+    },
+    M5_APREND: {
+      analiza: 'Métodos de meta‑aprendizaje efectivos',
+      dolor: 'Brechas que frenan el progreso',
+      obtienes: 'Aprender lo crítico antes y mejor',
+    },
+    M6_PROD: {
+      analiza: 'Priorización, delegación y rituales',
+      dolor: 'Trabajo sobre el trabajo; agendas reactivas',
+      obtienes: 'Decisiones más rápidas y ejecución alineada',
+    },
+    M7_ESTRES: {
+      analiza: 'Autorregulación y tolerancia al estrés',
+      dolor: 'Estrés crónico que degrada la decisión',
+      obtienes: 'Resiliencia y rendimiento sostenido',
+    },
+    M8_NEURO: {
+      analiza: 'Rutinas que modulan dopamina/serotonina/cortisol',
+      dolor: 'Altibajos de motivación y ánimo',
+      obtienes: 'Energía y autocontrol emocional estables',
+    },
+    M9_LIDER: {
+      analiza: 'Autoliderazgo y equipos de alto rendimiento',
+      dolor: 'Silos y baja ejecución',
+      obtienes: 'Equipos comprometidos y decisiones mejores',
+    },
+    M10_MASTER: {
+      analiza: 'Integración de prácticas SIOM en sistema',
+      dolor: 'Mejoras puntuales sin consolidar',
+      obtienes: 'Ventaja estructural y sostenible',
+    },
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'assigned':
@@ -149,7 +203,7 @@ export default function AirAssignmentsPage() {
             return (
             <div
               key={materia.id}
-              className={`bg-gray-900 rounded-xl p-6 border border-gray-800 transition-all duration-200 ${
+              className={`group bg-gray-900 rounded-xl p-6 border border-gray-800 transition-all duration-200 ${
                 status === 'assigned' || status === 'completed'
                   ? 'hover:border-emerald-600 cursor-pointer' 
                   : 'opacity-60 cursor-not-allowed'
@@ -168,8 +222,29 @@ export default function AirAssignmentsPage() {
               <h3 className="text-lg font-semibold text-white mb-2">{materia.name}</h3>
               <p className="text-gray-400 text-sm mb-4">Materia {badge}</p>
 
+              {(status === 'assigned' || status === 'completed') && (
+                <div className="overflow-hidden transition-all duration-300 max-h-0 group-hover:max-h-48">
+                  <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-3 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-300">
+                      <div>
+                        <div className="text-gray-400">Qué analizas</div>
+                        <div className="text-white/90">{HOVER_INFO[materia.slug]?.analiza ?? 'Diagnóstico específico de la materia'}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400">Dolor</div>
+                        <div className="text-white/90">{HOVER_INFO[materia.slug]?.dolor ?? 'Problema clave a detectar'}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400">Qué obtienes</div>
+                        <div className="text-white/90">{HOVER_INFO[materia.slug]?.obtienes ?? 'Resultados e impacto esperables'}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {status === 'assigned' && (
-                <button className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                <button className="w-full btn btn-air text-sm font-semibold">
                   Iniciar Auditoría
                 </button>
               )}
