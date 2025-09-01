@@ -16,6 +16,7 @@ import PsitacPartIPage from './pages/psitac/PsitacPartIPage'
 import PsitacPartIIPage from './pages/psitac/PsitacPartIIPage'
 import PerformanceLandingPage from './pages/performance/PerformanceLandingPage'
 import OpsLandingPage from './pages/ops/OpsLandingPage'
+import DownloadsPage from './pages/DownloadsPage'
 import WelcomeScreen from './components/WelcomeScreen'
 import ExcelsiorHost from './components/ExcelsiorHost'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
@@ -59,6 +60,7 @@ function App() {
                 {/* Performance y OPS placeholders */}
                 <Route path="/performance" element={<ProtectedRoute requiredAccess="forge_performance"><PerformanceLandingPage /></ProtectedRoute>} />
                 <Route path="/ops" element={<ProtectedRoute requiredAccess="forge_ops"><OpsLandingPage /></ProtectedRoute>} />
+                <Route path="/downloads" element={<ProtectedRoute><DownloadsPage /></ProtectedRoute>} />
               </Route>
 
               {/* 404 */}
