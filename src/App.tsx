@@ -78,7 +78,9 @@ export default App
 
 function ExcelsiorMounts() {
   const location = useLocation()
+  // Ocultar en login y en salas (forja/ops)
   if (location.pathname === '/auth/login') return null
+  if (location.pathname.startsWith('/forja/') || location.pathname.startsWith('/ops/sala/')) return null
   return (
     <>
       <div className="fixed bottom-4 right-4 z-40 pointer-events-none">

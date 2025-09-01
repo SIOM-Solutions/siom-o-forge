@@ -4,12 +4,11 @@ import { useLocation } from 'react-router-dom'
 export default function ExcelsiorHost() {
   const location = useLocation()
 
-  const hideOn = [/^\/performance\/forja/, /^\/ops\/sesion/, /^\/lab\/eleven/, /^\/lab\/realtime/]
+  // Ocultar y PAUSAR solo en salas dedicadas (Forja/OPS) y laboratorios antiguos
+  const hideOn = [/^\/forja\//, /^\/ops\/sala\//, /^\/lab\/eleven/, /^\/lab\/realtime/]
   const hidden = hideOn.some((re) => re.test(location.pathname))
 
   useEffect(() => {
-    if (hidden) return
-
     const scriptId = 'elevenlabs-convai-script'
     if (!document.getElementById(scriptId)) {
       const s = document.createElement('script')
@@ -19,24 +18,26 @@ export default function ExcelsiorHost() {
       document.body.appendChild(s)
     }
 
+    const elId = 'siom-eleven-widget'
     const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
     if (!agentId) return
 
-    const elId = 'siom-eleven-widget'
+    if (hidden) {
+      // En salas: quitar el elemento para pausar completamente
+      const existing = document.getElementById(elId)
+      if (existing) {
+        try { document.body.removeChild(existing) } catch {}
+      }
+      return
+    }
+
+    // Fuera de salas: asegurar que existe (persistente entre rutas)
     let conv = document.getElementById(elId) as HTMLElement | null
     if (!conv) {
       conv = document.createElement('elevenlabs-convai') as unknown as HTMLElement
       conv.id = elId
       conv.setAttribute('agent-id', agentId)
-      // No forzamos estilos: dejamos que el widget use su configuración (placement/variant)
       document.body.appendChild(conv)
-    }
-
-    return () => {
-      try {
-        const n = document.getElementById(elId)
-        if (n) document.body.removeChild(n)
-      } catch {}
     }
   }, [hidden, location.pathname])
 
