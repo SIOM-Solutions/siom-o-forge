@@ -21,7 +21,6 @@ import ExcelsiorHost from './components/ExcelsiorHost'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
 import ExcelsiorHUD from './components/ExcelsiorHUD'
 // Labs eliminados del build
-import ExcelsiorConnectButton from './components/ExcelsiorConnectButton'
 
 function App() {
   return (
