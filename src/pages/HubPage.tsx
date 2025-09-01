@@ -113,17 +113,6 @@ export default function HubPage() {
           <div>
             <p className="text-gray-400">Ecosistema de Inteligencia Híbrida de Élite — SIOM Solutions</p>
           </div>
-          <div className="hidden md:flex items-center gap-4 text-sm text-gray-300">
-            <button onClick={() => navigate('/air/assignments')} className="hover:text-white">AIR</button>
-            <span className="opacity-40">•</span>
-            <button onClick={() => navigate('/psitac')} className="hover:text-white">PSITAC</button>
-            <span className="opacity-40">•</span>
-            <button onClick={() => navigate('/performance')} className="hover:text-white">Performance</button>
-            <span className="opacity-40">•</span>
-            <button onClick={() => navigate('/ops')} className="hover:text-white">OPS</button>
-            <span className="opacity-40">•</span>
-            <button onClick={() => navigate('/hub?tab=descargas')} className="hover:text-white">Descargas</button>
-          </div>
         </div>
 
         <div className="text-center mb-8">
