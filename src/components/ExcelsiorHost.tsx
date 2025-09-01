@@ -5,7 +5,7 @@ export default function ExcelsiorHost() {
   const location = useLocation()
 
   // Ocultar y PAUSAR solo en salas dedicadas (Forja/OPS) y laboratorios antiguos
-  const hideOn = [/^\/forja\//, /^\/ops\/sala\//, /^\/lab\/eleven/, /^\/lab\/realtime/]
+  const hideOn = [/^\/auth\/login$/, /^\/forja\//, /^\/ops\/sala\//, /^\/lab\/eleven/, /^\/lab\/realtime/]
   const hidden = hideOn.some((re) => re.test(location.pathname))
 
   useEffect(() => {
