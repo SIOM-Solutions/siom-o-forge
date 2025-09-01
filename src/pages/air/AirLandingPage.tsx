@@ -15,7 +15,7 @@ export default function AirLandingPage() {
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 mb-8">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid md:grid-cols-2 gap-8 items-start md:items-stretch">
             <div>
               <h2 className="text-2xl font-semibold text-white mb-4">¿Qué es AIR?</h2>
               <p className="text-gray-300 mb-4">Auditoría Inicial de Rendimiento de <span className="text-white font-semibold">SIOM Solutions</span> que establece tu <span className="text-white font-semibold">línea base</span> en <span className="text-white font-semibold">10 áreas críticas</span> y prioriza palancas de alto impacto.</p>
@@ -59,13 +59,13 @@ export default function AirLandingPage() {
                 Ver Mis Materias
               </button>
             </div>
-            <div>
+            <div className="h-full">
               {!imgError ? (
-                <div className="relative rounded-xl overflow-hidden border border-gray-800 shadow-lg shadow-emerald-900/20">
+                <div className="relative h-48 md:h-full rounded-xl overflow-hidden border border-gray-800 shadow-lg shadow-emerald-900/20">
                   <img
                     src="/images/air/air-hero.jpg"
                     alt="SystemAIR™ — Sistema de Diagnóstico"
-                    className="w-full h-auto object-cover aspect-video"
+                    className="w-full h-full object-cover"
                     loading="lazy"
                     onError={() => setImgError(true)}
                   />
@@ -74,11 +74,13 @@ export default function AirLandingPage() {
                   </div>
                 </div>
               ) : (
+                <div className="h-full flex items-center justify-center">
             <div className="text-center">
-                  <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg shadow-emerald-800/30">
-                    <span className="text-4xl font-bold text-white tracking-wide">AIR</span>
+                    <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg shadow-emerald-800/30">
+                      <span className="text-4xl font-bold text-white tracking-wide">AIR</span>
               </div>
               <p className="text-gray-400 text-sm">Sistema de Diagnóstico</p>
+                  </div>
                 </div>
               )}
             </div>
