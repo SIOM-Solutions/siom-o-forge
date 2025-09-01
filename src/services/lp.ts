@@ -109,13 +109,17 @@ export async function loadUserPlanAndPolicies(userId: string): Promise<{ plan: P
   // Plan del LP activo
   const { data: lpRow, error: lpErr } = await (supabase as any)
     .from('lp')
-    .select('plan_code, plan_label, plan_meta')
+    .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle()
   if (lpErr) throw lpErr
-  const plan: PlanSummary | null = lpRow ? { plan_code: lpRow.plan_code ?? null, plan_label: lpRow.plan_label ?? null, plan_meta: lpRow.plan_meta ?? null } : null
+  const plan: PlanSummary | null = lpRow ? {
+    plan_code: (lpRow as any).plan_code ?? (lpRow as any).plan ?? null,
+    plan_label: (lpRow as any).plan_label ?? null,
+    plan_meta: (lpRow as any).plan_meta ?? null,
+  } : null
 
   // Políticas IA por materia
   const { data: pol, error: polErr } = await (supabase as any)
