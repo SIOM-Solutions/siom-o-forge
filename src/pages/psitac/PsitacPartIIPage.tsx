@@ -33,11 +33,11 @@ export default function PsitacPartIIPage() {
     <div>
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-semibold text-white mb-2">PSITAC — Parte II: Patrones de Influencia</h1>
+          <h1 className="text-3xl font-semibold text-white mb-2">PSITAC — Parte II: Patrones de influencia y liderazgo</h1>
           <p className="text-gray-400">Cargando cuestionario… Si no aparece, <a className="text-blue-400 underline" href={url} target="_blank" rel="noreferrer">ábrelo en una nueva ventana</a>.</p>
         </div>
         <div className="rounded-xl overflow-hidden border border-gray-800 bg-gray-900">
-          <iframe title="PSITAC Parte II" src={url} className="w-full h-[70vh]" allow="camera; microphone; autoplay; encrypted-media;" />
+          <iframe title="PSITAC Parte II — Patrones de influencia y liderazgo" src={url} className="w-full h-[70vh]" allow="camera; microphone; autoplay; encrypted-media;" />
         </div>
       </div>
     </div>
