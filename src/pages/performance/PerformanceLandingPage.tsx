@@ -101,7 +101,7 @@ export default function PerformanceLandingPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <button className="btn btn-secondary btn-sm" onClick={() => setExpandedPrograms((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}>{isOpenProg ? '−' : '+'}</button>
-                  <h2 className="text-lg font-semibold text-white">{g.name}</h2>
+                  <button className="text-left text-lg font-semibold text-white hover:text-cyan-300" onClick={() => setExpandedPrograms((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}>{g.name}</button>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full border ${g.badge}`}>Programa</span>
               </div>
@@ -114,7 +114,7 @@ export default function PerformanceLandingPage() {
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <button className="btn btn-secondary btn-sm" onClick={() => setExpandedMaterias((prev) => ({ ...prev, [m.id]: !prev[m.id] }))}>{openMat ? '−' : '+'}</button>
-                            <div className="text-white font-semibold">{m.name}</div>
+                            <button className="text-left text-white font-semibold hover:text-cyan-300" onClick={() => setExpandedMaterias((prev) => ({ ...prev, [m.id]: !prev[m.id] }))}>{m.name}</button>
                           </div>
                           <span className={`text-xs px-2 py-0.5 rounded-full border ${m.hasAi ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{m.hasAi ? 'IA disponible' : 'IA no asignada'}</span>
                         </div>
@@ -127,7 +127,7 @@ export default function PerformanceLandingPage() {
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                       <button className="btn btn-secondary btn-sm" onClick={() => setExpandedDims((prev) => ({ ...prev, [d.id]: !prev[d.id] }))}>{openDim ? '−' : '+'}</button>
-                                      <div className="text-sm text-gray-300">{d.name}</div>
+                                      <button className="text-left text-sm text-gray-300 hover:text-cyan-300" onClick={() => setExpandedDims((prev) => ({ ...prev, [d.id]: !prev[d.id] }))}>{d.name}</button>
                                     </div>
                                   </div>
                                   {openDim && (
