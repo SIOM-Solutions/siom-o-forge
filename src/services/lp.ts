@@ -4,7 +4,19 @@ type Id = number
 
 export type LpSession = { id: Id; slug: string; name: string }
 export type LpDimension = { id: Id; slug: string; name: string; sessions: LpSession[] }
-export type LpMateria = { id: Id; slug: string; name: string; hasAi: boolean; voiceCap?: number | null; chatCap?: number | null; dimensions: LpDimension[] }
+export type LpMateria = {
+  id: Id
+  slug: string
+  name: string
+  hasAi: boolean
+  hasVoice: boolean
+  hasChat: boolean
+  voiceCapSeconds?: number | null
+  chatCapTokens?: number | null
+  voiceRemainingSeconds?: number | null
+  chatRemainingTokens?: number | null
+  dimensions: LpDimension[]
+}
 export type PlanSummary = { plan_code?: string | null; plan_label?: string | null; plan_meta?: any }
 export type PolicySummary = { materia_id: Id; monthly_seconds_cap?: number | null; monthly_token_cap?: number | null; access_start_at?: string | null; access_end_at?: string | null }
 
@@ -13,6 +25,7 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
   const { data: lpRow, error: lpErr } = await (supabase as any)
     .from('lp')
     .select('id')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -53,37 +66,96 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
   if (matErr) throw matErr
 
   // 6) AI coverage
+  // 6) AI mapping (materia ↔ agentes) limitado a materias del LP y con canal
   const { data: mapAgents, error: mapErr } = await (supabase as any)
     .from('ai_agent_materia')
     .select('materia_id, agent_id, enabled')
     .eq('enabled', true)
+    .in('materia_id', materiaIds)
   if (mapErr) throw mapErr
-  const { data: policies, error: polErr } = await (supabase as any)
+  const agentIds: string[] = Array.from(new Set((mapAgents || []).map((r: any) => r.agent_id)))
+  const { data: agents, error: agentsErr } = await (supabase as any)
+    .from('ai_agents')
+    .select('agent_id, channel')
+    .in('agent_id', agentIds.length ? agentIds : ['-nope-'])
+  if (agentsErr) throw agentsErr
+  const agentIdToChannel = new Map<string, 'voice' | 'text' | string>()
+  ;(agents || []).forEach((a: any) => agentIdToChannel.set(a.agent_id, a.channel))
+
+  // 7) Políticas activas en ventana (scope='materia') y con canal
+  const { data: policiesAll, error: polErr } = await (supabase as any)
     .from('ai_user_policy')
-    .select('agent_id, materia_id, enabled, monthly_seconds_cap, monthly_token_cap')
+    .select('agent_id, materia_id, enabled, scope, access_start_at, access_end_at, monthly_seconds_cap, monthly_token_cap')
     .eq('user_id', userId)
     .eq('enabled', true)
+    .eq('scope', 'materia')
+    .in('materia_id', materiaIds)
   if (polErr) throw polErr
+  const now = new Date().toISOString()
+  const policies = (policiesAll || []).filter((p: any) => {
+    const startOk = !p.access_start_at || p.access_start_at <= now
+    const endOk = !p.access_end_at || p.access_end_at >= now
+    return startOk && endOk
+  })
 
-  const materiaIdToAgents = new Map<Id, Set<string>>()
+  const materiaIdToAgents = new Map<Id, { voice: Set<string>; text: Set<string> }>()
   ;(mapAgents || []).forEach((r: any) => {
-    if (!materiaIdToAgents.has(r.materia_id)) materiaIdToAgents.set(r.materia_id, new Set())
-    materiaIdToAgents.get(r.materia_id)!.add(r.agent_id)
+    const channel = agentIdToChannel.get(r.agent_id)
+    if (!materiaIdToAgents.has(r.materia_id)) materiaIdToAgents.set(r.materia_id, { voice: new Set(), text: new Set() })
+    if (channel === 'voice') materiaIdToAgents.get(r.materia_id)!.voice.add(r.agent_id)
+    if (channel === 'text') materiaIdToAgents.get(r.materia_id)!.text.add(r.agent_id)
   })
-  const userAgents = new Set<string>((policies || []).map((p: any) => p.agent_id))
-  const materiaCaps = new Map<Id, { voice?: number | null; chat?: number | null }>()
-  ;(policies || []).forEach((p: any) => {
-    const cur = materiaCaps.get(p.materia_id) || { voice: null, chat: null }
-    if (p.monthly_seconds_cap != null) cur.voice = Math.max(cur.voice ?? 0, p.monthly_seconds_cap)
-    if (p.monthly_token_cap != null) cur.chat = Math.max(cur.chat ?? 0, p.monthly_token_cap)
-    materiaCaps.set(p.materia_id, cur)
-  })
-  const materiaHasAi = (materiaId: Id) => {
-    const allowed = materiaIdToAgents.get(materiaId)
-    if (!allowed || !allowed.size) return false
-    for (const a of allowed) if (userAgents.has(a)) return true
-    return false
+  // 8) Uso en ventana por política para calcular restante (consulta única y agregación en cliente)
+  const policyAgentIds: string[] = Array.from(new Set((policies || []).map((p: any) => p.agent_id)))
+  let sessionsByAgent: Record<string, any[]> = {}
+  if (policyAgentIds.length) {
+    const { data: sessionsAll, error: sessErr2 } = await (supabase as any)
+      .from('ai_sessions')
+      .select('agent_id, started_at, seconds_used, tokens_in, tokens_out')
+      .eq('user_id', userId)
+      .in('agent_id', policyAgentIds)
+    if (sessErr2) throw sessErr2
+    sessionsByAgent = (sessionsAll || []).reduce((acc: any, s: any) => {
+      if (!acc[s.agent_id]) acc[s.agent_id] = []
+      acc[s.agent_id].push(s)
+      return acc
+    }, {})
   }
+
+  const materiaChannelCaps = new Map<Id, { voiceCapSeconds?: number | null; chatCapTokens?: number | null; voiceRemainingSeconds?: number | null; chatRemainingTokens?: number | null; hasVoice: boolean; hasChat: boolean }>()
+  ;(materiaIds || []).forEach((mid: Id) => {
+    materiaChannelCaps.set(mid, { hasVoice: false, hasChat: false, voiceCapSeconds: null, chatCapTokens: null, voiceRemainingSeconds: null, chatRemainingTokens: null })
+  })
+  ;(policies || []).forEach((p: any) => {
+    const channel = agentIdToChannel.get(p.agent_id)
+    const mapped = materiaIdToAgents.get(p.materia_id)
+    const out = materiaChannelCaps.get(p.materia_id)!
+    if (channel === 'voice' && mapped && mapped.voice.has(p.agent_id)) {
+      out.hasVoice = true
+      if (p.monthly_seconds_cap != null) out.voiceCapSeconds = Math.max(out.voiceCapSeconds ?? 0, p.monthly_seconds_cap)
+      // calcular uso en ventana
+      const winStart = p.access_start_at ? new Date(p.access_start_at).getTime() : new Date('1970-01-01T00:00:00Z').getTime()
+      const winEnd = p.access_end_at ? new Date(p.access_end_at).getTime() : Number.POSITIVE_INFINITY
+      const usedSeconds = (sessionsByAgent[p.agent_id] || []).reduce((sum: number, s: any) => {
+        const t = new Date(s.started_at).getTime()
+        if (t >= winStart && t <= winEnd) return sum + (s.seconds_used || 0)
+        return sum
+      }, 0)
+      if (p.monthly_seconds_cap != null) out.voiceRemainingSeconds = Math.max(out.voiceRemainingSeconds ?? 0, Math.max(0, p.monthly_seconds_cap - usedSeconds))
+    }
+    if (channel === 'text' && mapped && mapped.text.has(p.agent_id)) {
+      out.hasChat = true
+      if (p.monthly_token_cap != null) out.chatCapTokens = Math.max(out.chatCapTokens ?? 0, p.monthly_token_cap)
+      const winStart = p.access_start_at ? new Date(p.access_start_at).getTime() : new Date('1970-01-01T00:00:00Z').getTime()
+      const winEnd = p.access_end_at ? new Date(p.access_end_at).getTime() : Number.POSITIVE_INFINITY
+      const usedTokens = (sessionsByAgent[p.agent_id] || []).reduce((sum: number, s: any) => {
+        const t = new Date(s.started_at).getTime()
+        if (t >= winStart && t <= winEnd) return sum + ((s.tokens_in || 0) + (s.tokens_out || 0))
+        return sum
+      }, 0)
+      if (p.monthly_token_cap != null) out.chatRemainingTokens = Math.max(out.chatRemainingTokens ?? 0, Math.max(0, p.monthly_token_cap - usedTokens))
+    }
+  })
 
   // 7) Ensamblar estructura Materia → Dimensiones → Sesiones
   const dimsByMateria = new Map<Id, any[]>()
@@ -117,8 +189,21 @@ export async function loadUserLearningPath(userId: string): Promise<LpMateria[]>
       const sessOut: LpSession[] = sess.map((s: any) => ({ id: s.id, slug: s.slug, name: s.name }))
       return { id: d.id, slug: d.slug, name: d.name, sessions: sessOut }
     })
-    const caps = materiaCaps.get(m.id)
-    return { id: m.id, slug: m.slug, name: m.name, hasAi: materiaHasAi(m.id), voiceCap: caps?.voice ?? null, chatCap: caps?.chat ?? null, dimensions: dimsOut }
+    const caps = materiaChannelCaps.get(m.id)!
+    const hasAi = !!(caps.hasVoice || caps.hasChat)
+    return {
+      id: m.id,
+      slug: m.slug,
+      name: m.name,
+      hasAi,
+      hasVoice: caps.hasVoice,
+      hasChat: caps.hasChat,
+      voiceCapSeconds: caps.voiceCapSeconds ?? null,
+      chatCapTokens: caps.chatCapTokens ?? null,
+      voiceRemainingSeconds: caps.voiceRemainingSeconds ?? null,
+      chatRemainingTokens: caps.chatRemainingTokens ?? null,
+      dimensions: dimsOut,
+    }
   })
 
   return result

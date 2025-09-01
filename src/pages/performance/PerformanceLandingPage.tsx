@@ -169,10 +169,12 @@ export default function PerformanceLandingPage() {
                                         <div key={s.id} className={`bg-gray-950 border rounded-lg p-3 ${style.border}`}>
                                           <div className="text-white font-semibold text-sm mb-1">{s.name}</div>
                                           <div className="text-xs text-gray-400">{s.slug}</div>
-                                          <div className="mt-2 flex items-center gap-2 text-xs">
-                                            <span className={`px-2 py-0.5 rounded-full border ${m.hasAi ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-500 border-gray-700'}`}>{m.hasAi ? '✓ IA Voz/Chat' : 'IA inactiva'}</span>
-                                            {m.voiceCap != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {m.voiceCap} min/mes</span>)}
-                                            {m.chatCap != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {m.chatCap} tokens/mes</span>)}
+                                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                                            {m.hasVoice && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Voz</span>)}
+                                            {m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Chat</span>)}
+                                            {!m.hasVoice && !m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-gray-800 text-gray-500 border-gray-700">IA inactiva</span>)}
+                                            {m.voiceCapSeconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {Math.round(m.voiceCapSeconds/60)} min/mes{m.voiceRemainingSeconds != null ? ` · restante ${Math.max(0, Math.floor(m.voiceRemainingSeconds/60))} min` : ''}</span>)}
+                                            {m.chatCapTokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {m.chatCapTokens} tokens/mes{m.chatRemainingTokens != null ? ` · restante ${m.chatRemainingTokens}` : ''}</span>)}
                                           </div>
                                         </div>
                                       ))}
