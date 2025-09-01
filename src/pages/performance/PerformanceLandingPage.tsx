@@ -52,6 +52,16 @@ export default function PerformanceLandingPage() {
     return Array.from(map.values())
   }, [materias])
 
+  const getProgramStyle = (key: string) => {
+    switch (key) {
+      case 'p1': return { bg: 'bg-cyan-900/15', border: 'border-cyan-800' }
+      case 'p2': return { bg: 'bg-violet-900/15', border: 'border-violet-800' }
+      case 'p3': return { bg: 'bg-amber-900/15', border: 'border-amber-800' }
+      case 'p4': return { bg: 'bg-blue-900/15', border: 'border-blue-800' }
+      default:   return { bg: 'bg-gray-900/10', border: 'border-gray-800' }
+    }
+  }
+
   const expandAll = () => {
     const prog: Record<string, boolean> = {}
     const mat: Record<number, boolean> = {}
@@ -96,8 +106,9 @@ export default function PerformanceLandingPage() {
 
         {!loading && !error && groups.map((g) => {
           const isOpenProg = !!expandedPrograms[g.key]
+          const style = getProgramStyle(g.key)
           return (
-            <div key={g.key} className="hud-card p-5 mb-6">
+            <div key={g.key} className={`hud-card p-5 mb-6 border ${style.bg} ${style.border}`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <button className="btn btn-secondary btn-sm" onClick={() => setExpandedPrograms((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}>{isOpenProg ? '−' : '+'}</button>
@@ -110,7 +121,7 @@ export default function PerformanceLandingPage() {
                   {g.materias.map((m) => {
                     const openMat = !!expandedMaterias[m.id]
                     return (
-                      <div key={m.id} className="bg-gray-900/60 border border-gray-800 rounded-lg p-4">
+                      <div key={m.id} className={`bg-gray-900/60 border rounded-lg p-4 ${style.border}`}>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <button className="btn btn-secondary btn-sm" onClick={() => setExpandedMaterias((prev) => ({ ...prev, [m.id]: !prev[m.id] }))}>{openMat ? '−' : '+'}</button>
@@ -123,7 +134,7 @@ export default function PerformanceLandingPage() {
                             {m.dimensions.map((d) => {
                               const openDim = !!expandedDims[d.id]
                               return (
-                                <div key={d.id} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+                                <div key={d.id} className={`bg-gray-900 border rounded-lg p-3 ${style.border}`}>
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                       <button className="btn btn-secondary btn-sm" onClick={() => setExpandedDims((prev) => ({ ...prev, [d.id]: !prev[d.id] }))}>{openDim ? '−' : '+'}</button>
@@ -133,7 +144,7 @@ export default function PerformanceLandingPage() {
                                   {openDim && (
                                     <div className="mt-3 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {d.sessions.map((s) => (
-                                        <div key={s.id} className="bg-gray-950 border border-gray-800 rounded-lg p-3">
+                                        <div key={s.id} className={`bg-gray-950 border rounded-lg p-3 ${style.border}`}>
                                           <div className="text-white font-semibold text-sm mb-1">{s.name}</div>
                                           <div className="text-xs text-gray-400">{s.slug}</div>
                                           <div className="mt-2 flex items-center gap-2 text-xs">
