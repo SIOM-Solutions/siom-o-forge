@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { fetchAllMaterias, fetchUserAssignments } from '../../services/air'
 import type { AirAssignment, AirMateria } from '../../lib/supabase'
+import { track } from '../../lib/analytics'
 
 export default function AirAssignmentsPage() {
   const navigate = useNavigate()
@@ -317,7 +318,7 @@ export default function AirAssignmentsPage() {
                       )}
 
                       {status === 'assigned' && (
-                        <button className="w-full btn btn-air text-sm font-semibold" onClick={(e) => { e.stopPropagation(); navigate(`/air/assignments/${materia.slug}`) }}>
+                        <button className="w-full btn btn-air text-sm font-semibold" onClick={(e) => { e.stopPropagation(); track('air_materia_start', { slug: materia.slug }); navigate(`/air/assignments/${materia.slug}`) }}>
                   Iniciar Auditoría
                 </button>
                       )}

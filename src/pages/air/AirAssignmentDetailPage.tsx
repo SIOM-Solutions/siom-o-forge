@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { track } from '../../lib/analytics'
 import { useAuth } from '../../contexts/AuthContext'
 import { fetchAssignmentForUserAndMateria, fetchMateriaBySlug, markAssignmentAsSent } from '../../services/air'
 
@@ -256,7 +257,7 @@ export default function AirAssignmentDetailPage() {
                       Enviando...
                     </>
                   ) : (
-                    assignment ? 'He Completado la Auditoría' : 'No tienes esta materia asignada'
+                    assignment ? (track('air_auditoria_submit', { slug: materia.slug }), 'He Completado la Auditoría') : 'No tienes esta materia asignada'
                   )}
                 </button>
                 <p className="text-gray-400 text-sm mt-3">Pulsa cuando hayas terminado de responder todas las preguntas.</p>
