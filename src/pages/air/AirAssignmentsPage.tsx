@@ -11,6 +11,8 @@ export default function AirAssignmentsPage() {
   const [assignments, setAssignments] = useState<AirAssignment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState<Record<number, boolean>>({})
+  const [activeProgram, setActiveProgram] = useState<number | 'all'>('all')
 
   useEffect(() => {
     let cancelled = false
@@ -180,6 +182,14 @@ export default function AirAssignmentsPage() {
     }
   }
 
+  const filteredAssignedItems = useMemo(() => {
+    return assignedItems.filter(i => activeProgram === 'all' ? true : getProgramMeta(i._ordinal).id === activeProgram)
+  }, [assignedItems, activeProgram])
+
+  const filteredLockedItems = useMemo(() => {
+    return lockedItems.filter(i => activeProgram === 'all' ? true : getProgramMeta(i._ordinal).id === activeProgram)
+  }, [lockedItems, activeProgram])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 p-6 flex items-center justify-center">
@@ -230,6 +240,15 @@ export default function AirAssignmentsPage() {
           </div>
         </div>
 
+        {/* Filtros por programa */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <button onClick={() => setActiveProgram('all')} className={`btn btn-secondary btn-sm ${activeProgram==='all' ? 'ring-2 ring-cyan-500/50' : ''}`}>Todos</button>
+          <button onClick={() => setActiveProgram(1)} className={`btn btn-secondary btn-sm ${activeProgram===1 ? 'ring-2 ring-cyan-500/50' : ''}`}>Prog 1</button>
+          <button onClick={() => setActiveProgram(2)} className={`btn btn-secondary btn-sm ${activeProgram===2 ? 'ring-2 ring-cyan-500/50' : ''}`}>Prog 2</button>
+          <button onClick={() => setActiveProgram(3)} className={`btn btn-secondary btn-sm ${activeProgram===3 ? 'ring-2 ring-cyan-500/50' : ''}`}>Prog 3</button>
+          <button onClick={() => setActiveProgram(4)} className={`btn btn-secondary btn-sm ${activeProgram===4 ? 'ring-2 ring-cyan-500/50' : ''}`}>Prog 4</button>
+        </div>
+
         {/* Leyenda de programas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <div className="hud-card p-3 flex items-center gap-2 text-xs"><span className="badge bg-cyan-900/20 text-cyan-300 border-cyan-800 border">Prog 1</span><span className="text-gray-300">Peak Physical Performance</span></div>
@@ -239,19 +258,20 @@ export default function AirAssignmentsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {assignedItems.map(({ materia, assignment, _ordinal }, idx) => {
+          {filteredAssignedItems.map(({ materia, assignment, _ordinal }, idx) => {
             const status = assignment ? (assignment.status === 'sent' ? 'completed' : 'assigned') : 'blocked'
             const badge = Number.isFinite(_ordinal) ? _ordinal : (idx + 1)
             const program = getProgramMeta(badge)
+            const isOpen = !!expanded[materia.id]
             return (
             <div
               key={materia.id}
               className={`group bg-gray-900 rounded-xl p-6 border border-gray-800 transition-all duration-200 ${
                 status === 'assigned' || status === 'completed'
-                  ? 'hover:border-emerald-600 cursor-pointer' 
+                  ? 'hover:border-emerald-600' 
                   : 'opacity-60 cursor-not-allowed'
               }`}
-              onClick={() => (status === 'assigned' || status === 'completed') && navigate(`/air/assignments/${materia.slug}`)}
+              onClick={() => setExpanded(prev => ({ ...prev, [materia.id]: !prev[materia.id] }))}
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
@@ -269,7 +289,7 @@ export default function AirAssignmentsPage() {
               <p className="text-gray-400 text-sm mb-4">Materia {badge}</p>
 
               {(status === 'assigned' || status === 'completed') && (
-                <div className="overflow-hidden transition-all duration-300 max-h-0 group-hover:max-h-48">
+                <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-48' : 'max-h-0'} md:group-hover:max-h-48`}>
                   <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-3 mb-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-300">
                       <div>
@@ -290,7 +310,7 @@ export default function AirAssignmentsPage() {
               )}
 
               {status === 'assigned' && (
-                <button className="w-full btn btn-air text-sm font-semibold">
+                <button className="w-full btn btn-air text-sm font-semibold" onClick={(e) => { e.stopPropagation(); navigate(`/air/assignments/${materia.slug}`) }}>
                   Iniciar Auditoría
                 </button>
               )}
