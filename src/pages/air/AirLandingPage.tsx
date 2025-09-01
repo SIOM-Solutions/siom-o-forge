@@ -47,7 +47,7 @@ export default function AirLandingPage() {
               El objetivo es simple: <span className="text-white font-semibold">aumentar tu capacidad de rendir mejor, incluso bajo presión</span>.
             </p>
           </div>
-
+          
           <div className="grid md:grid-cols-2 gap-6 mt-2">
             <div>
               <h3 className="text-lg font-semibold text-white mb-2">Qué evalúa</h3>
@@ -149,29 +149,73 @@ export default function AirLandingPage() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
-              <span className="text-white font-bold">1</span>
+        {/* Ruta visual de AIR (timeline horizontal en desktop, vertical en móvil) */}
+        <div className="mb-10">
+          {/* Desktop / md+: horizontal timeline */}
+          <div className="hidden md:flex items-start justify-between relative px-2">
+            {/* Step 1 */}
+            <div className="flex-1 pr-6">
+              <div className="flex items-start">
+                <div className="relative mr-3">
+                  <div className="w-12 h-12 rounded-full bg-gray-900 border border-cyan-500 text-white flex items-center justify-center font-bold">1</div>
+                  <div className="hidden md:block absolute top-1/2 left-full w-28 h-[2px] bg-gradient-to-r from-cyan-600/60 to-gray-700 -translate-y-1/2"></div>
+                </div>
+                <div>
+                  <div className="text-white font-semibold">Diagnóstico</div>
+                  <div className="text-gray-400 text-sm max-w-xs">Evaluación completa de tu rendimiento actual en las materias y programas de SIOM Performance</div>
+                </div>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Diagnóstico</h3>
-            <p className="text-gray-400 text-sm">Evaluación completa de tu rendimiento actual en las materias y programas de SIOM Performance</p>
+            {/* Step 2 */}
+            <div className="flex-1 px-6">
+              <div className="flex items-start">
+                <div className="relative mr-3">
+                  <div className="w-12 h-12 rounded-full bg-gray-900 border border-cyan-500 text-white flex items-center justify-center font-bold">2</div>
+                  <div className="hidden md:block absolute top-1/2 left-full w-28 h-[2px] bg-gradient-to-r from-cyan-600/60 to-gray-700 -translate-y-1/2"></div>
+                </div>
+                <div>
+                  <div className="text-white font-semibold">Análisis</div>
+                  <div className="text-gray-400 text-sm max-w-xs">Identificación de fortalezas y oportunidades de mejora</div>
+                </div>
+              </div>
+            </div>
+            {/* Step 3 */}
+            <div className="flex-1 pl-6">
+              <div className="flex items-start">
+                <div className="relative mr-3">
+                  <div className="w-12 h-12 rounded-full bg-gray-900 border border-cyan-500 text-white flex items-center justify-center font-bold">3</div>
+                </div>
+                <div>
+                  <div className="text-white font-semibold">Plan</div>
+                  <div className="text-gray-400 text-sm max-w-xs">Desarrollo de un Learning Path personalizado para tu crecimiento</div>
+                </div>
+              </div>
+            </div>
           </div>
           
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <div className="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center mb-4">
-              <span className="text-white font-bold">2</span>
+          {/* Mobile: vertical cards */}
+          <div className="md:hidden grid grid-cols-1 gap-3">
+            <div className="hud-card p-4 flex gap-3 items-start">
+              <div className="w-8 h-8 rounded-full bg-gray-900 border border-cyan-500 text-white flex items-center justify-center font-bold text-sm">1</div>
+              <div>
+                <div className="text-white font-semibold">Diagnóstico</div>
+                <div className="text-gray-400 text-sm">Evaluación completa de tu rendimiento actual en las materias y programas de SIOM Performance</div>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Análisis</h3>
-            <p className="text-gray-400 text-sm">Identificación de fortalezas y oportunidades de mejora</p>
-          </div>
-          
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
-              <span className="text-white font-bold">3</span>
+            <div className="hud-card p-4 flex gap-3 items-start">
+              <div className="w-8 h-8 rounded-full bg-gray-900 border border-cyan-500 text-white flex items-center justify-center font-bold text-sm">2</div>
+              <div>
+                <div className="text-white font-semibold">Análisis</div>
+                <div className="text-gray-400 text-sm">Identificación de fortalezas y oportunidades de mejora</div>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Plan</h3>
-            <p className="text-gray-400 text-sm">Desarrollo de un Learning Path personalizado para tu crecimiento</p>
+            <div className="hud-card p-4 flex gap-3 items-start">
+              <div className="w-8 h-8 rounded-full bg-gray-900 border border-cyan-500 text-white flex items-center justify-center font-bold text-sm">3</div>
+              <div>
+                <div className="text-white font-semibold">Plan</div>
+                <div className="text-gray-400 text-sm">Desarrollo de un Learning Path personalizado para tu crecimiento</div>
+              </div>
+            </div>
           </div>
         </div>
 
