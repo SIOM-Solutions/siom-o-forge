@@ -18,8 +18,40 @@ export default function AirLandingPage() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-2xl font-semibold text-white mb-4">¿Qué es AIR?</h2>
-              <p className="text-gray-300 mb-4">SystemAIR es la Auditoría Inicial de Rendimiento de <span className="text-white font-semibold">SIOM Solutions</span> y cobra vida en O‑Forge. Es el punto de entrada al ecosistema SIOM: establece tu línea base en 10 áreas críticas y revela qué palancas mover primero para obtener mejoras visibles con el menor esfuerzo y tiempo posible.</p>
-              <p className="text-gray-300 mb-6">El resultado es un <span className="text-white font-semibold">mapa de brechas y fortalezas</span> con retorno medible, que alimenta tu Learning Path y las siguientes divisiones (PSITAC, Performance y OPS) para acelerar impacto sin fricción operativa. Con los resultados prepararemos tu <span className="text-white font-semibold">Learning Path a medida</span>, forjaremos a tus instructores SIOM y podremos alimentar a tus asesores estratégicos.</p>
+              <p className="text-gray-300 mb-4">Auditoría Inicial de Rendimiento de <span className="text-white font-semibold">SIOM Solutions</span> que establece tu <span className="text-white font-semibold">línea base</span> en <span className="text-white font-semibold">10 áreas críticas</span> y prioriza palancas de alto impacto.</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🚪</span>
+                  <div>
+                    <div className="text-white font-semibold">Entrada al ecosistema</div>
+                    <div className="text-gray-400 text-sm">Activa tu recorrido en O‑Forge</div>
+                  </div>
+                </div>
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">🔟</span>
+                  <div>
+                    <div className="text-white font-semibold">10 áreas críticas</div>
+                    <div className="text-gray-400 text-sm">Cobertura integral del rendimiento</div>
+                  </div>
+                </div>
+                <div className="hud-card p-3 flex gap-3 items-start">
+                  <span aria-hidden className="mt-0.5 text-cyan-300">⚙️</span>
+                  <div>
+                    <div className="text-white font-semibold">Prioriza palancas</div>
+                    <div className="text-gray-400 text-sm">Mejoras visibles sin fricción</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="hud-card p-4 mb-6">
+                <div className="text-white font-semibold mb-2">Resultados</div>
+                <ul className="list-disc list-inside text-gray-300 space-y-1">
+                  <li><span className="text-white font-semibold">Mapa de brechas y fortalezas</span> con retorno medible</li>
+                  <li><span className="text-white font-semibold">Learning Path personalizado</span> a partir de tu línea base</li>
+                  <li>Integración operativa con <span className="text-white font-semibold">PSITAC</span>, <span className="text-white font-semibold">Performance</span> y <span className="text-white font-semibold">OPS</span></li>
+                </ul>
+              </div>
               <button
                 onClick={() => navigate('/air/assignments')}
                 className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors duration-200"
