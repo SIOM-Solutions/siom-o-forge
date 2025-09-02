@@ -13,29 +13,41 @@ export default function ForjaSessionPage() {
   useEffect(() => {
     let cancelled = false
     const load = async () => {
-      if (!sessionSlug) return
+      if (!sessionSlug || !materiaSlug || !dimensionSlug) return
       setLoading(true)
       setError(null)
       try {
-        const { data: sc, error: e1 } = await (supabase as any)
+        // 1) Materia por slug (limit 1 por si hay duplicados)
+        const { data: mc, error: eM } = await (supabase as any)
+          .from('materias_catalog')
+          .select('id, slug, name')
+          .eq('slug', materiaSlug)
+          .limit(1)
+          .maybeSingle()
+        if (eM) throw eM
+        if (!mc) throw new Error('Materia no encontrada')
+
+        // 2) Dimensión por slug y materia
+        const { data: dc, error: eD } = await (supabase as any)
+          .from('dimensions_catalog')
+          .select('id, slug, name, materia_id')
+          .eq('slug', dimensionSlug)
+          .eq('materia_id', mc.id)
+          .limit(1)
+          .maybeSingle()
+        if (eD) throw eD
+        if (!dc) throw new Error('Dimensión no encontrada')
+
+        // 3) Sesión por slug y dimensión
+        const { data: sc, error: eS } = await (supabase as any)
           .from('sessions_catalog')
           .select('id, slug, name, dimension_id')
           .eq('slug', sessionSlug)
+          .eq('dimension_id', dc.id)
+          .limit(1)
           .maybeSingle()
-        if (e1) throw e1
+        if (eS) throw eS
         if (!sc) throw new Error('Sesión no encontrada')
-        const { data: dc, error: e2 } = await (supabase as any)
-          .from('dimensions_catalog')
-          .select('id, slug, name, materia_id')
-          .eq('id', sc.dimension_id)
-          .maybeSingle()
-        if (e2) throw e2
-        const { data: mc, error: e3 } = await (supabase as any)
-          .from('materias_catalog')
-          .select('id, slug, name')
-          .eq('id', dc?.materia_id)
-          .maybeSingle()
-        if (e3) throw e3
 
         // Intentar leer assets desde tabla; si no existe/está vacía, dejamos vacío (no usar columnas inexistentes)
         let a: any[] = []
