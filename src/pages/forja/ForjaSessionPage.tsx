@@ -19,7 +19,7 @@ export default function ForjaSessionPage() {
       try {
         const { data: sc, error: e1 } = await (supabase as any)
           .from('sessions_catalog')
-          .select('id, slug, name, dimension_id, metadata')
+          .select('id, slug, name, dimension_id')
           .eq('slug', sessionSlug)
           .maybeSingle()
         if (e1) throw e1
@@ -37,7 +37,7 @@ export default function ForjaSessionPage() {
           .maybeSingle()
         if (e3) throw e3
 
-        // Intentar leer assets desde tabla; fallback a metadata
+        // Intentar leer assets desde tabla; si no existe/está vacía, dejamos vacío (no usar columnas inexistentes)
         let a: any[] = []
         try {
           const { data: tabAssets, error: aErr } = await (supabase as any)
@@ -47,10 +47,7 @@ export default function ForjaSessionPage() {
             .order('position', { ascending: true })
           if (!aErr && Array.isArray(tabAssets) && tabAssets.length) a = tabAssets
         } catch {}
-        if (!a?.length) {
-          const metaAssets = (sc?.metadata as any)?.assets
-          if (Array.isArray(metaAssets)) a = metaAssets
-        }
+        // Si sigue vacío, el visor mostrará "Sin contenido asignado"
 
         if (!cancelled) {
           setContext({ session: sc, dimension: dc, materia: mc })
@@ -76,6 +73,16 @@ export default function ForjaSessionPage() {
 
   const activeAsset = assets[activeIdx]
 
+  const toGammaEmbed = (url: string) => {
+    // Acepta doc: https://gamma.app/docs/...-<id>  o embed: https://gamma.app/embed/<id>
+    try {
+      const m = url.match(/([a-z0-9]{14,})$/i)
+      if (m && m[1]) return `https://gamma.app/embed/${m[1]}`
+    } catch {}
+    if (url.includes('/embed/')) return url
+    return url
+  }
+
   const renderAsset = (asset?: { kind: string; url: string }) => {
     if (!asset || !asset.url) return (
       <div className="h-[60vh] bg-gray-900 flex items-center justify-center text-gray-500">(Sin contenido asignado)</div>
@@ -84,7 +91,8 @@ export default function ForjaSessionPage() {
     const url = asset.url
     const isYouTube = /youtube\.com|youtu\.be/.test(url)
     if (kind === 'gamma' || (kind === 'link' && /gamma\.app/.test(url))) {
-      return <iframe src={url} className="w-full h-[60vh]" allow="fullscreen; clipboard-write;" />
+      const embed = toGammaEmbed(url)
+      return <iframe src={embed} className="w-full h-[60vh]" allow="fullscreen; clipboard-write;" />
     }
     if (kind === 'video') {
       if (isYouTube) {
