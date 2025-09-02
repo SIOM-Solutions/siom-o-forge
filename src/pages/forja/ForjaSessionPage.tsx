@@ -8,6 +8,7 @@ export default function ForjaSessionPage() {
   const [error, setError] = useState<string | null>(null)
   const [context, setContext] = useState<{ session?: any; dimension?: any; materia?: any } | null>(null)
   const [assets, setAssets] = useState<Array<{ kind: string; title?: string; url: string; position?: number }>>([])
+  const [kpis, setKpis] = useState<Array<{ id: number; position: number; text: string; required: boolean }>>([])
   const [activeIdx, setActiveIdx] = useState(0)
 
   useEffect(() => {
@@ -49,21 +50,34 @@ export default function ForjaSessionPage() {
         if (eS) throw eS
         if (!sc) throw new Error('Sesión no encontrada')
 
-        // Intentar leer assets desde tabla; si no existe/está vacía, dejamos vacío (no usar columnas inexistentes)
+        // Preferir RPC oficial: get_lp_item_content(p_session_slug)
         let a: any[] = []
+        let k: any[] = []
         try {
-          const { data: tabAssets, error: aErr } = await (supabase as any)
-            .from('session_assets')
-            .select('kind, title, url, position')
-            .eq('session_id', sc.id)
-            .order('position', { ascending: true })
-          if (!aErr && Array.isArray(tabAssets) && tabAssets.length) a = tabAssets
-        } catch {}
-        // Si sigue vacío, el visor mostrará "Sin contenido asignado"
+          const { data: content, error: cErr } = await (supabase as any)
+            .rpc('get_lp_item_content', { p_session_slug: sessionSlug })
+          if (cErr) throw cErr
+          if ((content as any)?.error) throw new Error(String((content as any).error))
+          if (content) {
+            a = Array.isArray(content.assets) ? content.assets.map((x: any) => ({ kind: x.type, title: x.title, url: x.url, position: x.position })) : []
+            k = Array.isArray(content.kpis) ? content.kpis : []
+          }
+        } catch {
+          // Fallback a tabla plana si la RPC no existe o falla
+          try {
+            const { data: tabAssets, error: aErr } = await (supabase as any)
+              .from('session_assets')
+              .select('kind, title, url, position')
+              .eq('session_id', sc.id)
+              .order('position', { ascending: true })
+            if (!aErr && Array.isArray(tabAssets) && tabAssets.length) a = tabAssets
+          } catch {}
+        }
 
         if (!cancelled) {
           setContext({ session: sc, dimension: dc, materia: mc })
           setAssets(a || [])
+          setKpis(k || [])
           setActiveIdx(0)
         }
       } catch (e: any) {
@@ -167,9 +181,18 @@ export default function ForjaSessionPage() {
 
             <div className="hud-card p-4">
               <div className="text-white font-semibold mb-2">KPIs de la sesión</div>
-              <ul className="text-sm text-gray-300 space-y-1">
-                <li className="opacity-70">(Aquí cargaremos los KPIs desde Supabase)</li>
-              </ul>
+              {kpis.length ? (
+                <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
+                  {kpis.sort((a,b)=> (a.position??0)-(b.position??0)).map((k)=> (
+                    <li key={k.id} className="flex items-start gap-2">
+                      <span>{k.text}</span>
+                      {k.required && (<span className="text-amber-300 text-xs">(obligatorio)</span>)}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <div className="text-sm text-gray-400">(Sin KPIs configurados)</div>
+              )}
             </div>
           </div>
         </div>
