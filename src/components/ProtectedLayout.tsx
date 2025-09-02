@@ -49,7 +49,7 @@ export default function ProtectedLayout() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8 min-h-[calc(100vh-4rem)]">
+        <main className={`${(location.pathname.startsWith('/forja/') || location.pathname.startsWith('/ops/sala/')) ? 'w-full py-8' : 'max-w-7xl mx-auto px-6 lg:px-8 py-8'} min-h-[calc(100vh-4rem)]`}>
           <Outlet />
         </main>
 
