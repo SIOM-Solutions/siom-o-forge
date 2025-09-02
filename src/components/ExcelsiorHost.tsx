@@ -22,12 +22,16 @@ export default function ExcelsiorHost() {
     const agentId = (import.meta.env as any).VITE_EXCELSIOR_AGENT_ID as string | undefined
     if (!agentId) return
 
-    if (hidden) {
-      // En login y salas: quitar el elemento para pausar completamente
+    const removeWidget = () => {
       const existing = document.getElementById(elId)
       if (existing) {
         try { document.body.removeChild(existing) } catch {}
       }
+    }
+
+    if (hidden) {
+      // En login y salas: quitar el elemento para pausar completamente
+      removeWidget()
       return
     }
 
@@ -38,6 +42,11 @@ export default function ExcelsiorHost() {
       conv.id = elId
       conv.setAttribute('agent-id', agentId)
       document.body.appendChild(conv)
+    }
+
+    // Al desmontar o cambiar ruta, eliminar si estaba presente
+    return () => {
+      removeWidget()
     }
   }, [hidden, location.pathname])
 

@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom'
 export default function ForjaSessionPage() {
   const { materiaSlug, dimensionSlug, sessionSlug } = useParams()
   return (
-    <div>
-      <div className="max-w-6xl mx-auto">
+    <div className="px-6 lg:px-12">
+      <div className="">
         <h1 className="text-2xl font-semibold text-white mb-1">Sala de Forja</h1>
         <div className="text-gray-400 mb-5 text-sm">{materiaSlug} / {dimensionSlug} / {sessionSlug}</div>
 
-        <div className="grid md:grid-cols-3 gap-6 items-start">
+        <div className="grid md:grid-cols-3 gap-8 items-start">
           {/* Columna izquierda: Visualizador (2/3) */}
           <div className="md:col-span-2 space-y-4">
             <div className="hud-card p-0 overflow-hidden">
