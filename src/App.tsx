@@ -19,6 +19,7 @@ import OpsLandingPage from './pages/ops/OpsLandingPage'
 import DownloadsPage from './pages/DownloadsPage'
 import WelcomeScreen from './components/WelcomeScreen'
 import { ExcelsiorProvider } from './contexts/ExcelsiorContext'
+import ForjaSessionPage from './pages/forja/ForjaSessionPage'
 // Labs eliminados del build
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
 
                 {/* Performance y OPS placeholders */}
                 <Route path="/performance" element={<ProtectedRoute requiredAccess="forge_performance"><PerformanceLandingPage /></ProtectedRoute>} />
+                <Route path="/forja/:materiaSlug/:dimensionSlug/:sessionSlug" element={<ProtectedRoute requiredAccess="forge_performance"><ForjaSessionPage /></ProtectedRoute>} />
                 <Route path="/ops" element={<ProtectedRoute requiredAccess="forge_ops"><OpsLandingPage /></ProtectedRoute>} />
                 <Route path="/downloads" element={<ProtectedRoute><DownloadsPage /></ProtectedRoute>} />
               </Route>

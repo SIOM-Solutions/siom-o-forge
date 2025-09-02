@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { loadUserLearningPath, loadUserPlanAndPolicies, type LpMateria } from '../../services/lp'
-import { supabase } from '../../lib/supabase'
+import { useNavigate } from 'react-router-dom'
 
 export default function PerformanceLandingPage() {
   const { user } = useAuth()
@@ -12,40 +12,7 @@ export default function PerformanceLandingPage() {
   const [expandedPrograms, setExpandedPrograms] = useState<Record<string, boolean>>({})
   const [expandedMaterias, setExpandedMaterias] = useState<Record<number, boolean>>({})
   const [expandedDims, setExpandedDims] = useState<Record<number, boolean>>({})
-  const [authInfo, setAuthInfo] = useState<Record<string, { remainingSeconds?: number | null; remainingTokens?: number | null }>>({})
-  const consoleBase = (import.meta as any)?.env?.VITE_CONSOLE_API_BASE || ''
-
-  const authorizeAi = async (materia: LpMateria, channel: 'voice' | 'text') => {
-    try {
-      // 1) Obtener agent_id mapeado a la materia y canal
-      const { data: maps, error: mapErr } = await (supabase as any)
-        .from('ai_agent_materia')
-        .select('agent_id, materia_id, enabled, ai_agents!inner(channel)')
-        .eq('materia_id', materia.id)
-        .eq('enabled', true)
-      if (mapErr) throw mapErr
-      const row = (maps || []).find((r: any) => (r.ai_agents?.channel === channel || (channel === 'text' && r.ai_agents?.channel === 'chat')))
-      const agentId = row?.agent_id
-      if (!agentId) throw new Error('No hay agente mapeado para esta materia y canal')
-
-      // 2) Autorizar sesión en Console
-      const res = await fetch(`${consoleBase}/api/ai/sessions/authorize`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agent_id: agentId, materia_slug: materia.slug }),
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error(`Authorize fallo: ${res.status}`)
-      const json = await res.json()
-
-      const remainingSeconds = json?.limits?.remaining_monthly_seconds ?? null
-      const remainingTokens = json?.limits?.remaining_monthly_tokens ?? null
-      const key = `${materia.id}:${channel}`
-      setAuthInfo((prev) => ({ ...prev, [key]: { remainingSeconds, remainingTokens } }))
-    } catch (e) {
-      console.error('[authorizeAi] error', e)
-    }
-  }
+  const navigate = useNavigate()
 
   useEffect(() => {
     let cancelled = false
@@ -186,6 +153,19 @@ export default function PerformanceLandingPage() {
                           </div>
                           <span className={`text-xs px-2 py-0.5 rounded-full border ${m.hasAi ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>{m.hasAi ? 'IA disponible' : 'IA no asignada'}</span>
                         </div>
+                        {/* Bolsas por materia (no por sesión) */}
+                        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+                          {m.voiceCapSeconds != null && (
+                            <span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">
+                              Voz: {Math.round(m.voiceCapSeconds/60)} min/mes{m.voiceRemainingSeconds != null ? ` · restante ${Math.max(0, Math.round(m.voiceRemainingSeconds/60))} min` : ''}
+                            </span>
+                          )}
+                          {m.chatCapTokens != null && (
+                            <span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">
+                              Chat: {m.chatCapTokens} tokens/mes{m.chatRemainingTokens != null ? ` · restante ${m.chatRemainingTokens}` : ''}
+                            </span>
+                          )}
+                        </div>
                         {openMat && (
                           <div className="space-y-3">
                             {m.dimensions.map((d) => {
@@ -208,29 +188,10 @@ export default function PerformanceLandingPage() {
                                             {m.hasVoice && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Voz</span>)}
                                             {m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Chat</span>)}
                                             {!m.hasVoice && !m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-gray-800 text-gray-500 border-gray-700">IA inactiva</span>)}
-                                            {m.voiceCapSeconds != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Voz: {Math.round(m.voiceCapSeconds/60)} min/mes{m.voiceRemainingSeconds != null ? ` · restante ${Math.max(0, Math.round(m.voiceRemainingSeconds/60))} min` : ''}</span>)}
-                                            {m.chatCapTokens != null && (<span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Chat: {m.chatCapTokens} tokens/mes{m.chatRemainingTokens != null ? ` · restante ${m.chatRemainingTokens}` : ''}</span>)}
                                           </div>
-                                          {(m.hasVoice || m.hasChat) && (
-                                            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                                              {m.hasVoice && (
-                                                <>
-                                                  <button className="btn btn-secondary btn-sm" onClick={() => authorizeAi(m, 'voice')}>Iniciar Voz</button>
-                                                  {authInfo[`${m.id}:voice`]?.remainingSeconds != null && (
-                                                    <span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante voz: {Math.max(0, Math.round((authInfo[`${m.id}:voice`]?.remainingSeconds || 0)/60))} min</span>
-                                                  )}
-                                                </>
-                                              )}
-                                              {m.hasChat && (
-                                                <>
-                                                  <button className="btn btn-secondary btn-sm" onClick={() => authorizeAi(m, 'text')}>Iniciar Chat</button>
-                                                  {authInfo[`${m.id}:text`]?.remainingTokens != null && (
-                                                    <span className="px-2 py-0.5 rounded-full border bg-gray-900/60 text-gray-300 border-gray-800">Restante chat: {authInfo[`${m.id}:text`]?.remainingTokens}</span>
-                                                  )}
-                                                </>
-                                              )}
-                                            </div>
-                                          )}
+                                          <div className="mt-3">
+                                            <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/forja/${m.slug}/${d.slug}/${s.slug}`)}>Comenzar sesión</button>
+                                          </div>
                                         </div>
                                       ))}
                                     </div>
