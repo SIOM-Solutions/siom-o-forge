@@ -148,6 +148,7 @@ export default function ForjaSessionPage() {
     return 'Otros'
   }
   return (
+    <>
     <div className="px-6 lg:px-12">
       <div className="">
         <div className="flex items-center justify-between mb-4">
@@ -258,6 +259,7 @@ export default function ForjaSessionPage() {
         )}
       </div>
     </div>
+    </>
   )
 }
 
