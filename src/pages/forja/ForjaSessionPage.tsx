@@ -10,6 +10,7 @@ export default function ForjaSessionPage() {
   const [context, setContext] = useState<{ session?: any; dimension?: any; materia?: any } | null>(null)
   const [assets, setAssets] = useState<Array<{ kind: string; title?: string; url: string; position?: number }>>([])
   const [kpis, setKpis] = useState<Array<{ id: number; position: number; text: string; required: boolean }>>([])
+  const [sideOpen, setSideOpen] = useState(false)
   const [activeIdx, setActiveIdx] = useState(0)
 
   useEffect(() => {
@@ -126,6 +127,26 @@ export default function ForjaSessionPage() {
     // link genérico
     return <iframe src={url} className="w-full h-[60vh]" />
   }
+
+  const groupedAssets = useMemo(() => {
+    const groups: Record<string, Array<{ idx: number; title: string }>> = {}
+    assets.forEach((a, idx) => {
+      const k = (a.kind || 'otros').toLowerCase()
+      const title = a.title || `${k} #${(a.position ?? idx)+1}`
+      if (!groups[k]) groups[k] = []
+      groups[k].push({ idx, title })
+    })
+    return groups
+  }, [assets])
+
+  const kindLabel = (k: string) => {
+    const t = k.toLowerCase()
+    if (t === 'gamma') return 'Gamma'
+    if (t === 'video') return 'Vídeos'
+    if (t === 'link') return 'Enlaces'
+    if (t === 'document' || t === 'pdf') return 'Documentos'
+    return 'Otros'
+  }
   return (
     <div className="px-6 lg:px-12">
       <div className="">
@@ -192,6 +213,48 @@ export default function ForjaSessionPage() {
             </div>
           </div>
         </div>
+        )}
+      </div>
+    </div>
+    {/* Barra lateral con pestañita (overlay derecha) */}
+    <div
+      className="fixed top-1/2 -translate-y-1/2 right-0 z-50"
+      onMouseEnter={() => setSideOpen(true)}
+      onMouseLeave={() => setSideOpen(false)}
+    >
+      <div className={`transition-all duration-300 ease-out ${sideOpen ? 'w-80' : 'w-3'} bg-gray-950/90 border-l border-gray-800 backdrop-blur-md rounded-l-xl overflow-hidden shadow-xl`}>
+        {/* Pestañita visible siempre */}
+        {!sideOpen && (
+          <div className="h-40 w-3 flex items-center justify-center cursor-pointer">
+            <div className="rotate-180 writing-vertical-lr text-[10px] text-gray-400 select-none" style={{ writingMode: 'vertical-rl' }}>Contenidos</div>
+          </div>
+        )}
+        {sideOpen && (
+          <div className="p-3">
+            <div className="text-xs text-gray-400 mb-2">Contenidos de la sesión</div>
+            {Object.keys(groupedAssets).length === 0 && (
+              <div className="text-xs text-gray-500">Sin contenidos</div>
+            )}
+            <div className="space-y-3 max-h-[70vh] overflow-auto pr-1">
+              {Object.entries(groupedAssets).map(([k, items]) => (
+                <div key={k}>
+                  <div className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">{kindLabel(k)}</div>
+                  <ul className="space-y-1">
+                    {items.map(({ idx, title }) => (
+                      <li key={`${k}-${idx}`}>
+                        <button
+                          className={`w-full text-left px-2 py-1 rounded border ${idx===activeIdx ? 'border-cyan-700 text-cyan-300 bg-cyan-900/10' : 'border-gray-700 text-gray-300 bg-gray-900/60 hover:bg-gray-900'}`}
+                          onClick={() => setActiveIdx(idx)}
+                        >
+                          <span className="text-xs">{title}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
