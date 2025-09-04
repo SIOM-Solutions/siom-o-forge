@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { getSessionContent, type LpItemContent } from '../../lib/getSessionContent'
 
 export default function ForjaSessionPage() {
   const { materiaSlug, dimensionSlug, sessionSlug } = useParams()
@@ -54,14 +55,9 @@ export default function ForjaSessionPage() {
         let a: any[] = []
         let k: any[] = []
         try {
-          const { data: content, error: cErr } = await (supabase as any)
-            .rpc('get_lp_item_content', { p_session_slug: sessionSlug })
-          if (cErr) throw cErr
-          if ((content as any)?.error) throw new Error(String((content as any).error))
-          if (content) {
-            a = Array.isArray(content.assets) ? content.assets.map((x: any) => ({ kind: x.type, title: x.title, url: x.url, position: x.position })) : []
-            k = Array.isArray(content.kpis) ? content.kpis : []
-          }
+          const content: LpItemContent = await getSessionContent(sessionSlug)
+          a = Array.isArray(content.assets) ? content.assets.map((x: any) => ({ kind: x.type, title: x.title, url: x.url, position: x.position })) : []
+          k = Array.isArray(content.kpis) ? content.kpis : []
         } catch {
           // Fallback a tabla plana si la RPC no existe o falla
           try {
