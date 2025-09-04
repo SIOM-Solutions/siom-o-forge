@@ -13,8 +13,9 @@ export function useAiSession() {
   let sessionId = ''
   let jwt = ''
 
-  async function authorize({ agentId, materiaSlug }: StartParams): Promise<StartOk> {
+  async function authorize(params: StartParams): Promise<StartOk> {
     // TODO: implementar llamada real a Console
+    void params
     throw new Error('authorize: wiring pendiente')
   }
 
