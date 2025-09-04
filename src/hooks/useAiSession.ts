@@ -21,9 +21,10 @@ export function useAiSession() {
   function startHeartbeat(getDeltas: () => { secondsDelta?: number; tokensDelta?: number }) {
     stopHeartbeat()
     timer = window.setInterval(async () => {
-      const { secondsDelta = 0, tokensDelta = 0 } = getDeltas() || {}
+      // Obtener deltas (si se necesita); no desestructurar para evitar TS6198
+      void getDeltas?.()
       // TODO: POST heartbeat a Console con Authorization Bearer jwt
-      void secondsDelta; void tokensDelta; void sessionId; void jwt
+      void sessionId; void jwt
     }, 5000)
   }
 
