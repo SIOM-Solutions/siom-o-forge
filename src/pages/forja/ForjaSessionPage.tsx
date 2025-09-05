@@ -162,21 +162,6 @@ export default function ForjaSessionPage() {
     return h * 3600 + mnt * 60 + s
   }
 
-  const youTubeThumb = (url: string): string | null => {
-    try {
-      const u = new URL(url.replace(/^@+/, ''))
-      let id = ''
-      if (u.hostname.includes('youtu.be')) {
-        id = u.pathname.slice(1)
-      } else if (u.hostname.includes('youtube.com')) {
-        if (u.pathname.includes('/watch')) id = u.searchParams.get('v') || ''
-        else if (u.pathname.includes('/shorts/')) id = u.pathname.split('/shorts/')[1]
-        else if (u.pathname.includes('/embed/')) id = u.pathname.split('/embed/')[1]
-      }
-      return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null
-    } catch { return null }
-  }
-
   const resolveKind = (type: string, url: string): 'gamma'|'video'|'link'|'document' => {
     const t = (type || '').toLowerCase()
     const raw = (url || '').trim()
