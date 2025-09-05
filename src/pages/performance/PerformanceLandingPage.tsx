@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { loadUserLearningPath, loadUserPlanAndPolicies, type LpMateria } from '../../services/lp'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../../lib/supabase'
 
 export default function PerformanceLandingPage() {
   const { user } = useAuth()
@@ -14,6 +15,7 @@ export default function PerformanceLandingPage() {
   const [expandedDims, setExpandedDims] = useState<Record<number, boolean>>({})
   const navigate = useNavigate()
   const [visited, setVisited] = useState<Set<string>>(new Set())
+  const [lastPath, setLastPath] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -46,6 +48,17 @@ export default function PerformanceLandingPage() {
       const raw = localStorage.getItem('visitedSessions')
       if (raw) setVisited(new Set(JSON.parse(raw)))
     } catch {}
+  }, [])
+
+  // Cargar última ubicación para CTA "Retomar"
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { data } = await (supabase as any).from('user_last_location').select('path').maybeSingle()
+        setLastPath(data?.path ?? null)
+      } catch { setLastPath(null) }
+    }
+    load()
   }, [])
 
   // Mapeo de programa por slug de materia (M1-3, M4-6, M7-9, M10)
@@ -94,6 +107,25 @@ export default function PerformanceLandingPage() {
     } catch {}
     navigate(`/forja/${materiaSlug}/${dimSlug}/${sessSlug}`)
   }
+
+  const flattenSessions = useMemo(() => {
+    const out: Array<{ mSlug: string; dSlug: string; sSlug: string; sName: string }> = []
+    materias.forEach((m) => {
+      m.dimensions.forEach((d) => {
+        d.sessions.forEach((s) => {
+          out.push({ mSlug: m.slug, dSlug: d.slug, sSlug: s.slug, sName: s.name })
+        })
+      })
+    })
+    return out
+  }, [materias])
+
+  const nextSession = useMemo(() => {
+    for (const it of flattenSessions) {
+      if (!visited.has(it.sSlug)) return it
+    }
+    return null
+  }, [flattenSessions, visited])
 
   const expandAll = () => {
     const prog: Record<string, boolean> = {}
@@ -149,6 +181,31 @@ export default function PerformanceLandingPage() {
               <div className="bg-gray-900/60 border border-gray-800 rounded p-3"><span className="text-gray-400">Cobertura IA:</span> <span className="text-white/90">{materias.filter(m=>m.hasAi).length} materias</span></div>
             </div>
             <div className="mt-3 text-xs text-gray-400">Nivel de dominio recomendado: Funcional (1 sesión/dim) · Intermedio (2) · Avanzado (3) · Maestro (3+ ad hoc).</div>
+
+            {/* Tu siguiente paso */}
+            <div className="mt-4 grid sm:grid-cols-3 gap-3">
+              {lastPath && (
+                <button className="bg-gray-900/60 border border-gray-800 rounded p-3 text-left hover:border-cyan-800 hover:bg-gray-900/80" onClick={() => navigate(lastPath!)}>
+                  <div className="text-xs text-gray-400 mb-1">Retomar</div>
+                  <div className="text-sm text-white">Retomar donde lo dejaste</div>
+                  <div className="text-[11px] text-gray-500 mt-1">{lastPath}</div>
+                </button>
+              )}
+              {nextSession && (
+                <button className="bg-gray-900/60 border border-gray-800 rounded p-3 text-left hover:border-cyan-800 hover:bg-gray-900/80" onClick={() => handleStartSession(nextSession.mSlug, nextSession.dSlug, nextSession.sSlug)}>
+                  <div className="text-xs text-gray-400 mb-1">Siguiente sesión</div>
+                  <div className="text-sm text-cyan-300">{nextSession.sName}</div>
+                  <div className="text-[11px] text-gray-500 mt-1">{nextSession.mSlug} · {nextSession.dSlug} · {nextSession.sSlug}</div>
+                </button>
+              )}
+              <div className="bg-gray-900/60 border border-gray-800 rounded p-3">
+                <div className="text-xs text-gray-400 mb-1">Progreso</div>
+                <div className="text-sm text-white">Sesiones visitadas: {visited.size}/{flattenSessions.length}</div>
+                <div className="mt-2 h-2 bg-gray-800 rounded">
+                  <div className="h-2 bg-cyan-600 rounded" style={{ width: `${flattenSessions.length? (visited.size/flattenSessions.length*100):0}%` }} />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
