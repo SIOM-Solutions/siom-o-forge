@@ -13,6 +13,7 @@ export default function PerformanceLandingPage() {
   const [expandedMaterias, setExpandedMaterias] = useState<Record<number, boolean>>({})
   const [expandedDims, setExpandedDims] = useState<Record<number, boolean>>({})
   const navigate = useNavigate()
+  const [visited, setVisited] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     let cancelled = false
@@ -39,6 +40,14 @@ export default function PerformanceLandingPage() {
     return () => { cancelled = true }
   }, [user?.id])
 
+  // Cargar sesiones visitadas desde localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('visitedSessions')
+      if (raw) setVisited(new Set(JSON.parse(raw)))
+    } catch {}
+  }, [])
+
   // Mapeo de programa por slug de materia (M1-3, M4-6, M7-9, M10)
   const getProgramMeta = (materiaSlug: string) => {
     const match = materiaSlug?.match(/^M(\d+)_/)
@@ -63,12 +72,27 @@ export default function PerformanceLandingPage() {
 
   const getProgramStyle = (key: string) => {
     switch (key) {
-      case 'p1': return { bg: 'bg-cyan-900/15', border: 'border-cyan-800' }
-      case 'p2': return { bg: 'bg-violet-900/15', border: 'border-violet-800' }
-      case 'p3': return { bg: 'bg-amber-900/15', border: 'border-amber-800' }
-      case 'p4': return { bg: 'bg-blue-900/15', border: 'border-blue-800' }
-      default:   return { bg: 'bg-gray-900/10', border: 'border-gray-800' }
+      case 'p1': return { bg: 'bg-cyan-900/15', border: 'border-cyan-800', title: 'text-cyan-300' }
+      case 'p2': return { bg: 'bg-violet-900/15', border: 'border-violet-800', title: 'text-violet-300' }
+      case 'p3': return { bg: 'bg-amber-900/15', border: 'border-amber-800', title: 'text-amber-300' }
+      case 'p4': return { bg: 'bg-blue-900/15', border: 'border-blue-800', title: 'text-blue-300' }
+      default:   return { bg: 'bg-gray-900/10', border: 'border-gray-800', title: 'text-gray-300' }
     }
+  }
+
+  const getSessionNumber = (slug: string) => {
+    const m = slug?.match(/^S(\d+)/)
+    return m ? parseInt(m[1], 10) : undefined
+  }
+
+  const handleStartSession = (materiaSlug: string, dimSlug: string, sessSlug: string) => {
+    try {
+      const next = new Set(visited)
+      next.add(sessSlug)
+      setVisited(next)
+      localStorage.setItem('visitedSessions', JSON.stringify(Array.from(next)))
+    } catch {}
+    navigate(`/forja/${materiaSlug}/${dimSlug}/${sessSlug}`)
   }
 
   const expandAll = () => {
@@ -136,7 +160,7 @@ export default function PerformanceLandingPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <button className="btn btn-secondary btn-sm" onClick={() => setExpandedPrograms((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}>{isOpenProg ? '−' : '+'}</button>
-                  <button className="text-left text-lg font-semibold text-white hover:text-cyan-300" onClick={() => setExpandedPrograms((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}>{g.name}</button>
+                  <button className={`text-left text-lg font-semibold hover:text-cyan-300 ${getProgramStyle(g.key).title}`} onClick={() => setExpandedPrograms((prev) => ({ ...prev, [g.key]: !prev[g.key] }))}>{g.name}</button>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full border ${g.badge}`}>Programa</span>
               </div>
@@ -182,15 +206,18 @@ export default function PerformanceLandingPage() {
                                     <div className="mt-3 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {d.sessions.map((s) => (
                                         <div key={s.id} className={`bg-gray-950 border rounded-lg p-3 ${style.border}`}>
-                                          <div className="text-white font-semibold text-sm mb-1">{s.name}</div>
-                                          <div className="text-xs text-gray-400">{s.slug}</div>
+                                          <div className="text-xs text-gray-400 mb-1">Sesión {getSessionNumber(s.slug) ?? ''}</div>
+                                          <div className="font-semibold text-sm mb-1 cursor-pointer text-cyan-300 hover:text-cyan-200" onClick={() => handleStartSession(m.slug, d.slug, s.slug)}>{s.name}</div>
+                                          <div className="text-[11px] text-gray-500">{s.slug}</div>
                                           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                                             {m.hasVoice && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Voz</span>)}
                                             {m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-emerald-900/20 text-emerald-400 border-emerald-800">✓ Chat</span>)}
                                             {!m.hasVoice && !m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-gray-800 text-gray-500 border-gray-700">IA inactiva</span>)}
                                           </div>
                                           <div className="mt-3">
-                                            <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/forja/${m.slug}/${d.slug}/${s.slug}`)}>Comenzar sesión</button>
+                                            <button className={`btn btn-secondary btn-sm ${visited.has(s.slug) ? 'bg-emerald-900/30 border-emerald-800 text-emerald-300' : ''}`} onClick={() => handleStartSession(m.slug, d.slug, s.slug)}>
+                                              {visited.has(s.slug) ? 'Continuar' : 'Comenzar sesión'}
+                                            </button>
                                           </div>
                                         </div>
                                       ))}
