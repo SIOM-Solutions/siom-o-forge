@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { getSessionContent, type LpItemContent } from '../../lib/getSessionContent'
+import { useAuth } from '../../contexts/AuthContext'
+import { loadUserLearningPath, type LpMateria } from '../../services/lp'
 
 export default function ForjaSessionPage() {
   const { materiaSlug, dimensionSlug, sessionSlug } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [context, setContext] = useState<{ session?: any; dimension?: any; materia?: any } | null>(null)
@@ -14,6 +18,8 @@ export default function ForjaSessionPage() {
   const [sidePinned, setSidePinned] = useState(false)
   const [activeType, setActiveType] = useState<'gamma'|'video'|'link'|'document'|'all'|'lp'>('all')
   const [activeIdx, setActiveIdx] = useState(0)
+  const [lpMaterias, setLpMaterias] = useState<LpMateria[]>([])
+  const [lpLoading, setLpLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -102,6 +108,25 @@ export default function ForjaSessionPage() {
     load()
     return () => { cancelled = true }
   }, [sessionSlug])
+
+  // Cargar snapshot del LP del usuario para la pestaña "LP"
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      if (!user?.id) return
+      setLpLoading(true)
+      try {
+        const data = await loadUserLearningPath(user.id)
+        if (!cancelled) setLpMaterias(data)
+      } catch {
+        if (!cancelled) setLpMaterias([])
+      } finally {
+        if (!cancelled) setLpLoading(false)
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [user?.id])
 
   const breadcrumb = useMemo(() => {
     const m = context?.materia?.slug || materiaSlug
@@ -212,6 +237,16 @@ export default function ForjaSessionPage() {
     if (t === 'link') return 'Enlaces'
     if (t === 'document' || t === 'pdf') return 'Documentos'
     return 'Otros'
+  }
+
+  const getProgramMeta = (materiaSlugLocal: string) => {
+    const match = materiaSlugLocal?.match(/^M(\d+)_/)
+    const idx = match ? parseInt(match[1], 10) : 999
+    if (idx >= 1 && idx <= 3) return { key: 'p1', name: 'Programa 1' }
+    if (idx >= 4 && idx <= 6) return { key: 'p2', name: 'Programa 2' }
+    if (idx >= 7 && idx <= 9) return { key: 'p3', name: 'Programa 3' }
+    if (idx === 10) return { key: 'p4', name: 'Programa 4' }
+    return { key: 'px', name: 'Otros' }
   }
   return (
     <>
@@ -332,7 +367,34 @@ export default function ForjaSessionPage() {
               ))}
 
               {activeType==='lp' && (
-                <div className="text-xs text-gray-500">(Mini‑LP: se integrará a continuación)</div>
+                <div className="space-y-2">
+                  {lpLoading && (<div className="text-xs text-gray-500">Cargando LP…</div>)}
+                  {!lpLoading && lpMaterias.length === 0 && (<div className="text-xs text-gray-500">(LP vacío)</div>)}
+                  {!lpLoading && lpMaterias.length > 0 && (
+                    <div className="space-y-3">
+                      {lpMaterias.map((m) => (
+                        <div key={m.id}>
+                          <div className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">{getProgramMeta(m.slug).name} · {m.name}</div>
+                          <ul className="space-y-1">
+                            {m.dimensions.map((d) => (
+                              <li key={d.id}>
+                                <div className="text-[11px] text-gray-400 mb-1">{d.name}</div>
+                                <div className="grid grid-cols-1 gap-1">
+                                  {d.sessions.map((s) => (
+                                    <button key={s.id} className="w-full text-left px-2 py-1 rounded border border-gray-700 text-gray-300 bg-gray-900/60 hover:bg-gray-900"
+                                            onClick={() => navigate(`/forja/${m.slug}/${d.slug}/${s.slug}`)}>
+                                      <span className="text-xs">{s.name}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
