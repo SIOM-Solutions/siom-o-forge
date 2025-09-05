@@ -59,7 +59,14 @@ export default function ForjaSessionPage() {
         let k: any[] = []
         try {
           const content: LpItemContent = await getSessionContent(sessionSlug)
-          a = Array.isArray(content.assets) ? content.assets.map((x: any) => ({ kind: x.type, title: x.title, url: x.url, position: x.position })) : []
+          a = Array.isArray(content.assets)
+            ? content.assets.map((x: any, idx: number) => ({
+                kind: resolveKind(x.type, x.url),
+                title: x.title,
+                url: x.url,
+                position: x.position ?? idx,
+              }))
+            : []
           k = Array.isArray(content.kpis) ? content.kpis : []
         } catch {
           // Fallback a tabla plana si la RPC no existe o falla
@@ -69,7 +76,14 @@ export default function ForjaSessionPage() {
               .select('kind, title, url, position')
               .eq('session_id', sc.id)
               .order('position', { ascending: true })
-            if (!aErr && Array.isArray(tabAssets) && tabAssets.length) a = tabAssets
+            if (!aErr && Array.isArray(tabAssets) && tabAssets.length) {
+              a = tabAssets.map((x: any, idx: number) => ({
+                kind: resolveKind(x.kind, x.url),
+                title: x.title,
+                url: x.url,
+                position: x.position ?? idx,
+              }))
+            }
           } catch {}
         }
 
@@ -148,18 +162,43 @@ export default function ForjaSessionPage() {
     return h * 3600 + mnt * 60 + s
   }
 
+  const youTubeThumb = (url: string): string | null => {
+    try {
+      const u = new URL(url.replace(/^@+/, ''))
+      let id = ''
+      if (u.hostname.includes('youtu.be')) {
+        id = u.pathname.slice(1)
+      } else if (u.hostname.includes('youtube.com')) {
+        if (u.pathname.includes('/watch')) id = u.searchParams.get('v') || ''
+        else if (u.pathname.includes('/shorts/')) id = u.pathname.split('/shorts/')[1]
+        else if (u.pathname.includes('/embed/')) id = u.pathname.split('/embed/')[1]
+      }
+      return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null
+    } catch { return null }
+  }
+
+  const resolveKind = (type: string, url: string): 'gamma'|'video'|'link'|'document' => {
+    const t = (type || '').toLowerCase()
+    const raw = (url || '').trim()
+    const u = raw.replace(/^@+/, '').toLowerCase()
+    if (u.includes('gamma.app') || t.includes('gamma')) return 'gamma'
+    if (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('vimeo.com') || /\.(mp4|webm|mov)(\?|$)/.test(u) || t.includes('video')) return 'video'
+    if (u.endsWith('.pdf') || t.includes('document') || t.includes('pdf')) return 'document'
+    return 'link'
+  }
+
   const renderAsset = (asset?: { kind: string; url: string }) => {
     if (!asset || !asset.url) return (
       <div className="h-[60vh] bg-gray-900 flex items-center justify-center text-gray-500">(Sin contenido asignado)</div>
     )
     const kind = (asset.kind || '').toLowerCase()
-    const url = asset.url
+    const url = asset.url.replace(/^@+/, '')
     const isYouTube = /youtube\.com|youtu\.be/.test(url)
     if (kind === 'gamma' || (kind === 'link' && /gamma\.app/.test(url))) {
       const embed = toGammaEmbed(url)
       return <iframe src={embed} className="w-full h-[60vh]" allow="fullscreen; clipboard-write;" allowFullScreen />
     }
-    if (kind === 'video') {
+    if (kind === 'video' || (kind === 'link' && isYouTube)) {
       if (isYouTube) {
         const ytUrl = toYouTubeEmbed(url)
         return <iframe src={ytUrl} className="w-full h-[60vh]" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
