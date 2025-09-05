@@ -98,6 +98,7 @@ export default function ForjaSessionPage() {
           setContext({ session: sc, dimension: dc, materia: mc })
           setAssets(a || [])
           setKpis(k || [])
+          try { if (sessionSlug) localStorage.setItem(`kpiPlan:${sessionSlug}`, String((k || []).length || 0)) } catch {}
           setActiveIdx(0)
         }
       } catch (e: any) {

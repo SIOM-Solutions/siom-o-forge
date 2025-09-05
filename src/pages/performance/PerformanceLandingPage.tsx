@@ -272,9 +272,23 @@ export default function PerformanceLandingPage() {
                                             {!m.hasVoice && !m.hasChat && (<span className="px-2 py-0.5 rounded-full border bg-gray-800 text-gray-500 border-gray-700">IA inactiva</span>)}
                                           </div>
                                           <div className="mt-3">
-                                            <button className={`btn btn-secondary btn-sm ${visited.has(s.slug) ? 'bg-emerald-900/30 border-emerald-800 text-emerald-300' : ''}`} onClick={() => handleStartSession(m.slug, d.slug, s.slug)}>
-                                              {visited.has(s.slug) ? 'Continuar' : 'Comenzar sesión'}
-                                            </button>
+                                            {(() => {
+                                              let planned = 0
+                                              try { const raw = localStorage.getItem(`kpiPlan:${s.slug}`); if (raw) planned = parseInt(raw,10)||0 } catch {}
+                                              let done = 0
+                                              try { const raw = localStorage.getItem(`kpiDone:${s.slug}`); if (raw) done = (JSON.parse(raw)||[]).length } catch {}
+                                              const completed = planned>0 && done>=planned
+                                              if (completed) {
+                                                return (
+                                                  <span className="px-3 py-1 text-xs rounded border bg-emerald-900/30 border-emerald-700 text-emerald-300">Sesión completada ({done}/{planned} KPIs)</span>
+                                                )
+                                              }
+                                              return (
+                                                <button className={`btn btn-secondary btn-sm ${visited.has(s.slug) ? 'bg-emerald-900/30 border-emerald-800 text-emerald-300' : ''}`} onClick={() => handleStartSession(m.slug, d.slug, s.slug)}>
+                                                  {visited.has(s.slug) ? 'Continuar' : 'Comenzar sesión'}
+                                                </button>
+                                              )
+                                            })()}
                                           </div>
                                         </div>
                                       ))}
