@@ -11,6 +11,8 @@ export default function ForjaSessionPage() {
   const [assets, setAssets] = useState<Array<{ kind: string; title?: string; url: string; position?: number }>>([])
   const [kpis, setKpis] = useState<Array<{ id: number; position: number; text: string; required: boolean }>>([])
   const [sideOpen, setSideOpen] = useState(false)
+  const [sidePinned, setSidePinned] = useState(false)
+  const [activeType, setActiveType] = useState<'gamma'|'video'|'link'|'document'|'all'|'lp'>('all')
   const [activeIdx, setActiveIdx] = useState(0)
 
   useEffect(() => {
@@ -106,6 +108,46 @@ export default function ForjaSessionPage() {
     return url
   }
 
+  const toYouTubeEmbed = (url: string) => {
+    try {
+      const u = new URL(url)
+      let id = ''
+      let start = 0
+      if (u.hostname.includes('youtu.be')) {
+        id = u.pathname.slice(1)
+        const t = u.searchParams.get('t')
+        if (t) start = parseYTTimeToSeconds(t)
+      } else if (u.hostname.includes('youtube.com')) {
+        if (u.pathname.includes('/watch')) {
+          id = u.searchParams.get('v') || ''
+          const t = u.searchParams.get('t')
+          const s = u.searchParams.get('start')
+          if (t) start = parseYTTimeToSeconds(t)
+          else if (s) start = parseInt(s, 10) || 0
+        } else if (u.pathname.includes('/embed/')) {
+          id = u.pathname.split('/embed/')[1]
+          const s = u.searchParams.get('start')
+          if (s) start = parseInt(s, 10) || 0
+        }
+      }
+      if (!id) return url
+      const qs = start > 0 ? `?start=${start}` : ''
+      return `https://www.youtube.com/embed/${id}${qs}`
+    } catch { return url }
+  }
+
+  const parseYTTimeToSeconds = (t: string) => {
+    // accepts formats like '90', '90s', '1m30s', '1h2m3s'
+    if (/^\d+$/.test(t)) return parseInt(t, 10)
+    const re = /(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/i
+    const m = t.match(re)
+    if (!m) return 0
+    const h = parseInt(m[1] || '0', 10)
+    const mnt = parseInt(m[2] || '0', 10)
+    const s = parseInt(m[3] || '0', 10)
+    return h * 3600 + mnt * 60 + s
+  }
+
   const renderAsset = (asset?: { kind: string; url: string }) => {
     if (!asset || !asset.url) return (
       <div className="h-[60vh] bg-gray-900 flex items-center justify-center text-gray-500">(Sin contenido asignado)</div>
@@ -115,12 +157,12 @@ export default function ForjaSessionPage() {
     const isYouTube = /youtube\.com|youtu\.be/.test(url)
     if (kind === 'gamma' || (kind === 'link' && /gamma\.app/.test(url))) {
       const embed = toGammaEmbed(url)
-      return <iframe src={embed} className="w-full h-[60vh]" allow="fullscreen; clipboard-write;" />
+      return <iframe src={embed} className="w-full h-[60vh]" allow="fullscreen; clipboard-write;" allowFullScreen />
     }
     if (kind === 'video') {
       if (isYouTube) {
-        const ytUrl = url.includes('embed') ? url : url.replace('watch?v=', 'embed/')
-        return <iframe src={ytUrl} className="w-full h-[60vh]" allow="autoplay; fullscreen; picture-in-picture" />
+        const ytUrl = toYouTubeEmbed(url)
+        return <iframe src={ytUrl} className="w-full h-[60vh]" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
       }
       return <video className="w-full h-[60vh] bg-black" controls src={url} />
     }
@@ -220,8 +262,8 @@ export default function ForjaSessionPage() {
     {/* Barra lateral con pestañita (overlay derecha) */}
     <div
       className="fixed top-1/2 -translate-y-1/2 right-0 z-50"
-      onMouseEnter={() => setSideOpen(true)}
-      onMouseLeave={() => setSideOpen(false)}
+      onMouseEnter={() => !sidePinned && setSideOpen(true)}
+      onMouseLeave={() => !sidePinned && setSideOpen(false)}
     >
       <div className={`transition-all duration-300 ease-out ${sideOpen ? 'w-80' : 'w-3'} bg-gray-950/90 border-l border-gray-800 backdrop-blur-md rounded-l-xl overflow-hidden shadow-xl`}>
         {/* Pestañita visible siempre */}
@@ -232,12 +274,22 @@ export default function ForjaSessionPage() {
         )}
         {sideOpen && (
           <div className="p-3">
-            <div className="text-xs text-gray-400 mb-2">Contenidos de la sesión</div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs text-gray-400">Contenidos de la sesión</div>
+              <button className={`text-[10px] px-2 py-0.5 rounded border ${sidePinned?'border-emerald-700 text-emerald-300':'border-gray-700 text-gray-400'}`} onClick={()=>setSidePinned(v=>!v)}>{sidePinned?'Fijado':'Fijar'}</button>
+            </div>
+
+            {/* Tabs de tipo */}
+            <div className="flex items-center gap-2 mb-3">
+              {['all','gamma','video','link','document','lp'].map((t) => (
+                <button key={t} onClick={()=>setActiveType(t as any)} className={`text-[11px] px-2 py-0.5 rounded border ${activeType===t?'border-cyan-700 text-cyan-300 bg-cyan-900/10':'border-gray-700 text-gray-400 hover:text-gray-300'}`}>{t==='all'?'Todos':(t==='lp'?'LP':kindLabel(t))}</button>
+              ))}
+            </div>
             {Object.keys(groupedAssets).length === 0 && (
               <div className="text-xs text-gray-500">Sin contenidos</div>
             )}
             <div className="space-y-3 max-h-[70vh] overflow-auto pr-1">
-              {Object.entries(groupedAssets).map(([k, items]) => (
+              {Object.entries(groupedAssets).filter(([k])=> activeType==='all' || k===activeType).map(([k, items]) => (
                 <div key={k}>
                   <div className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">{kindLabel(k)}</div>
                   <ul className="space-y-1">
@@ -254,6 +306,10 @@ export default function ForjaSessionPage() {
                   </ul>
                 </div>
               ))}
+
+              {activeType==='lp' && (
+                <div className="text-xs text-gray-500">(Mini‑LP: se integrará a continuación)</div>
+              )}
             </div>
           </div>
         )}
