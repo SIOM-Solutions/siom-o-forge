@@ -14,6 +14,7 @@ export default function ForjaSessionPage() {
   const [context, setContext] = useState<{ session?: any; dimension?: any; materia?: any } | null>(null)
   const [assets, setAssets] = useState<Array<{ kind: string; title?: string; url: string; position?: number }>>([])
   const [kpis, setKpis] = useState<Array<{ id: number; position: number; text: string; required: boolean }>>([])
+  const [kpiDone, setKpiDone] = useState<Set<number>>(new Set())
   const [sideOpen, setSideOpen] = useState(false)
   const [sidePinned, setSidePinned] = useState(false)
   const [activeType, setActiveType] = useState<'gamma'|'video'|'link'|'document'|'all'|'lp'>('all')
@@ -108,6 +109,26 @@ export default function ForjaSessionPage() {
     load()
     return () => { cancelled = true }
   }, [sessionSlug])
+
+  // Cargar KPIs completados (local) por sesión
+  useEffect(() => {
+    try {
+      if (!sessionSlug) return
+      const raw = localStorage.getItem(`kpiDone:${sessionSlug}`)
+      if (raw) setKpiDone(new Set(JSON.parse(raw)))
+      else setKpiDone(new Set())
+    } catch { setKpiDone(new Set()) }
+  }, [sessionSlug])
+
+  const toggleKpi = (id: number) => {
+    try {
+      const next = new Set(kpiDone)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      setKpiDone(next)
+      if (sessionSlug) localStorage.setItem(`kpiDone:${sessionSlug}` , JSON.stringify(Array.from(next)))
+    } catch {}
+  }
 
   // Cargar snapshot del LP del usuario para la pestaña "LP"
   useEffect(() => {
@@ -299,12 +320,20 @@ export default function ForjaSessionPage() {
             </div>
 
             <div className="hud-card p-4">
-              <div className="text-white font-semibold mb-2">KPIs de la sesión</div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white font-semibold">KPIs de la sesión</div>
+                <div className="text-xs text-gray-400">{kpiDone.size}/{kpis.length} completados</div>
+              </div>
               {kpis.length ? (
                 <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
                   {kpis.sort((a,b)=> (a.position??0)-(b.position??0)).map((k)=> (
                     <li key={k.id} className="flex items-start gap-2">
-                      <span>{k.text}</span>
+                      <button
+                        className={`mt-0.5 w-4 h-4 rounded border ${kpiDone.has(k.id) ? 'bg-emerald-600 border-emerald-500' : 'border-gray-600 bg-gray-900'}`}
+                        aria-label={kpiDone.has(k.id) ? 'Quitar completado' : 'Marcar como completado'}
+                        onClick={() => toggleKpi(k.id)}
+                      />
+                      <span className={`${kpiDone.has(k.id)?'text-emerald-300':''}`}>{k.text}</span>
                       {k.required && (<span className="text-amber-300 text-xs">(obligatorio)</span>)}
                     </li>
                   ))}
