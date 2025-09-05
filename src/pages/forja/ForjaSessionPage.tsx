@@ -261,11 +261,11 @@ export default function ForjaSessionPage() {
     </div>
     {/* Barra lateral con pestañita (overlay derecha) */}
     <div
-      className="fixed top-1/2 -translate-y-1/2 right-0 z-50"
+      className="fixed top-0 right-0 z-50 h-screen"
       onMouseEnter={() => !sidePinned && setSideOpen(true)}
       onMouseLeave={() => !sidePinned && setSideOpen(false)}
     >
-      <div className={`transition-all duration-300 ease-out ${sideOpen ? 'w-80' : 'w-3'} bg-gray-950/90 border-l border-gray-800 backdrop-blur-md rounded-l-xl overflow-hidden shadow-xl`}>
+      <div className={`transition-all duration-300 ease-out ${sideOpen ? 'w-[32rem]' : 'w-4'} h-full bg-gray-950/90 border-l border-gray-800 backdrop-blur-md rounded-l-xl overflow-hidden shadow-xl`}>
         {/* Pestañita visible siempre */}
         {!sideOpen && (
           <div className="h-40 w-3 flex items-center justify-center cursor-pointer">
